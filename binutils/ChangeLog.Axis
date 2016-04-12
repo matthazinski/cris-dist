@@ -1,0 +1,29 @@
+2005-03-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* configure: Change all "trap 0" to "trap - 0".
+
+2002-06-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* All: Import of FSF-binutils-2_12_1.
+
+2002-02-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* All: Import of FSF-binutils-2002-02-01-snapshot.
+
+2000-12-07  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Add missing executable access on "missing".
+
+2000-11-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ltmain.sh (-all-static): Handle -static as all-static.  Comment
+	out -static case and explain why.
+
+2000-07-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config.guess (case *:Linux:*:*, case elf_i?86: Remove this
+	case.
+
+	* config.sub (os): Recognize "axis" as manufacturer.
+	(basic_machine): Recognize cris and etrax* as cris-axis.
+

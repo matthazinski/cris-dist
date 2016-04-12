@@ -1,0 +1,1084 @@
+2007-03-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_VERSION): R64.
+	* linux.h (CRIS_SUBTARGET_VERSION): Adjust for v32.
+
+2006-01-26  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (MEM_P): Define.
+
+2005-06-16  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_VERSION): R62.
+
+2005-03-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_VERSION): R61.
+
+2004-10-14  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_VERSION): R60.
+
+	Import this change from main GCC CVS:
+	2004-10-14  Hans-Peter Nilsson  <hp@axis.com>
+	PR target/17984
+	* config/cris/cris.md (asrandb, asrandw, lsrandb, lsrandw): Apply
+	trunc_int_for_mode for constants used in shortened mode.
+
+2004-09-27  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (ASSERT_PLT_UNSPEC): Fix typo checking for number of
+	unspec.
+	* cris.md (CRIS_UNSPEC_PLT, CRIS_UNSPEC_SIBCALL): New
+	define_constants.  Replace all unspec 0 with unspec
+	CRIS_UNSPEC_PLT.
+	("sibcall", "sibcall_value"): Add unspec to expansion.
+	("*expanded_sibcall", "*expanded_sibcall_value"): Match only when
+	unspec CRIS_UNSPEC_SIBCALL is attached.
+
+	* cris.h (TARGET_VERSION): R59.
+
+	Import this change from main GCC CVS:
+	2004-09-23  Hans-Peter Nilsson  <hp@axis.com>
+	PR target/17626
+	* config/cris/cris.md (moverside, movemside): With MEM, make sure
+	the address is (plus reg mem).
+
+2004-09-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_VERSION): R58.
+
+	Import this change from main GCC CVS:
+	2004-09-23  Hans-Peter Nilsson  <hp@axis.com>
+	PR target/17626
+	* config/cris/cris.md (moverside, movemside): Rename variable
+	"reg" to "otherop".  To generate canonical RTX, check that otherop
+	isn't constant instead of checking that operand 1 is a register.
+
+2004-09-14  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_function_ok_for_sibcall): Expand comment.
+	* cris.md ("*expanded_sibcall", "*expanded_sibcall_value"):
+	Correct endregno parameter in call to refers_to_regno_p.  Remove
+	code-coverage abort.
+
+2004-09-09  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_VERSION): R57.
+
+2004-09-08  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.md: Tweak formatting.
+	(asrandb, asrandw, lsrandb, lsrandw, moversideqi, movemsideqi)
+	(mover2side, moverside, movemside, movei, op3, andu): Replace
+	live define_peephole:s with define_peephole2 near-equivalents.
+	Delete the rest.
+	("*mov_sidesisf_biap"): Rename from "*mov_sidesi_biap".  Match all
+	word-size modes.
+	("*mov_sidesisf", "*mov_sidesisf_biap_mem", "*mov_sidesisf_mem"):
+	Similar for "*mov_sidesi", "*mov_sidesi_biap_mem" and
+	"*mov_sidesi_mem" respectively.
+	("return"): Also check cris_return_address_on_stack.
+	("sibcall_epilogue", "sibcall", "*expanded_sibcall")
+	("sibcall_value", "*expanded_sibcall_value"): Define.
+	* cris.h (OPTIMIZATION_OPTIONS): Turn off flag_gcse at all
+	optimization levels.
+	(FUNCTION_ARG): Qualify known version where comment applies.
+	(FUNCTION_INCOMING_ARG): Check for void_type_node.
+	(FUNCTION_OK_FOR_SIBCALL: Define.
+	* cris.c (cris_target_asm_function_prologue): Emit dwarf2 frame
+	label after the text prologue.
+	(cris_target_asm_function_epilogue_1): Renamed from
+	cris_target_asm_function_epilogue.  Add parameters for_sibcall and
+	pinter has_delay_slot. Statement of existence of an unfilled
+	delay-slot in the epilogue in has_delay_slot and adjust layout for
+	a sibcall depending on for_sibcall.
+	(cris_target_asm_function_epilogue): Change to be a wrapper for
+	cris_target_asm_function_epilogue_1.
+	(cris_return_address_on_stack): New accessor function.
+	(cris_side_effect_mode_ok): Don't exclude cases where a normal add
+	or sub with the same size would do.
+	(cris_function_ok_for_sibcall)
+	(cris_output_sibcall_epilogue): New functions. 
+	* cris-protos.h (cris_function_ok_for_sibcall)
+	(cris_return_address_on_stack)
+	(cris_output_sibcall_epilogue): Prototype.
+
+2004-03-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_VERSION): R56.
+
+2004-02-29  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_asm_output_mi_thunk): For PIC, prepend TAB to
+	jumping "add.d" insn.  Avoid PLT indirection by equating a local
+	symbol and jumping through it.
+
+2003-12-16  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_VERSION): R55.
+
+	* aout.h (SET_STRIPPABLE_EXECUTABLE): Reintroduce.
+
+2003-10-16  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_VERSION): R54.
+
+2003-05-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_VERSION): R53.
+	(LIB_SPEC, STARTFILE_SPEC, ENDFILE_SPEC): Correct for -sim3.
+
+	* cris.md: See ../../ChangeLog.Axis.
+
+2003-03-07  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_VERSION): R52.
+
+2002-12-19  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Import of gcc-3.2.1.  Overwrite local changes except for sim3
+	support and version info and these changes:
+	* cris.h (CPP_SPEC): Remove -$.
+	(OPTIMIZATION_OPTIONS): Clear flag_reorder_blocks.
+	* linux.h (CRIS_LINK_SUBTARGET_SPEC): For each -L, add a
+	-rpath-link.  Don't provide default -rpath-link if -nostdlib.
+	Tweak default -rpath-link.
+	* arit.c (do_31div): Attribute __always_inline__.
+	[(L_udivsi3 || L_divsi3) && !L_udivsi3] (__Udiv): Ditto.
+	[(L_umodsi3 || L_modsi3) && !L_umodsi3] (__Udiv): Ditto.
+	* aout.h (ENDFILE_SPEC): Undefine.
+
+2002-11-24  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_VERSION): R45.
+	(ENDFILE_SPEC): Don't treat -sim3 specially.
+	(STARTFILE_SPEC): Treat -sim3 as -sim2.
+
+2002-11-11  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_VERSION): R44.
+
+	(LINK_SPEC, STARTFILE_SPEC, ENDFILE_SPEC): Handle -sim3.
+
+2002-09-05  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_VERSION): R43.
+
+	* cris.c (cris_return_addr_rtx): Correct for absence of
+	frame-pointer.  Be sorry() for failing with
+	flag_inline_functions.
+
+2002-08-15  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_VERSION): R42.
+
+2002-07-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_VERSION): R41.
+
+2002-07-02  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_VERSION): R40.
+	(LEGITIMIZE_RELOAD_ADDRESS): Correct number of indirections for
+	register inside sign-extended mem part.
+
+2002-06-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_VERSION): R39.
+
+2002-06-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.md ("sleu"): Set attribute "cc" to "none".
+
+2002-04-05  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (LINK_SPEC): Tweak to avoid outputting options twice for
+	-mlinux -shared.
+	(STARTFILE_SPEC): Simplify slightly.
+	(ENDFILE_SPEC): Ditto.  Fix typo last change.
+
+2002-04-04  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_override_options): s/-fPIC only/-fPIC and -fpic are
+	only/.
+
+2002-04-03  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (STARTFILE_SPEC, ENDFILE_SPEC): Let -shared imply -mlinux.
+
+2002-04-02  Hans-Peter Nilsson  <hp@axis.com>
+
+	* t-cris (MULTILIB_MATCHES): Let -shared imply -mlinux.
+	* cris.h (LINK_SPEC, LIB_SPEC): Let -shared imply -mlinux.
+	(TARGET_VERSION): R38.
+
+2001-11-30  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_VERSION): R37.
+
+	* cris.c: Tweak spacing for prototypes.
+	(LOSE_AND_RETURN): New macro.
+	(cris_operand_lossage): New function.
+	(cris_print_index, cris_print_base): Use cris_operand_lossage
+	rather than fatal_insn.
+	(cris_print_operand, cris_print_operand_address): Use
+	LOSE_AND_RETURN rather than fatal_insn and fatal.
+	(cris_output_addr_const): Use LOSE_AND_RETURN and
+	output_operand_lossage rather than fatal_insn and fatal
+	for valid but unexpected rtx expressions.
+
+	* cris.c (cris_notice_update_cc): Check first
+	destination also against overlap with cc_status.value2 and second
+	destination against overlap with cc_status.value1.  For overlaps,
+	clear overlapped value, don't just CC_STATUS_INIT.
+
+2001-11-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (EXTRA_CONSTRAINT_T): Fix spacing and check FIXME.
+
+2001-10-24  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_VERSION): R36.
+	(LIB_SPEC): Move -lpthread before -lc.
+	* cris.c (cris_output_cdtor_postfix): Remove unused function.
+
+2001-08-09  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_VERSION): R35.
+
+2001-08-08  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.md (casesi+37, the peephole below "FIXME: Get rid of as
+	many of the splits and peepholes as possible"): Correct operands
+	in output template.  Tweak comment.
+
+2001-06-07  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_VERSION): R34.
+
+2001-05-16  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_reg_overlap_mentioned_p): Don't abort when IN is
+	STRICT_LOW_PART.  Don't strip STRICT_LOW_PART from X.
+
+2001-05-15  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (CPP_SPEC) [mlinux, melinux]: Emit command-line -isystem
+	options before synthesized isystem option.
+
+2001-05-09  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (CPP_SPEC): For -mlinux, add -D_REENTRANT if -pthread.
+	(LIB_SPEC): For -mlinux, add -lpthread unless -shared.
+	(TARGET_VERSION): Bump.
+
+2001-05-02  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_VERSION): R33.
+
+2001-04-30  Hans-Peter Nilsson  <hp@axis.com>
+
+	* t-cris (STMP_FIXINC): Define empty.
+
+	* cris.c (Debug functions): Disable by changing #if 1 to #if 0.
+
+2001-04-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (CPP_SPEC, ASM_SPEC): Handle -mhack-in-fpic-for-mlinux as
+	-fpic if -mlinux.
+	(CC1_SPEC): Ditto.  Inject -fpic if -mhack-in-fpic-for-mlinux and
+	-mlinux.
+	(TARGET_SWITCHES): Handle -mhack-in-fpic-for-mlinux.
+	(TARGET_VERSION): Update for testing.
+	(NO_IMPLICIT_EXTERN_C): Do not define.
+	* t-cris (TARGET_LIBGCC2_CFLAGS): Add -mhack-in-fpic-for-mlinux.
+	(CRTSTUFF_T_CFLAGS_S): Don't add -fpic flag if -mlinux here.  Emit
+	-melf unless -mlinux.
+	(MULTILIB_OPTIONS, MULTILIB_DIRNAMES, MULTILIB_MATCHES): Do not
+	have separate multilib for -mlinux -fpic.
+	(MULTILIB_EXCEPTIONS): Delete.
+
+	* cris.md ("adddi3") <third alternative, 'P'>: Correct.  Add
+	comment.
+	("subdi3"): Ditto.
+	* cris.c (cris_print_operand) <case 'A', case 'D'>: New.
+
+	* aoutxtor.c: Don't compile this code ifdef __linux__.
+
+2001-04-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	* t-cris (TARGET_LIBGCC2_CFLAGS): Add flag to find pthread.h in
+	unconfigured newlib.
+	(LIBGCC1_TEST): Define empty.
+	* cris.md: Document UNSPEC 0 usage.
+	("call", "call_value"): Change to define_expand; dress symbolic
+	addresses in UNSPEC 0 and force to register to enable CSE.
+	("*expanded_call", "*expanded_call_no_gotplt",
+	"*expanded_call_value", "*expanded_call_value_no_gotplt"): New
+	patterns.
+	* cris.h (CPP_SPEC): Handle -undef.
+	<mlinux>: Define *both* __PIC__ and __pic__ if either of -fpic or
+	-fPIC is given.
+	(ASM_SPEC): Always pass an --em=... option.
+	(LINK_SPEC): Always pass an -m... option.  Pass an -rpath-link
+	option for -mlinux.  Pass on -shared, ditto -static.  Transform
+	-rdynamic to -export-dynamic.
+	(LIB_SPEC) <mlinux>: Do not link in libsyslinux.a and libic.a.
+	(STARTFILE_SPEC, ENDFILE_SPEC) <mlinux>: Handle -shared.
+	(TARGET_MASK_AVOID_GOTPLT, TARGET_AVOID_GOTPLT): New macros.
+	(TARGET_SWITCHES): Add "no-gotplt" and "gotplt".
+	(EXTRA_CONSTRAINT_T): Mark FIXME.
+	(ASM_FILE_END): Don't emit an IDENT_ASM_OP.
+	(HAVE_GAS_HIDDEN): Define.
+	(ASM_OUTPUT_LABELREF): Define.
+	* cris-protos.h (cris_mem_call_operand): New prototypes.
+	(cris_general_operand_or_plt_symbol, cris_cfun_uses_pic_table,
+	cris_encode_section_info, cris_strip_name_encoding): Ditto.
+	* cris.c: Include ggc.h.
+	(ASSERT_PLT_UNSPEC): Change from CRIS_GOT_NAME.
+	(cris_pic_sympart_only): New variable.
+	(cris_general_operand_or_plt_symbol): New predicate.
+	(cris_mem_call_operand): New predicate.
+	(cris_print_operand) <case UNSPEC>: New case.
+	(cris_override_options): Do not emit error for -fpic.
+	Set flag_no_function_cse to 1 if flag_pic.
+	(cris_asm_output_mi_thunk): Used "add.d" for PIC and add
+	CRIS_PLT_PCOFFSET_SUFFIX.
+	(cris_encode_section_info): New function with contents of
+	ENCODE_SECTION_INFO.  Don't change name of any PIC symbol.
+	(cris_strip_name_encoding): New function with contents of
+	STRIP_NAME_ENCODING.
+	(Xvecexp): New debug function.
+
+2001-03-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (SETUP_INCOMING_VARARGS) [TARGET_PDEBUG]: Output info as
+	comment to asm_out_file, not stderr.
+	(TARGET_SWITCHES): Revive -mpdebug, -mno-pdebug.
+	(HAVE_GAS_HIDDEN): Define.
+	* t-cris (EXTRA_MULTILIB_PARTS): Add crtbeginS.o and crtendS.o.
+	(CRTSTUFF_T_CFLAGS_S): Define.
+	(MULTILIB_MATCHES): Add -shared as a synonym for -fPIC.
+
+2001-01-11  Hans-Peter Nilsson  <hp@axis.com>
+
+	PIC support.  Bug fixes.  Smallish improvements.
+	* t-cris (MULTILIB_OPTIONS): Add -fPIC multilib.
+	(MULTILIB_DIRNAMES): Name for -fPIC is PIC.
+	(MULTILIB_EXCEPTIONS): Exclude all combinations with -fPIC except
+	for -mlinux.
+	* cris.md: Add FIXME:s for PIC improvements.
+ 	("movsi"): Change to define_expand; adjust an invalid
+	global PIC and mark use of pic_offset_table for LABEL_REF.
+	Change predicate for operand 1 to cris_general_operand_or_symbol.
+	("*movsi_internal"): Old movsi.  Add alternative to match local
+	pic symbol.  Change predicate of operand 1 to
+	cris_general_operand_or_local_pic_symbol.
+	("extendsidi2", "extendhidi2", "extendqidi2"): Change to shorter
+	sequence.
+	("uminsi3"): Correct predicate of operand 1 to general_operand.
+	("nop"): Actually output a nop.
+	("return"): Adjust for saving PIC_OFFSET_TABLE_REGNUM not
+	signalled through regs_ever_live.
+	* cris.h (CPP_SPEC): Define __PIC__ if -fPIC and -mlinux.
+	(CC1_SPEC): If -fPIC, don't pass -ffunction-sections
+	-fdata-sections for -mbest-lib-options.
+	(ASM_SPEC): Pass --pic for -fPIC.
+	(TARGET_MASK_LINUX, TARGET_LINUX): New macros.
+	(TARGET_SWITCHES): Add in TARGET_MASK_LINUX for -mlinux.
+	(CONDITIONAL_REGISTER_USAGE): Define.
+	(EXTRA_CONSTRAINT): Use letters 'S' and 'U'.
+	(EXTRA_CONSTRAINT_S, EXTRA_CONSTRAINT_U): New macros.
+	(CONSTANT_INDEX_P): Not true if this is a symbol and PIC.
+	(GO_IF_LEGITIMATE_ADDRESS): Adjust for PIC.
+	(CONST_COSTS): Adjust cost of CONST and SYMBOL_REF to PIC.
+	(ENCODE_SECTION_INFO): If PIC, code into SYMBOL_REF_FLAG whether
+	an object symbol is local (set) or not (unset), and add a PLT
+	suffix to the symbol for global functions.
+	(PIC_OFFSET_TABLE_REGNUM): Define.
+	(LEGITIMATE_PIC_OPERAND_P): Define.
+	(PREDICATE_CODES): Add cris_general_operand_or_gotless_symbol
+	and cris_general_operand_or_symbol.
+	* cris.c (cris_no_pic_register): New variable.
+	(CRIS_GOT_NAME): New macro.
+	(cris_bdap_operand): Adjust for PIC; a CONSTANT_P must not be a
+	symbol.
+	(cris_general_operand_or_symbol): New predicate.
+	(cris_general_operand_or_gotless_symbol): New predicate.
+	(cris_conditional_register_usage): New function.
+	(cris_print_index): Use cris_output_addr_const.
+	(cris_function_prologue): Adjust for PIC.  Save PIC register if
+	used or the next register needs saving; set up PIC register.
+	(cris_function_epilogue): Adjust for PIC.  Restore PIC register if
+	saved or the next register was saved.
+	(cris_print_operand) <case 'v', case 'P'>: New cases.  Use
+	cris_output_addr_const.
+	(cris_print_operand_address): Use cris_output_addr_const.
+	(cris_initial_frame_pointer_offset): Adjust for PIC; count in PIC
+	register if saved or the next register was saved.
+	(cris_simple_epilogue): Ditto.
+	(cris_address_cost): Return double cost for a symbol if global
+	PIC.
+	(cris_side_effect_mode_ok): When PIC, a symbol is not a valid
+	constant.
+	(cris_legitimate_pic_operand, cris_symbol, cris_gotless_symbol,
+	cris_got_symbol, cris_output_addr_const): New functions.
+	(cris_override_options): Emit error for -fpic.  Emit error for
+	-fPIC if not -mlinux.
+	(cris_asm_output_mi_thunk): If PIC, append ":PLT" to jumped-to
+	function name.
+	* cris-protos.h (cris_conditional_register_usage,
+	cris_legitimate_pic_operand, cris_gotless_symbol,
+	cris_got_symbol, cris_symbol, cris_output_addr_const,
+	cris_general_operand_or_symbol,
+	cris_general_operand_or_gotless_symbol): New prototypes.
+
+2001-01-11  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_override_options): Tweak last debug format warning
+	message.
+
+2001-01-10  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_VERSION): R32.
+
+	* cris.c (cris_override_options) <flag_function_sections and
+	flag_data_sections check>: Tweak warning message.
+	Also check debugging format and reset to DBX if not emitting ELF.
+
+2000-12-21  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_VERSION): Tweak order to identify pre-releases.
+
+2000-12-05  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_function_epilogue): Flush out non-movem:ed
+	registers before writing new ones or movem into save_last.
+
+2000-11-29  Hans-Peter Nilsson  <hp@axis.com>
+
+	* t-cris (MULTILIB_MATCHES): Provide for v11 as a synonym to v10.
+
+2000-11-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h [__CRIS__ and __AOUT__]: Make undefined reference to
+	.$CRIS_ABI_V2.
+	(TARGET_VERSION): R31.
+
+	* arit.c: Include config.h.
+	* t-cris (LIB2FUNCS_EXTRA): Add tmpabi_symbol.c.
+	(tmpabi_symbol.c): Create from cris_abi_symbol.c.
+	* cris_abi_symbol.c: New, only defining .$CRIS_ABI_V2.
+	Include config.h
+
+2000-11-27  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (CPP_SPEC): Add -D__CRIS_ABI_version=2.
+
+2000-11-21  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c: Tweak formatting.
+	(Get_code, Get_mode, Xexp, Get_rtx_len): Rename from get_code,
+	get_mode, xexp, get_rtx_len.
+	(Get_code, Get_mode, Xexp, Get_rtx_len, Next_insn, Prev_insn):
+	Make non-static and move inside #if 0.
+
+	* cris.h: Tweak comments.  Correct formatting.
+	(CPP_SPEC): Add "-$".
+	(CC1_SPEC): Add leading space to handle foreachness of "|".
+	(ASM_SPEC): Change to use "|" constructs.
+	(LINK_SPEC): Change to generate ELF by default.
+	(TARGET_MASK_PROLOGUE_EPILOGUE, TARGET_MASK_ETRAX4_ADD,
+	TARGET_MASK_ALIGN_BY_32, TARGET_MASK_ELF): Shift down to fill the
+	hole after TARGET_MASK_USED_STRINGS.
+	(TARGET_SWITCHES): Add support for TARGET_CPU_DEFAULT.
+	(TARGET_CPU_DEFAULT): New, default 0.
+	(ASM_FILE_START): Correct condition for #NO_APP, emit #APP if not.
+
+	* cris.md: Tweak comments.
+	("extendsidi2"): Add FIXME for better code-sequence.
+
+	* t-cris: Tweak obsolete comments.  Correct comments since ELF is
+	generated by default.
+	(FLOAT_H): Remove redundant setting.
+
+	* arit.c (__Mul): Tweak comment for v10.
+
+2000-11-05  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (__cris__call_atexit_funcs): Correct prototype.
+	* cris.c (saved_regs_mentioned, cris_output_cdtor_postfix):
+	Prototype.
+	(cris_op_str): Change to return const char *.
+	(get_code, get_mode, xexp, get_rtx_len, Next_insn, Prev_insn):
+	Prototype.
+	* cris-protos.h: Adjust cris_op_str prototype.
+
+	* arit.c [__CRIS_arch_version >= 3] (LZ): Define.
+	[LZ] (do_31div): Correct LZ usage.
+
+2000-11-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (SET_STRIPPABLE_EXECUTABLE): Define.
+
+2000-10-31  Hans-Peter Nilsson  <hp@axis.com>
+
+	* arit.c (__Mul): Return a * b when multiply insn available.
+
+	* t-cris (TARGET_LIBGCC2_CFLAGS): Do not use -mlibfunc.
+	* cris.h (TARGET_MASK_LIBFUNC, TARGET_LIBFUNC): Delete.
+	(TARGET_MASK_PDEBUG, TARGET_MASK_SIDE_EFFECT_PREFIXES,
+	TARGET_MASK_EXPAND_MUL, TARGET_MASK_STACK_ALIGN,
+	TARGET_MASK_CONST_ALIGN, TARGET_MASK_DATA_ALIGN): Bump down all
+	values one bit.
+	(TARGET_SWITCHES): Delete "libfunc" and "no-libfunc".
+
+2000-10-25  Hans-Peter Nilsson  <hp@axis.com>
+
+	Changes to pass 64-bit parameters by-value, not by-reference;
+	making -mlibfunc obsolete.
+	* cris.h (FUNCTION_ARG): Use NULL_RTX, not (rtx) 0.
+	(FUNCTION_INCOMING_ARG): Do not check TARGET_LIBFUNC.
+	(FUNCTION_ARG_PARTIAL_NREGS): New.
+	(FUNCTION_ARG_PASS_BY_REFERENCE): Check size > 8, not size > 4.
+	Don't check TARGET_LIBFUNC.
+	(struct cum_args): Drop member lib.  All references removed.
+	(SETUP_INCOMING_VARARGS): Do not set cris_first_vararg_reg.
+	* cris.c (cris_first_vararg_reg): Delete.
+	(cris_function_prologue): Use current_function_pretend_args_size,
+	not cris_first_vararg_reg, to find out which varargs registers to
+	push.
+	(cris_expand_builtin_va_arg): Check for size > 8, not size > 4 to
+	find out what is passed as a pointer.
+
+2000-10-19  Hans-Peter Nilsson  <hp@axis.com>
+
+	* t-cris: Adjust to use fp-bit for both SFmode and DFmode.
+	Adjust to use 64-bit doubles.
+	* cris.h (DOUBLE_TYPE_SIZE): Do not define.
+	* gfloat.h: Delete.
+
+	* cris.h (DWARF_FRAME_REGNUM): Define.
+	(DWARF_FRAME_REGISTERS): Remove.
+
+2000-10-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (DWARF_FRAME_REGISTERS): Define.
+
+2000-10-10  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.md ("*casesi_adds_w", "mulsidi3", "umulsidi3",
+	"smulsi3_highpart", "umulsi3_highpart"): Add "$" to register
+	output.
+	("return"): Ditto.  Use reg_names[], not "r%d".
+	* cris.c (cris_print_index): Add "$" to register output.
+	(cris_print_base, cris_function_epilogue): Ditto.
+	(cris_print_operand, cris_asm_output_mi_thunk): Ditto.
+	(cris_function_prologue): Ditto.  Use reg_names[], not "r%d".
+	* cris.h (CPP_SPEC) [-mlinux, ! -fleading-underscore, ! -maout ||
+	-melf]: Pass "-fno-leading-underscore -D__NO_UNDERSCORES__".
+	(CC1_SPEC) [-mlinux, ! -fleading-underscore, ! -maout || -melf]:
+	Pass "-fno-leading-underscore".
+	(ASM_SPEC): [-mlinux, ! -fleading-underscore, ! -maout || -melf]:
+	Pass --no-underscore.
+	(REGISTER_PREFIX): Define.
+	(ASM_OUTPUT_REG_PUSH): Add "$".
+	(ASM_OUTPUT_REG_POP): Ditto.
+	(TRAMPOLINE_TEMPLATE): Ditto.  Use reg_names[], not "r%d".
+
+2000-10-09  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (CRIS_CANONICAL_SRP_REGNUM, CRIS_CANONICAL_MOF_REGNUM):
+	New.
+	(DWARF_CIE_DATA_ALIGNMENT): Define.
+	(DBX_REGISTER_NUMBER): Correct SRP number to
+	CRIS_CANONICAL_SRP_REGNUM.
+
+2000-09-29  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (CPP_SPEC): Define __CRIS_arch_version according to
+	-march=*, -mcpu=*, with default for -mlinux.
+	[melinux]: Do not define underscore-less names or assertions if
+	-std=* given.
+
+2000-09-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (OPTIMIZATION_OPTIONS): Unset flag_strict_aliasing (again)
+ 	by default, for all optinmization levels.
+
+2000-09-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* t-cris (LIBGCC1, CROSS_LIBGCC1): Unset.
+	(LIB2FUNCS_EXTRA): Add libgcc1.txt.
+	(TARGET_LIBGCC2_CFLAGS): Remove -mtune=v8.  Fold line.
+	(EXTRA_PARTS): Do not define this...
+	(EXTRA_MULTILIB_PARTS): ...instead define this.
+	(CRTSTUFF_T_CFLAGS): Add -moverride-best-lib-options.
+	(MULTILIB_OPTIONS, MULTILIB_DIRNAMES, MULTILIB_MATCHES,
+	MULTILIB_EXTRA_OPTS, INSTALL_LIBGCC, LIBGCC): Define.
+	(tmplibgcc1.a): Remove target.
+	(libgcc1.txt, %_libgcc1_cris.o): New.
+	(crtbegin2.o): Prefix with $(T).
+
+	* xm-cris.h: Trim comments.  Name Axis Communications AB as
+	contributor.
+	(POSIX): Redefine.
+
+	* crtbegin2.c: Declare __do_global_ctors as weak.
+	Tweak test for atexit registration to handle undefined
+	__init__start and __do_global_ctors.
+
+	* cris.h: Tweak comments.
+	(CPP_SPEC): Handle -mlinux.  Handle -mbest-lib-options and
+	-moverride-best-lib-options.
+	(CC1_SPEC): Similar.
+	(CC1PLUS_SPEC): Define as empty placeholder with comment.
+	(ASM_SPEC): Let -melf override.
+	(LINK_SPEC): Remove non-multilib special-B-handling.
+	Handle -mlinux, -melf, -march=v10.
+	Translate -O2, -O3 into --gc-sections.
+	(LIB_SPEC): Handle -melinux.
+	(STARTFILE_SPEC): Handle -mlinux.  Remove non-multilib
+	special-B-handling.
+	(ENDFFILE_SPEC): Handle -mlinux.
+	(TARGET_SWITCHES): Remove -mno-aout" and -mno-elf.  Tweak texts
+	for -melf and -maout.  Handle -mlinux.  Noop for
+	-mbest-lib-options and -moverride-best-lib-options.
+	(OPTIMIZATION_OPTIONS): Do not unset flag_strict_aliasing.
+
+	* cris.c: Name self as author.
+
+	* aoutxtor.c: Tweak comment.
+	(__aout__ctors): Move initialized-test to __do_global_ctors and
+	just be an alias.
+	(__do_global_ctors): Test for non-zero __fini__start, !=
+	__do_global_dtors, before registering it with atexit.
+	Add emacs "Local variables" blurb.
+
+2000-07-14  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h: Tweak spacing.  Fix some warnings.
+	Include elfos.h and undef nonapplicable macros.
+	Remove macros where elfos.h provides sufficient definition. 
+	Adjust many macros etc. for ELF, in particular:
+	(cris_next_int_is_cdtor): Declare.
+	(CC1_SPEC): If ELF, pass -melf.
+	(ASM_SPEC): If ELF, pass --em=criself.
+	(LINK_SPEC): If linking to ELF, pass -mcriself.
+	(STARTFILE_SPEC): If linking to ELF, crtbegin.o and crtbegin2.o.
+	(ENDFILE_SPEC): New.
+	(TARGET_USED_STRINGS): Don't do if ELF.
+	(TARGET_MASK_ELF, TARGET_ELF): New.
+	(TARGET_SWITCHES): Add -melf, -maout, -mno-elf, -mno-aout.
+	(REG_CLASS_CONTENTS): Add braces.
+	(EH_FRAME_SECTION_ASM_OP, EH_FRAME_INFO_IN_DATA_SECTION,
+	USE_CONST_SECTION, CTORS_SECTION_FUNCTION, DTORS_SECTION_FUNCTION,
+	UNIQUE_SECTION_P, EH_FRAME_SECTION, EXCEPTION_SECTION,
+	ASM_OUTPUT_CONSTRUCTOR, ASM_OUTPUT_DESTRUCTOR,
+	ASM_OUTPUT_SECTION_NAME, UNALIGNED_SHORT_ASM_OP,
+	UNALIGNED_INT_ASM_OP, UNALIGNED_DOUBLE_INT_ASM_OP, NAME__MAIN,
+	SYMBOL__MAIN, NM_FLAGS, LOCAL_LABEL_PREFIX, USER_LABEL_PREFIX,
+	DWARF_LINE_MIN_INSTR_LENGTH): Define.
+	(ASM_OUTPUT_INT): Add (temporary) constructor/destructor kludgery.
+	(ASM_OUTPUT_LABELREF): Remove, use default.
+	(CRIS_ASM_OUTPUT_ALIGNED_DECL_COMMON): Factor out common parts.
+	(ASM_OUTPUT_ALIGNED_DECL_COMMON): Use
+	CRIS_ASM_OUTPUT_ALIGNED_DECL_COMMON.
+	(ASM_OUTPUT_ALIGNED_LOCAL): Ditto.
+	(ASM_OUTPUT_LOCAL): Do not define.
+	(TARGET_VERSION): R30a.
+
+	* cris.c: Adjust many functions for ELF.
+ 	(struct cris_deferred_string): Rename from struct
+	cris_deferred_string_struct_type.
+	(struct cris_cdtor): New.
+	(ctors, dtors): New.
+	(cris_fix_op): Remove.
+	(cris_next_int_is_cdtor): New.
+	(cris_asm_output_constructor): New.
+	(cris_asm_output_destructor): New.
+	(cris_output_cdtor_postfix): New.
+	(cris_output_cdtors): New.
+	(cris_asm_output_section_name): New.
+	(cris_override_options): Guard against a.out and
+	flag_function_sections or flag_data_sections.
+
+	* cris-protos.h (cris_asm_output_constructor): Declare.
+	(cris_asm_output_destructor): Declare.
+	(cris_output_cdtors): Declare.
+	(cris_asm_output_section_name): Declare.
+	(cris_initial_elimination_offset): Declare.
+	(cris_incoming_frame_sp_offset): Remove declaration.
+
+	* t-cris (EXTRA_PARTS): Add machinery to compile crtbegin2.c and
+	aoutxtor.c.
+	(EXTRA_PARTS): Define.
+	(CRTSTUFF_T_CFLAGS): Define.
+	(tmplibgcc1.a): Add _FOR_TARGET to usage of RANLIB and
+	RANLIB_TEST.
+	(LIB2FUNCS_EXTRA): 
+
+	* crtbegin2.c: New.
+	* aoutxtor.c: New.
+
+Tue Jun 13 21:39:24 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_VERSION): R30.
+	(DBX_STATIC_STAB_DATA_SECTION): Do not define.
+
+Sun May  7 15:42:54 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* t-cris (FPBIT): Do not define; use floatlib.c for yet a little
+	time.
+	(LIB2FUNCS_EXTRA): Add tmplibgcc_fp_bit.c.
+	(tmplibgcc_fp_bit.c): Renamed from tmplibgcc-fp-bit.c
+	(myfloatlib.c): Revive.
+
+Fri May  5 03:35:59 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_deferred_string_added): Only allocate and copy when
+	there was no previous string at entry.
+	Call fatal if a previous string is not the same.
+
+	* README.AXIS: Delete.
+
+Wed May  3 15:53:02 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (CPP_SPEC): Set __arch_v8 for -metrax100.
+ 	Set __arch_v3 for -metrax4.
+
+Mon May  1 02:30:37 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (LIB_SPEC): Revert; use %{B*:-L%*}, not %D.
+	Clarify why in comment.
+
+	* t-cris (USE_COLLECT2): New.
+
+Sat Apr 29 03:41:29 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (OPTIMIZATION_OPTIONS): Do not set flag_strict_aliasing
+	from optimization options.
+
+	* cris.md (comment about no DImode moves): Update.
+
+Fri Apr 28 14:15:36 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-protos.h (cris_adjust_ops): Delete.
+
+	* cris.c (cris_address_cost): Handle reg + reg.
+	Adjust FIXME:s.
+	(cris_adjust_ops, cris_fix_op): Delete.
+	(cris_override_options): Make init_machine_status initialization
+	unconditional.
+
+	* t-cris (libarit.a): Rename to tmplibgcc1.a.  All referers
+	changed.  Build temporary in tmplibgcc1-tmp.a
+	(AR_FOR_TARGET, RANLIB_TEST_FOR_TARGET): Delete.
+
+	* cris.h: Move introductory comment describing the lack of
+	"documentation" comments to after copyright notice.
+	(MAX_FIXED_MODE_SIZE): Update commentary.
+	(CLASS_MAX_NREGS): Update commentary.
+	(ARG_POINTER_REGNUM): Tweak commentary.
+	(FINAL_PRESCAN_INSN): Delete.
+ 	(LIB_SPEC): Repeat "-lc -lsyslinux" and "-lc -lsyssim".
+	(LINK_SPEC): Map -v to --verbose.
+
+Fri Apr 28 05:51:12 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (struct machine_function): Do not define.
+	(INIT_EXPANDERS): New.
+
+	* cris.c: #include exception.h before function.h
+	(struct machine_function): Define here.
+	(cris_current_function_needs_return_address_on_stack): New
+	variable.
+	(cris_function_prologue): Use
+	cris_current_function_needs_return_address_on_stack, not
+	cfun->machine.
+	(cris_delay_slots_for_epilogue): Ditto.
+	(cris_function_epilogue): Ditto.
+	(cris_return_addr_rtx): Ditto.
+	(cris_override_options) [current_function_name]: #ifdef on setting
+	init_machine_status.
+	(cris_init_expanders): New.
+	(cris_save_machine_status): New.
+	(cris_restore_machine_status): New.
+
+	* cris-protos.h (cris_init_expanders): Add prototype.
+
+Fri Apr 28 04:15:19 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-protos.h (cris_arg_pointer_cfa_offset): Remove.
+	* cris.c (cris_arg_pointer_cfa_offset): Remove.
+	Do not include ggc.h.
+
+	* cris.h (ARG_POINTER_CFA_OFFSET): Do not define.
+
+Thu Apr 27 03:03:16 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* t-cris (LIBGCC2_DEPS): Delete obsoleted macro.
+	(myfloatlib.c, myfp-bit.c): Delete.
+	(FPBIT, DPBIT, tmplibgcc-fp-bit.c): New.
+
+	* cris.h (DEFAULT_VTABLE_THUNKS): Set to 0 until bug with multiple
+	virtual inheritance is fixed.
+
+	* cris.c (cris_function_prologue): Correct DWARF2 offset of saved
+	registers.
+
+Wed Apr 26 04:46:29 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* t-cris (STMP_FIXPROTO): Delete SUPPORTS_WEAK definition.
+
+	* cris.h (TARGET_MASK_SVINTO): Add FIXME.
+	(TARGET_MASK_SUPPORTS_WEAK): Delete.
+	(TARGET_MASK_ALIGN_BY_32): Now 4096.
+	(TARGET_SWITCHES) [etrax100]: Add TARGET_MASK_ALIGN_BY_32.
+	[elinux]: Ditto.
+	Delete weak flags.
+	(TARGET_DEFAULT): Delete weak bit.
+	(FIRST_PSEUDO_REGISTER): Now 18.
+	(FIXED_REGISTERS): New register is fixed.
+	(CALL_USED_REGISTERS): New register is call-used.
+	(REG_ALLOC_ORDER): New register is allocated last.
+	(REG_CLASS_CONTENTS): New register is general.
+	(REGNO_OK_FOR_BASE_P): True for ARG_POINTER_REGNUM.
+	(REGNO_OK_FOR_INDEX_P): Just invoke REGNO_OK_FOR_BASE_P.
+	(FIRST_PARM_OFFSET): Now 0.
+	(INCOMING_FRAME_SP_OFFSET): Delete.
+	(ARG_POINTER_REGNUM): Now new register 17.
+	(INITIAL_FRAME_POINTER_OFFSET): Delete.
+	(ELIMINABLE_REGS): New.
+	(CAN_ELIMINATE): New.
+	(INITIAL_ELIMINATION_OFFSET): New.
+	(REG_OK_FOR_BASE_P): True for ARG_POINTER_REGNUM.
+	(REG_OK_FOR_INDEX_P): Just call REG_OK_FOR_BASE_P.
+	(ASM_OUTPUT_LONG_DOUBLE): Use REAL_VALUE_TYPE and accessors, not
+	unions.
+	(ASM_OUTPUT_FLOAT): Ditto.
+	(ASM_OUTPUT_POOL_PROLOGUE): Lose poison.
+	(ASM_OUTPUT_ALIGNED_DECL_COMMON): Change disabled warning to
+	larger-than multiple of 4.
+	Adjust for TARGET_ALIGN_BY_32.
+	(ASM_OUTPUT_LOCAL): Adjust for TARGET_ALIGN_BY_32.
+	(SUPPORTS_WEAK): Now 1.
+	(REGISTER_NAMES): New register is "faked_ap".
+
+	* cris.c: #include "recog.h".  Lose extern declarations.
+	Declare cris_initial_frame_pointer_offset as static.
+	(cris_function_prologue): Lose kludge adjustments.
+	(cris_function_epilogue): Correspondingly.
+	(cris_print_operand): Use REAL_VALUE_TYPE and accessors, not
+	unions.
+	(cris_incoming_frame_sp_offset): Delete.
+	(cris_initial_elimination_offset): New.
+	(cris_expand_builtin_va_arg): Delete unused variable indirect.
+
+	* cris-protos.h (cris_initial_frame_pointer_offset): No longer
+	extern.
+
+Tue Apr 25 14:26:27 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (ASM_OUTPUT_ALIGNED_DECL_COMMON): Define this, not
+	ASM_OUTPUT_ALIGNED_COMMON, to handle alignment requests.
+
+Tue Apr 25 01:48:34 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* t-cris (FLOAT_H): Define this...
+	(CROSS_FLOAT_H): ...not this.
+	(RANLIB_TEST_FOR_TARGET): New.
+
+	* cris.h (CRIS_FUNCTION_ARG_SIZE): Split on two lines.
+	(CPP_SPEC): Define __tune_X and __arch_X to vN for aliases to vN.
+	(TARGET_DEFAULT): Support weak by default.
+	(RETURN_ADDR_RTX): Remove obsolete comment.
+	(DWARF_FRAME_RETURN_COLUMN): New.
+	(FUNCTION_ARG): Use FUNCTION_ARG_PASS_BY_REFERENCE.
+	(FUNCTION_INCOMING_ARG): Ditto.
+	(FUNCTION_ARG_ADVANCE): Ditto.
+	(INCOMING_FRAME_SP_OFFSET): Define.
+	(ARG_POINTER_CFA_OFFSET): New.
+
+	* cris.c (cris_function_prologue): Emit dwarf2 unwind info about
+	saved registers.
+	(cris_incoming_frame_sp_offset): New.
+	(cris_arg_pointer_cfa_offset): New.
+
+	* cris-protos.h (cris_incoming_frame_sp_offset): Declare.
+	(cris_arg_pointer_cfa_offset): Declare.
+
+Thu Apr 20 05:17:31 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (LIB_SPEC) [! sim, ! melinux]: Link with -lbsp.
+
+Mon Apr 17 00:53:26 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-protos.h (cris_expand_builtin_va_arg): Declare.
+
+	* cris.h (CPP_SPEC): Do not define any of __etrax100__ and
+	__ETRAX100__.
+	(LINK_SPEC): Use %D, not %{B*:-L%*}
+	(LIB_SPEC) [melinux]: Add -lsyslinux before -lic.
+	[sim*, ! melinux]: Change -lsc to -lc -lsyssim.
+	[! melinux]: Add -lnosys after all libraries.
+	(STARTFILE_SPEC) [melinux, B]: Change @SEARCH_LIBPATH@crt0.o to
+	-L elinux/lib%s crt0.o.
+	(INCLUDE_DEFAULTS): Remove.
+
+Sat Apr 15 15:23:56 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (STARTFILE_SPEC): Remove "-verilog" switch.
+	(EXPAND_BUILTIN_VA_ARG): Define.
+
+	* cris.c (cris_expand_builtin_va_arg): New.
+
+	* gfloat.h: New.
+
+	* t-cris (CROSS_FLOAT_H): New.
+	(USER_H): Delete override.
+
+Wed Apr 12 21:41:42 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (NEED_ATEXIT): Do not define.
+
+Sat Apr  8 02:30:12 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (WORD_SWITCH_TAKES_ARG): Use
+	DEFAULT_WORD_SWITCH_TAKES_ARG.
+
+Sun Apr  2 02:14:41 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_deferred_strings_ggc_mark): Deleted.
+	(cris_override_options): Don't call ggc_add_root.
+  	Explain why not necessary.
+	(cris_print_operand) [case 's']: Reset cris_output_insn_is_bound.
+
+Sat Apr  1 23:17:39 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* floatlib.c (__nesf2, __lesf2, __ltsf2, __gesf2, __gtsf2,
+	__eqsf2): Test for NaN.
+	(__unordsf2): New.
+
+Thu Mar 30 03:35:45 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (ACCUMULATE_OUTGOING_ARGS): Now has value, 1.
+
+Tue Mar 28 03:31:51 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.md ("*casesi_adds_w", "casesi" expansion): Change to use
+	if_then_else as the source, as this is what jump.c expects and
+	looks after for correct label handling.
+
+	* cris.h (SIMPLE_ADDRESS_P): Revert last change.
+	(ASM_OUTPUT_CASE_END): Adjust for new *casesi_adds_w appearance.
+
+	* cris.c (cris_print_operand) [case 'H': case MEM]: Don't adjust a
+	(MEM: (POST_INC reg)).
+
+Sat Mar 25 02:23:50 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* t-cris (libarit.a): Use AR_FOR_TARGET, not AR.
+
+	* cris.md ("ashrsi3", "lshrsi3", "ashlsi3", "ashlhi3", "ashlqi3"):
+	Constrain limits of constant argument to 0..31 using 'K'.
+	("indirect_jump"): Do not recognize a constant operand.
+
+	* cris.h (FUNCTION_INCOMING_ARG): Wrap argument in parenthesis.
+	(TRAMPOLINE_TEMPLATE): Fix typo: "t" to "\t".
+	(SIMPLE_ADDRESS_P): Add parameter MODE.  All callers changed.
+	Reject modes larger than register size for postincrement.
+
+	* cris.c (cris_fix_op): Except STRICT_LOW_PART from (poisoned)
+	mode-adjustments.
+	(cris_output_deferred_strings): Don't poison unused strings.
+
+Thu Mar 23 16:36:36 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.md: ("casesi" expansion): Swap order to make jump-table the
+	last label_ref.  Document failing testcase.
+
+	* cris.h (REG_S_P): Do not poison.  Document failing testcase.
+	(HARD_REGNO_NREGS): Ditto.
+	(struct machine_function): New.
+	(RETURN_ADDR_RTX): Call cris_return_addr_rtx.
+	(FUNCTION_ARG): Check for void_type_node before calling
+	MUST_PASS_IN_STACK.
+
+	* cris.c (cris_side_effect_mode_ok): Changed name from
+	side_effect_mode_ok.  All callers changed.
+	Parenthesize for warning.
+	(cris_return_addr_rtx): New.
+	(cris_init_machine_status): New.
+	(cris_function_prologue): Adjust for cfun->machine reflecting that
+	return address need to be put on stack.
+	(cris_delay_slots_for_epilogue): Ditto.
+	(cris_function_epilogue): Ditto.
+	(cris_notice_update_cc): Use gen_rtx_MINUS, gen_rtx_MEM, not
+	gen_rtx.
+	(cris_fix_op): Except CALL from (poisoned) mode-adjustments.
+	Check that x against HOST_BITS_PER_WIDE_INT before doing (1 << x).
+	Use GEN_INT, not gen_rtx (CONST_INT
+	(cris_deferred_string_added): Remove unused variables.
+	Poison unused strings.
+	(cris_override_options): Set init_machine_status to
+	cris_init_machine_status.
+
+	* arit.c: GNUify.
+
+	* t-cris (LANGUAGES, INSTALL_TARGET, install-cris-common): Remove
+	specials.
+
+Wed Mar 22 02:37:17 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris.md ("movsi"): Make operand 0 nonimmediate_operand.
+	("movhi"): Ditto.
+	("movstricthi"): Ditto.
+	("movqi"): Ditto.
+	("movstrictqi"): Ditto.
+	("movsf"): Ditto.
+	("*expanded_call_value"): Ditto.
+	("*casesi_adds_w"): Drop modes from operand 1 and 2.
+	("mstep_shift"): Complete modes on if_then_else expr.
+	("mstep_mul"): Ditto.
+	("umulhisi3"): Ditto.
+	("umulqihi3"): Ditto.
+	("mulhi3"): Ditto.
+	("mulqi3"): Ditto.
+	("dstep_shift"): Ditto.
+	("dstep_mul"): Ditto.
+	("negsf2"): Express 0x80000000 as (1 << 31) to avoid warnings.
+	("sgeu", "sltu", "seq", "sge", "sgt", "sgtu", "sle", "sleu",
+	"slt", "sne", ): Add SImode on condition.
+
+	* cris.h: Drop FIXME:s, adjust macros for new parameters and
+	definitions, constipate.
+	Move prototypes to cris-protos.h
+	(REG_S_P): Poison SUBREG test.
+	(NULL): Remove.
+	(HARD_REGNO_NREGS): Poison VOIDmode test.
+	(PREFERRED_RELOAD_CLASS): Update comment.
+	(RTX_COSTS): Pass correct parameters to rtx_cost.
+	(ASM_FILE_START): Move cris_init_deferred_strings call to
+	cris_override_options.
+	(NEED_ATEXIT): Define.
+
+	* cris.c: Correct #includes for gcc-2.9x.
+	Improve comments, kill FIXME:s.
+	(cris_fix_op): Prototype.
+	Poison actual mode and operand changes.
+	Skip when either operand is pc.
+	(cris_deferred_strings_ggc_mark): New.
+	(cris_max_stackframe_str, cris_cpu_str, cris_tune_str,
+	cris_elinux_stacksize_str): Constipate.
+	(cris_reg_overlap_mentioned_p): Poison difference from new
+	reg_overlap_mentioned_p.
+	(cris_init_deferred_strings): Drop FILE * parameter.
+	(cris_asm_output_mi_thunk): New.
+
+Tue Mar 21 23:16:49 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris-protos.h: New.
+	(FSF-gcc2_9x-CVS branch added, and special ChangeLog here)
+

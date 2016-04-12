@@ -1,0 +1,19 @@
+2003-06-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* configure.target: Handle crisv32-*-* like cris-*-*.
+
+2003-03-19  Hans-Peter Nilsson  <hp@axis.com>
+
+	* testsuite/lib/prune.exp: Prune "New and untested library
+	function".
+
+2003-03-14  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config/cpu/cris/bits/atomicity.h (__exchange_and_add): Add code
+	for __arch_common_v10_v32 and __CRIS_arch_version >= 32.
+
+2004-03-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* configure.target (cris-*-linux*): Set
+	enable_cxx_flags="-mno-mul-bug-workaround".
+

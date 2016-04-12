@@ -1,0 +1,41 @@
+2005-10-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge between head-before-040918-merge and
+	head-before-051028-merge.
+
+2003-12-16  Hans-Peter Nilsson  <hp@axis.com>
+
+	Merge from HEAD.
+	* ChangeLog.Axis: Move all v32-specific changes to
+	ChangeLog.Axis.v32.
+
+2003-06-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* configure.host: Handle crisv32 like cris.
+
+2003-06-25  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge from HEAD.
+
+	* libc/sys/cris/include/setjmp.h (longjmp) [__arch_common_v10_v32
+	|| __arch_v32]: Adjust for removal of "test" with register
+	operand.
+
+2003-03-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge from trunk to crisv32-branch.
+
+2002-05-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	* libc/sys/cris/include/setjmp.h (setjmp): Cater with extra "setf"
+	to assembling for __arch_common_v10_v32.
+	* libc/machine/cris/memcpy.c (memcpy): Ditto.  Don't use multiline
+	strings.
+	* libc/machine/cris/memmove.c (memmove): Ditto.
+	* libc/machine/cris/memset.c (memset): Ditto.
+
+2002-04-25  Hans-Peter Nilsson  <hp@axis.com>
+
+	* libc/sys/cris/include/setjmp.h (setjmp): Provide alternative
+	implementation for __arch_common_v10_v32 and __arch_v32.  Don't
+	use multiline strings.

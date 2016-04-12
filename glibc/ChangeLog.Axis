@@ -1,0 +1,372 @@
+2007-03-07  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge in crisv32-branch; between head-before-070222-v32-merge
+	and v32-before-070306-merge.
+
+2007-02-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* locale/gen-translit.pl: Use $ENV{BUILD_CC}, not "gcc".
+	* locale/Makefile (C-translit.h): Only regenerate ifeq
+	($(with-cvs),yes).
+
+2007-02-22  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/unix/sysv/linux/cris/bits/termios.h (B12500000): Define
+	(currently symbolic only - nonfunctional in current kernel).
+
+	* Backport these patches from sourceware.org CVS:
+	2004-04-16  Jakub Jelinek  <jakub@redhat.com>
+	* misc/syslog.c (vsyslog): Avoid freeing failbuf.
+	2004-09-12  Ulrich Drepper  <drepper@redhat.com>
+	* misc/syslog.c (vsyslog): Fix copying of PID in case of
+	out-of-memory situation.  [BZ #365].
+
+2005-10-27  Hans-Peter Nilsson  <hp@axis.com>
+
+	* stdlib/longlong.h [__CRIS__ && W_TYPE_SIZE == 32] (umul_ppmm)
+	(__umulsidi3, count_leading_zeros, count_trailing_zeros): Define.
+
+2005-10-27  Edgar E. Iglesias  <edgar@axis.com>
+
+	* sysdeps/cris/bits/byteswap.h: New file.
+
+2004-10-14  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/unix/sysv/linux/cris/syscall.S: Do not assume a fifth
+	argument is present, allocate stack for saving SRP separately.
+
+2004-09-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/unix/sysv/linux/cris/sysdep.h (LOAD_ARGS_c_1)
+	(LOAD_ARGS_c_2, LOAD_ARGS_c_3, LOAD_ARGS_c_4): Use temporary
+	non-asm variable when assigning to asm-declared register.
+
+2004-09-15  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/unix/sysv/linux/cris/fake-rpcgen-sh: New file.
+	* sysdeps/unix/sysv/linux/cris/Makefile [sunrpc]: Work around
+	cross-compilation exclusion of librpcsvc.a.
+	* sunrpc/Makefile (rpcgen-cmd): Wrap in ifndef.
+	* sysdeps/unix/sysv/linux/cris/rpcsvc/bootparam_prot.x.c,
+	sysdeps/unix/sysv/linux/cris/rpcsvc/bootparam_prot.x.h,
+	sysdeps/unix/sysv/linux/cris/rpcsvc/key_prot.x.c,
+	sysdeps/unix/sysv/linux/cris/rpcsvc/key_prot.x.h,
+	sysdeps/unix/sysv/linux/cris/rpcsvc/klm_prot.x.c,
+	sysdeps/unix/sysv/linux/cris/rpcsvc/klm_prot.x.h,
+	sysdeps/unix/sysv/linux/cris/rpcsvc/mount.x.c,
+	sysdeps/unix/sysv/linux/cris/rpcsvc/mount.x.h,
+	sysdeps/unix/sysv/linux/cris/rpcsvc/nfs_prot.x.c,
+	sysdeps/unix/sysv/linux/cris/rpcsvc/nfs_prot.x.h,
+	sysdeps/unix/sysv/linux/cris/rpcsvc/nlm_prot.x.c,
+	sysdeps/unix/sysv/linux/cris/rpcsvc/nlm_prot.x.h,
+	sysdeps/unix/sysv/linux/cris/rpcsvc/rex.x.c,
+	sysdeps/unix/sysv/linux/cris/rpcsvc/rex.x.h,
+	sysdeps/unix/sysv/linux/cris/rpcsvc/rquota.x.c,
+	sysdeps/unix/sysv/linux/cris/rpcsvc/rquota.x.h,
+	sysdeps/unix/sysv/linux/cris/rpcsvc/rstat.x.c,
+	sysdeps/unix/sysv/linux/cris/rpcsvc/rstat.x.h,
+	sysdeps/unix/sysv/linux/cris/rpcsvc/rusers.x.c,
+	sysdeps/unix/sysv/linux/cris/rpcsvc/rusers.x.h,
+	sysdeps/unix/sysv/linux/cris/rpcsvc/sm_inter.x.c,
+	sysdeps/unix/sysv/linux/cris/rpcsvc/sm_inter.x.h,
+	sysdeps/unix/sysv/linux/cris/rpcsvc/spray.x.c,
+	sysdeps/unix/sysv/linux/cris/rpcsvc/spray.x.h,
+	sysdeps/unix/sysv/linux/cris/rpcsvc/yppasswd.x.c,
+	sysdeps/unix/sysv/linux/cris/rpcsvc/yppasswd.x.h: New rpcgen:ed files.
+
+2004-03-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/cris/Makefile (sysdep-CFLAGS): Add
+	-mno-mul-bug-workaround.
+
+2003-10-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/cris/dl-machine.h (elf_machine_lookup_noplt_p):
+	Effectively revert last change.  Improve comment.
+
+2003-09-27  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Imported this change:
+	2002-02-18  Roland McGrath  <roland@frob.com>
+	* configure.in (base_machine): Set to $machine by default.
+	* configure: Regenerated.
+
+2003-09-17  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/cris/dl-machine.h: Tweak comments.
+	(elf_machine_lookup_noplt_p): Also match R_CRIS_GLOB_DAT.
+
+2003-06-24  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/unix/sysv/linux/cris/sysdep.h (INLINE_SYSCALL): Cast
+	returned value to long.  Fix by Uwe Reimann
+	<libc-alpha@pulsar.homelinux.net>.
+
+2003-01-27  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/unix/sysv/linux/bits/stat.h (struct stat): Move __pad1
+	and __pad2 inside #ifndef/else __USE_FILE_OFFSET64.  Use types
+	matching stat64.
+
+2002-12-19  Hans-Peter Nilsson  <hp@axis.com>
+
+	* configure.in (checking for
+	libc_cv_gcc_dwarf2_unwind_info=static): Handle need for -lgcc_eh.
+	(checking for libc_cv_gcc_dwarf2_unwind_info=yes): Ditto.
+	* configure: Regenerate.
+
+2002-10-29  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/unix/sysv/linux/cris/syscalls.list: Add fcntl, calling
+	fcntl64.
+
+2002-10-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* doconf: Update assumption from kernel 2.4.3 to 2.4.5.
+
+2002-09-05  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Import this change:
+	2001-05-21  Jakub Jelinek  <jakub@redhat.com>
+	* elf/dl-error.c (_dl_signal_error): Change NULL objname into "".
+
+2002-07-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/cris/setjmp.S (.Local__sigsetjmp): Explain why R0 isn't
+	set up when we do PLTJUMP.
+
+	* sysdeps/cris/sysdep.h (PLTJUMP): Comment special case for
+	PLTJUMP.
+
+	* sysdeps/cris/dl-machine.h (CALL_FN): Tweak comments.
+
+	* po/Makefile (BROKEN_LINGUAS): Add sk.
+
+	* sysdeps/cris/elf/start.S (_start): Tweak comment.
+
+2002-04-04  Hans-Peter Nilsson  <hp@axis.com>
+
+	* manual/stdio.texi: Import version 1.131 from FSF CVS, fixing
+	problems with makeinfo version >= 4.1.
+
+2001-11-13  Peter Kjellerstedt  <pkj@axis.com>
+	    Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/unix/sysv/linux/cris/bits/termios.h: New file, derived
+	from sysdeps/unix/sysv/linux/bits/termios.h with corrected
+	baudrate extension values.
+
+2001-08-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Makefile (Rules for configure, %/configure): Comment out.
+
+2001-07-02  Hans-Peter Nilsson  <hp@axis.com>
+
+	* po/Makefile (BROKEN_LINGUAS): Add zh_TW.
+	Import from FSF:
+	2001-04-24  Ulrich Drepper  <drepper@redhat.com>
+	* po/Makefile (distribute): Add $(BROKEN_LINGUAS:=.po).
+	2001-04-19  Andreas Jaeger  <aj@suse.de>
+	* po/Makefile (BROKEN_LINGUAS): New.
+	(ALL_LINGUAS): Don't add broken languages.
+
+2001-05-31  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/cris/bsd-_setjmp.S, sysdeps/cris/bsd-setjmp.S: Add
+	these files as placeholders.
+
+2001-05-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* doconf: Don't disable debug.
+
+	* sysdeps/cris/bits/setjmp.h: Note last slot as reserved.
+
+	* sysdeps/cris/sysdep.h (PLTCALL): Replace with simpler insn.
+
+	* sysdeps/cris/setjmp.S: Don't save CCR.  Replace with comment.
+
+2001-04-29  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/cris/memcpy.c, sysdeps/cris/memset.c: Update for change
+	of copyright holder.
+
+2001-04-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Makerules (REQUIRED_MAKE_VERSION): Sync with configure.in to 3.79.
+
+	* sysdeps/cris/bits/string.h [! __USE_STRING_INLINES]: Redefine
+	__NO_STRING_INLINES.
+
+	* sysdeps/cris/Makefile: Don't filter out math/test-fenv.c.
+
+	Include this change (note that it should be s/declaration/use/ for
+	correctness):
+	2001-04-10  Andreas Jaeger  <aj@suse.de>
+	* math/test-fenv.c (initial_tests): Protect FE_TONEAREST declaration.
+
+2001-04-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* doconf: Update to reflect current setup.
+
+	* sysdeps/generic/bits/fenv.h (fexcept_t): Change default type
+	from struct to unsigned int.
+
+	* sysdeps/unix/sysv/linux/cris/sysdep.h (CHECK_ARGS_asm_0,
+	CHECK_ARGS_asm_1, CHECK_ARGS_asm_2, CHECK_ARGS_asm_3,
+	CHECK_ARGS_asm_4, CHECK_ARGS_asm_5, CHECK_ARGS_asm_6): New macros.
+	(INLINE_SYSCALL): Add CHECK_ARGS_asm_##nr.
+	(LOAD_ARGS_asm_5, LOAD_ARGS_asm_6): Fix typos.
+
+	* sysdeps/unix/sysv/linux/cris/lockf64.c: Define __ASSUME_FCNTL64
+	before including i386 version.
+
+2001-04-10  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/unix/sysv/linux/cris/Dist (setresuid.c, setresgid.c,
+	setfsuid.c, setfsgid.c): Delete.
+	* sysdeps/unix/sysv/linux/cris/syscalls.list: New file.
+	* sysdeps/unix/sysv/linux/cris/getdents64.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/glob64.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/msgctl.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/readdir64.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/readdir64_r.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/scandir64.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/semctl.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/setegid.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/seteuid.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/shmctl.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/versionsort64.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/bits/resource.h: Delete.
+	* sysdeps/unix/sysv/linux/cris/getresgid.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/getresuid.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/getegid.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/geteuid.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/getgid.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/getgroups.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/getrlimit.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/getrlimit64.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/getuid.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/lchown.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/setfsgid.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/setfsuid.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/setgid.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/setgroups.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/setregid.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/setresgid.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/setresuid.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/setreuid.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/setrlimit.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/setuid.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/vfork.S: Delete.
+	* sysdeps/unix/sysv/linux/cris/chown.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/alphasort64.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/fchown.c: Delete.
+	* sysdeps/unix/sysv/linux/cris/fcntl.c: Delete.
+
+2001-04-09  Hans-Peter Nilsson  <hp@axis.com>
+
+	* NEWS: Mention Linux/CRIS port.
+	* manual/install.texi (Supported Configurations): Mention
+	Linux/CRIS port.
+	* README.template: Mention cris-*-linux-gnu.
+	* FAQ.in: Mention cris-*-linux-gnu.
+	* README: Regenerate.
+	* FAQ: Regenerate.
+
+	* sysdeps/unix/sysv/linux/cris/Dist: New file.
+	* sysdeps/unix/sysv/linux/cris/Makefile: New file.
+	* sysdeps/unix/sysv/linux/cris/_G_config.h: New file.
+	* sysdeps/unix/sysv/linux/cris/alphasort64.c: New file.
+	* sysdeps/unix/sysv/linux/cris/bits/fcntl.h: New file.
+	* sysdeps/unix/sysv/linux/cris/bits/mman.h: New file.
+	* sysdeps/unix/sysv/linux/cris/bits/resource.h: New file.
+	* sysdeps/unix/sysv/linux/cris/brk.c: New file.
+	* sysdeps/unix/sysv/linux/cris/chown.c: New file.
+	* sysdeps/unix/sysv/linux/cris/clone.S: New file.
+	* sysdeps/unix/sysv/linux/cris/fchown.c: New file.
+	* sysdeps/unix/sysv/linux/cris/fcntl.c: New file.
+	* sysdeps/unix/sysv/linux/cris/fxstat.c: New file.
+	* sysdeps/unix/sysv/linux/cris/getdents64.c: New file.
+	* sysdeps/unix/sysv/linux/cris/getegid.c: New file.
+	* sysdeps/unix/sysv/linux/cris/geteuid.c: New file.
+	* sysdeps/unix/sysv/linux/cris/getgid.c: New file.
+	* sysdeps/unix/sysv/linux/cris/getgroups.c: New file.
+	* sysdeps/unix/sysv/linux/cris/getresgid.c: New file.
+	* sysdeps/unix/sysv/linux/cris/getresuid.c: New file.
+	* sysdeps/unix/sysv/linux/cris/getrlimit.c: New file.
+	* sysdeps/unix/sysv/linux/cris/getrlimit64.c: New file.
+	* sysdeps/unix/sysv/linux/cris/getuid.c: New file.
+	* sysdeps/unix/sysv/linux/cris/glob64.c: New file.
+	* sysdeps/unix/sysv/linux/cris/lchown.c: New file.
+	* sysdeps/unix/sysv/linux/cris/lockf64.c: New file.
+	* sysdeps/unix/sysv/linux/cris/lxstat.c: New file.
+	* sysdeps/unix/sysv/linux/cris/mmap.S: New file.
+	* sysdeps/unix/sysv/linux/cris/mmap64.S: New file.
+	* sysdeps/unix/sysv/linux/cris/msgctl.c: New file.
+	* sysdeps/unix/sysv/linux/cris/profil-counter.h: New file.
+	* sysdeps/unix/sysv/linux/cris/readdir64.c: New file.
+	* sysdeps/unix/sysv/linux/cris/readdir64_r.c: New file.
+	* sysdeps/unix/sysv/linux/cris/register-dump.h: New file.
+	* sysdeps/unix/sysv/linux/cris/scandir64.c: New file.
+	* sysdeps/unix/sysv/linux/cris/semctl.c: New file.
+	* sysdeps/unix/sysv/linux/cris/setegid.c: New file.
+	* sysdeps/unix/sysv/linux/cris/seteuid.c: New file.
+	* sysdeps/unix/sysv/linux/cris/setfsgid.c: New file.
+	* sysdeps/unix/sysv/linux/cris/setfsuid.c: New file.
+	* sysdeps/unix/sysv/linux/cris/setgid.c: New file.
+	* sysdeps/unix/sysv/linux/cris/setgroups.c: New file.
+	* sysdeps/unix/sysv/linux/cris/setregid.c: New file.
+	* sysdeps/unix/sysv/linux/cris/setresgid.c: New file.
+	* sysdeps/unix/sysv/linux/cris/setresuid.c: New file.
+	* sysdeps/unix/sysv/linux/cris/setreuid.c: New file.
+	* sysdeps/unix/sysv/linux/cris/setrlimit.c: New file.
+	* sysdeps/unix/sysv/linux/cris/setuid.c: New file.
+	* sysdeps/unix/sysv/linux/cris/shmctl.c: New file.
+	* sysdeps/unix/sysv/linux/cris/socket.S: New file.
+	* sysdeps/unix/sysv/linux/cris/sys/ucontext.h: New file.
+	* sysdeps/unix/sysv/linux/cris/syscall.S: New file.
+	* sysdeps/unix/sysv/linux/cris/sysdep.S: New file.
+	* sysdeps/unix/sysv/linux/cris/sysdep.h: New file.
+	* sysdeps/unix/sysv/linux/cris/versionsort64.c: New file.
+	* sysdeps/unix/sysv/linux/cris/vfork.S: New file.
+	* sysdeps/unix/sysv/linux/cris/xstat.c: New file.
+
+	* sysdeps/cris/Dist: New file.
+	* sysdeps/cris/Implies: New file.
+	* sysdeps/cris/Makefile: New file.
+	* sysdeps/cris/__longjmp.S: New file.
+	* sysdeps/cris/_mcount.S: New file.
+	* sysdeps/cris/bits/endian.h: New file.
+	* sysdeps/cris/bits/setjmp.h: New file.
+	* sysdeps/cris/bits/string.h: New file.
+	* sysdeps/cris/dl-machine.h: New file.
+	* sysdeps/cris/elf/start.S: New file.
+	* sysdeps/cris/machine-gmon.h: New file.
+	* sysdeps/cris/memcopy.h: New file.
+	* sysdeps/cris/memcpy.c: New file.
+	* sysdeps/cris/mempcpy.c: New file.
+	* sysdeps/cris/memset.c: New file.
+	* sysdeps/cris/memusage.h: New file.
+	* sysdeps/cris/setjmp.S: New file.
+	* sysdeps/cris/sysdep.h: New file.
+	* sysdeps/cris/wordcopy.c: New file.
+
+	* elf/elf.h: Add new relocations for CRIS.
+
+	* shlib-versions: Add cases for GNU/Linux on CRIS.
+
+	* configure.in (ASM_LINE_SEP tests): Handle CRIS assembly, with
+	';' for comments and '@' for line separator.
+	* configure: Regenerate.
+
+	* malloc/Makefile: Correct comment; mtrace is Perl, not AWK.
+
+	* sysdeps/unix/sysv/linux/hppa/sysdep.h (INLINE_SYSCALL): Fix
+	typo; s/==/=/ for assignment.
+
+	* iconv/gconv_simple.c (internal_ucs4_loop_unaligned): Check for
+	empty input before checking full output.
+
+	* iconv/gconv.c (__gconv): Don't derefer parameter cd before
+	checking if == -1L.
+

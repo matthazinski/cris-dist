@@ -1,0 +1,168 @@
+2007-03-05  Hans-Peter Nilsson  <hp@axis.com>
+
+	* README: Add install-cris-tools installprefix and tooltuples
+	arguments.  Update compilation and installation requirements and
+	numbers.
+	* install-cris-tools: Handle toolchain-tuples argument and assert
+	that installprefix_arg is empty or /.
+  	(OSNAME): Replace buggy host environment check with config.guess
+	based solution.  Adjust all users.
+	(checking glibc sanity for cris and crisv32): Correct IFS-save.
+	Only warn once for non-gnu host system.  Adjust informative
+	output.  Only test for v32-support if glibc is actually present.
+ 	(IFS, LC_ALL): Separate export from assignment.
+	(ICT_VERSION): Bump for 1.64.
+	* cris-dist.spec (serial): Bump for 1.64.  Replace old
+	commented-out pkg3 with linux-headersv32.
+
+2007-02-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (nixaout): Add general comment.
+	(nixlin): Empty.
+	(installing binutils symlinks for objcopy | readelf | addr2line |
+	size | strings | objdump): Fix typo for cris-axis-linux-gnu/bin path.
+	(building cris-axis-aout gcc): Apply nixaout, not bare ":".
+	(testing): Apply nixaout to "Testing ..." text for -melinux.
+	(installing manual pages): Fix typo for crisv32-axis-linux-gnu- names.
+
+2007-02-22  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge between head-before-051028-merge and
+	head-before-070222-merge.
+
+2005-11-02  Hans-Peter Nilsson  <hp@axis.com>
+
+	Build cris-axis-elf and crisv32-axis-elf tools.
+	* install-cris-tools (nixelf, nixelfv32): Unset.  Correct all
+	uses.  Adjust informational output to also mention
+	"crisv32-axis-elf"-variants.
+	(libpathelfv32): Correct.
+	(bob, bobv32): Remove unused variables.
+	(ipp): Don't append "/" to any uses.
+	<Building gcc and newlib>: Don't redirect stderr to stdout on each
+	subshell part; do it when teeing.
+	(gcc-cris): Move GCC_CRIS_ARCH setting as separate to linux-gnu
+	case.
+
+	* NEWS.v32: Tweak wording.
+
+2005-10-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge between head-before-040918-merge and
+	head-before-051028-merge.
+
+	* NEWS.v32: Update for R63-v32.
+	* cris-dist.spec (serial): 63-v32.
+	* install-cris-tools (ICT_VERSION): 1.63-v32.
+	install-cris-tools (nixelfv32): Empty to build crisv32-axis-elf
+	parts too.
+
+2004-10-24  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-dist.spec (version, serial): Bump for 1.60-v32.
+	* NEWS.v32: Updated for R60-v32.
+	* Merge between head-before-040918-merge and
+	head-before-041024-merge.
+
+2004-09-24  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-dist.spec (version, serial): Bump for 1.57-v32.
+	* NEWS.v32: Updated for R57-v32.
+
+2004-09-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge between head-before-040909-merge and
+	head-before-040918-merge.
+
+	* Merge between head-before-031216-merge and
+	head-before-040909-merge.
+
+2003-12-21  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (ICT_VERSION): Bump for 1.55a.
+	* NEWS.v32: New file.
+
+2003-12-16  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge from HEAD.
+
+2003-10-24  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (myCC): Add missing $ to instalog reference.
+
+2003-10-22  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (nixelfv32): New.
+	(libpathelfv32): New.
+	<Creating installation paths>: Also create libpathelfv32 and
+	binary paths, guarded by nixelfv32.  Prune failure message.
+	(binuobjv32, bobv32): New temporary directories.
+	<Creating temp directories>: Also create binuobjv32, bobv32,
+	guarded by nixelfv32.  Prune log message.
+
+	Merge from HEAD.
+	* ChangeLog: Move all v32-specific changes to ChangeLog.v32.
+
+2003-06-25  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge from HEAD.
+
+2003-04-21  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools: Install CRISv32 variant as
+	crisv32-axis-linux-gnu only.  Adjust messages.
+ 	(nixelf, nixaout, nixlin, nixlinv32, libpathlinuxgccv32,
+	libpathlinuxv32, incpathlinuxv32, glibcobjv32, do_linuxv32): New
+	variables.
+	<checking for valid glibc>: Enable.  Check nixlin.
+	<checking for valid glibc for CRISv32>: New adjusted copy of
+	above.
+	<Creating installation directories: Create CRISv32 ones too.
+	Check the corresponging nix-variable for all directory creation.
+	<Creating temporary directories>: Ditto.
+	<Installing Linux header files>: Add copy and tweak for CRISv32.
+	<Configuring and building gcc>: Use nix-variables.  Add
+	configuring crisv32-axis-linux-gnu.
+	<Configuring, building and installing glibc>: Do it for
+	crisv32-axis-linux-gnu too, under control of do_linuxv32 and
+	nixlinv32.  Use nix-variables.
+	<Configuring, building and installing gcc with build glibc>:
+	Ditto.
+	<gcc-cris heredoc>: New variable GCC_CRIS_ARCH, default to "cris",
+	set for linux-gnu case.
+	<Installing GCC and libiberty>: Use nix-variables.
+	<Testing cris-axis-linux-gnu installation with -mlinux>: Use
+	nixaout for -melinux.
+	<Testing cris-axis-elf installation>: Consider nixelf.
+	<Testing crisv32-axis-linux-gnu installation>: New, under control
+	of do_linuxv32.
+	<Installing bin-cris>: Only for cris-axis-elf installation.
+	<Installing manual pages>: Tentative tweak for checking
+	nix-variables.
+	<Installing glibc info pages>: Also check do_linuxv32
+
+2003-03-19  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools <checking for valid glibc>: Correct syntax.
+
+2003-03-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge from trunk to crisv32-branch.
+	* install-cris-tools (ICT_VERSION): Add "-v32" suffix.
+	Override changes from 2002-04-24 and 2002-04-20.
+	Warn for glibc files present; ignore them.
+
+2002-04-24  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools <installing multilibs>: Don't install
+	crtbegin2.o.
+
+2002-04-20  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (ICT_VERSION): 1.17-v32.
+	<checking for valid glibc>: Emit warning and comment out test.
+	<installing multilibs>: Also install libsyslinux.a, crt1.o,
+	crti.o and crtn.o.
+	<Merge libsyslinux.a with libc.a>: Comment out.
+	<Installing specific parts usually multilibbed>: Don't install
+	Linux parts; store in comment.

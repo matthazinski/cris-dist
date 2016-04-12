@@ -1,0 +1,16 @@
+2007-02-22  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config/default.exp: Don't call util-defs.exp.
+
+	* Merge between head-before-051028-merge and
+	head-before-070222-merge.
+
+2005-10-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge between head-before-040918-merge and
+	head-before-051028-merge.
+
+2004-10-27  Hans-Peter Nilsson  <hp@axis.com>
+
+	* binutils-all/objdump.exp (cpus_expected): Append cris.
+

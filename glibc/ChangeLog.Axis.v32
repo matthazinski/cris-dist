@@ -1,0 +1,154 @@
+2007-02-22  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge main trunk between head-before-051031-v32-merge and
+	head-before-070222-v32-merge.
+
+2005-10-31  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge main trunk between head-before-041024-v32-merge and
+	head-before-051031-v32-merge.
+
+2004-10-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge main trunk between head-before-040920-v32-merge and
+	head-before-041024-v32-merge.
+
+2004-10-14  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/unix/sysv/linux/cris/syscall.S: Do not assume a fifth
+	argument is present, allocate stack for saving SRP separately.
+
+2004-09-20  Hans-Peter Nilsson  <hp@axis.com>
+
+	Merge from HEAD.
+	* ChangeLog.Axis: Move all v32 changes to...
+	* ChangeLog.Axis.v32: New file.
+
+2004-01-07  Mikael Starvik  <starvik@axis.com>
+
+	* sysdeps/cris/__longjmp.S (__longjmp) [__arch_v32]: Restore SRP.
+
+2003-12-21  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/cris/dl-machine.h (elf_machine_load_address)
+	[__arch_v32]: Force GOT use.  Fix incorrect "outputs" comment.
+
+2003-12-16  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/cris/elf/initfini.c: New file.
+
+	* sysdeps/cris/dl-machine.h [__arch_v32] (RTLD_START): Remove
+	excess set of SRP.
+
+2003-10-25  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/unix/sysv/linux/cris/register-dump.h (register_dump):
+	Fix typo: __arch_v32, not __arch_v32__.
+
+	* sysdeps/unix/sysv/linux/cris/profil-counter.h (profil_counter):
+	Use erp for __arch_v32.
+
+	* Import these changes:
+	2002-11-04  Franz Sirl  <Franz.Sirl-kernel@lauterbach.com>
+	* sysdeps/unix/sysv/linux/pwrite.c: Fix typo.
+	* sysdeps/unix/sysv/linux/pwrite64.c: Likewise.
+	2002-09-14  Roland McGrath  <roland@redhat.com>
+	* sysdeps/unix/sysv/linux/pread.c: __NR_pread64 may be defined
+	instead of __NR_pread.
+	* sysdeps/unix/sysv/linux/pread64.c: Likewise.
+	* sysdeps/unix/sysv/linux/pwrite.c: __NR_pwrite64 may be defined
+	instead of __NR_pwrite.
+	* sysdeps/unix/sysv/linux/pwrite64.c: Likewise.
+
+2003-10-24  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/cris/setjmp.S (__sigsetjmp): Fix typo.
+
+2003-10-21  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/cris/bits/setjmp.h (JB_SP): Correct for v32 and tweak R9
+	part for v10.  Adjust comment about jmpbuf layout for v32.
+	* sysdeps/cris/setjmp.S (__sigsetjmp) [__arch_v32]: Correct saved
+	return value.  Don't clobber the sigjmp_buf passed on to
+	__sigjmp_save.  Don't use movem with overlapping source and
+	destination.
+	* sysdeps/cris/__longjmp.S (__longjmp) [__arch_v32]: Don't use
+	movem to register overlapping address register.
+
+2003-10-20  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/unix/sysv/linux/cris/register-dump.h (register_dump):
+	Correct for both v10 and v32.
+
+2003-09-17  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/unix/sysv/linux/cris/socket.S: Move storing instruction
+	into common code, from !defined __arch_v32 arm of #ifdef.
+
+2003-09-03  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/cris/dl-machine.h [__arch_v32] (TRAMPOLINE_TEMPLATE):
+	Add missing stack adjustment.
+
+2003-06-25  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/cris/__longjmp.S (__longjmp) [__arch_v32]: Don't use
+	test.d with register operand.
+	* sysdeps/unix/sysv/linux/cris/clone.S (__clone): Ditto.
+
+2003-06-24  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/cris/memcpy.c (MEMCPY_BLOCK_THRESHOLD): New macro.
+	(memcpy): Use it.
+
+2003-04-21  Hans-Peter Nilsson  <hp@axis.com>
+
+	Support CRISv32.
+	* sysdeps/cris/_mcount.S: Use CRISv32-compatible code for dummy.
+	* sysdeps/cris/__longjmp.S: Provide pc-setting part conditional on
+	__arch_v32.
+	* sysdeps/cris/dl-machine.h (CALL_FN) [__arch_v32]: New
+	conditional definition.
+	(elf_machine_matches_host): Check e_flags too with different code
+	for __arch_v32.
+	(elf_machine_load_address): Provide new body conditional on
+	__arch_v32.
+	(TRAMPOLINE_TEMPLATE): New definition conditional on __arch_v32.
+	Don't have "multi-line string literal" in asm.
+	(RTLD_START): Similar.
+	* sysdeps/cris/memcpy.c: Don't have "multi-line string literal" in
+	asm.
+	* sysdeps/cris/memset.c: Ditto.
+	* sysdeps/cris/setjmp.S: Provide new body conditional on
+	__arch_v32.
+	* sysdeps/cris/sysdep.h (PLTJUMP, PLTCALL, SETUP_PIC,
+	TEARDOWN_PIC, CALL_MCOUNT) [__arch_v32]: New conditional
+	definitions.
+	* sysdeps/cris/elf/start.S: Tweak for CRISv32; some conditional
+	code, some compatiblized code.
+	* sysdeps/unix/sysv/linux/cris/sysdep.S: Ditto.
+	* sysdeps/unix/sysv/linux/cris/clone.S: Ditto.
+	* sysdeps/unix/sysv/linux/cris/mmap.S: Conditionalize incompatible
+	code on __arch_v32.
+	* sysdeps/unix/sysv/linux/cris/mmap64.S: Ditto.
+	* sysdeps/unix/sysv/linux/cris/socket.S: Ditto.
+	* sysdeps/unix/sysv/linux/cris/syscall.S: Ditto.
+	* sysdeps/unix/sysv/linux/cris/sysdep.h: Ditto.
+	(CHECK_ARGS_asm_0, CHECK_ARGS_asm_1, CHECK_ARGS_asm_2,
+	CHECK_ARGS_asm_3, CHECK_ARGS_asm_4, CHECK_ARGS_asm_5): Check argument number
+	register too.
+	(LOAD_ARGS_c_5, LOAD_ARGS_asm_5, ASM_ARGS_5, LOAD_ARGS_c_6,
+	LOAD_ARGS_asm_6, ASM_CLOBBER_6): Use "mof" and "srp" as explicit
+	registers, not just using clobbers.
+	* sysdeps/unix/sysv/linux/cris/register-dump.h: Mark as incorrect.
+	* manual/install.texi (Supported Configurations): Change cris- to
+	cris@var{*}-.
+	* scripts/config.sub (maybe_os): Recognize crisv32 and crisv32-axis.
+	* elf/elf.h (EF_CRIS_VARIANT_MASK, EF_CRIS_VARIANT_ANY_V0_V10,
+	EF_CRIS_VARIANT_V32, EF_CRIS_VARIANT_COMMON_V10_V32): Define.
+	* shlib-versions: Change all cris-.*-linux.* to
+	cris.*-.*-linux.*.
+	* configure.in (os) <mapping machine name to base_machine>: Map
+	crisv32 to cris.
+	* configure: Regenerate.
+

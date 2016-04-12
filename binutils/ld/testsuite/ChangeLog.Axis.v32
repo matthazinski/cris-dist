@@ -1,0 +1,80 @@
+2005-10-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge between head-before-040918-merge and
+	head-before-051028-merge.
+
+2004-10-15  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ld-cris/libdso-14.d, ld-cris/dsov32-4.s: New test.
+	* ld-cris/libdso-13.d: Change to test error message for warning
+	for pc-relative relocs to dynamic symbols in DSO:s.
+
+	* ld-cris/dsov32-1.s, ld-cris/dsov32-2.s, ld-cris/dsov32-3.s,
+	ld-cris/pv32.s: Correct size expression.
+	* ld-cris/pv32-1.d, ld-cris/libdso-12.d, ld-cris/libdso-11.d:
+	Adjust for corrected size expressions.
+
+2004-09-21  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ld-cris/hiddef1.d: Adjust for _GLOBAL_OFFSET_TABLE_ local.
+
+2004-09-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge between head-before-031216-merge and
+	head-before-040909-merge.
+
+2003-12-04  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ld-cris/gotplt1.d, ld-cris/gotplt2.d, ld-cris/gotplt3.d:
+	Properly adjust for hidden _GLOBAL_OFFSET_TABLE_.
+
+2003-10-22  Hans-Peter Nilsson  <hp@axis.com>
+
+	Merge from HEAD.
+	* ChangeLog.Axis: Move all v32-specific changes to
+	ChangeLog.Axis.v32.
+
+2003-07-07  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ld-cris/locref1.d, ld-cris/locref2.d: Adjust for hidden
+	_GLOBAL_OFFSET_TABLE_.
+
+2003-06-25  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge from HEAD.
+
+2003-04-05  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ld-cris/pv32-1.d, ld-cris/pv32.s: New test.
+
+	* ld-cris/expdyn1.d, ld-cris/libdso-1.d, ld-cris/libdso-2.d:
+	Adjust for _GLOBAL_OFFSET_TABLE_ now hidden.
+	* ld-cris/v32-va.d: Correct describing comment.
+	* ld-cris/dsov32-1.s, ld-cris/dsov32-2.s, ld-cris/dsov32-3.s,
+	ld-cris/libdso-10.d, ld-cris/libdso-11.d, ld-cris/libdso-12.d,
+	ld-cris/libdso-13.d: New tests.
+
+2002-08-15  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ld-cris/aout-1.d: Tweak for no longer emitting code in default
+	linker script.
+
+2002-04-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ld-cris/v32-bin-1.d, ld-cris/v32-bin-1.s: New test.
+
+2002-04-17  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ld-cris/v32-ba-1.d, ld-cris/v32-ba-1.s: Tweak to make a, b
+	global and for removal of linker-script contents in .init and
+	.fini.
+
+2002-03-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ld-cris/v32-ba-1.s, ld-cris/v32-ba-1.d: New test.
+
+2002-02-21  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ld-cris/v10-v32.d, ld-cris/v10-va.d, ld-cris/v32-v10.d,
+	ld-cris/v32-va.d, ld-cris/va-v10.d, ld-cris/va-v32.d,
+	ld-cris/start1.s, ld-cris/move-1.s: New tests.

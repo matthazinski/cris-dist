@@ -1,0 +1,61 @@
+2005-12-08  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ld-cris/noov.d: Adjust to layout map for local sources.
+
+2005-10-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	Import from FSF CVS:
+	PR ld/1567
+	* ld-cris/noov.s, ld-cris/noov.d: New test.
+
+2004-09-07  Hans-Peter Nilsson  <hp@axis.com>
+
+	Import from FSF CVS (edited for backport):
+	* ld-cris/hiddef1.d, ld-cris/hiddef1.s, ld-cris/hidrefgotplt1.s:
+	New test.
+
+2003-10-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ld-cris/dsofnf.s, ld-cris/dsofnf2.s, ld-cris/gotplt1.d,
+	ld-cris/gotplt2.d, ld-cris/gotplt3.d: New tests.
+
+2003-06-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ld-cris/locref1.d, ld-cris/locref1.s, ld-cris/locref2.d,
+	ld-cris/locref2.s: New tests.
+
+2002-06-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* All: Import of FSF-binutils-2_12_1.
+
+2002-05-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ld-cris/expdyn1.d: Tweak for change in elf.sc (didn't make it to
+	2.12.1 branch).
+
+2002-03-26  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ld-cris/aoutnondso-1.d, ld-cris/aout-1.d, ld-cris/expfnref1.s:
+	New test.
+
+2002-02-05  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ld-selective/keepdot.d, ld-selective/keepdot.ld,
+	ld-selective/keepdot.s, ld-selective/keepdot0.d: New tests.
+	* ld-selective/sel-dump.exp: New, driver for run_dump_test:s.
+
+2002-02-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* All: Import of FSF-binutils-2002-02-01-snapshot.
+
+2000-07-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ChangeLog.Axis: Move local changes from ChangeLog to
+	ChangeLog.Axis.
+
+Wed Mar  8 16:34:14 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* ld-scripts/crossref.exp: Allow an optional _ prefixed to names
+	in messages.
+	* ld-undefined/undefined.exp: Ditto.
+

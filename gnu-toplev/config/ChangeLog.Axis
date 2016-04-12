@@ -1,0 +1,9 @@
+2002-12-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Import of gcc-3.2.1; overwrite previous local changes
+	except ltmain.sh.  Delete mh-crispic and mt-crispic.
+
+2001-02-14  Hans-Peter Nilsson  <hp@axis.com>
+
+	* mh-crispic, mt-crispic: New files.
+

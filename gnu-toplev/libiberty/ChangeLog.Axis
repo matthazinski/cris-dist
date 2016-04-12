@@ -1,0 +1,37 @@
+2002-12-17  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Import of gcc-3.2.1; overwrite previous local changes.
+
+2000-09-10  Hans-Peter Nilsson  <hp@axis.com>
+
+	* testsuite/demangle-expected: Add four tests for type_info
+	pointer mangling.
+
+	* cplus-dem.c (gnu_special): Use do_type, not demangle_fund_type,
+	for a non-template non-qualified type_info function or node.
+
+2000-04-29  Alexandre Oliva  <aoliva@cygnus.com>
+
+	* Makefile.in (maintainer-clean-subdir): Fix handling of empty
+	SUBDIRS.
+
+2000-07-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cplus-dem.c (work_stuff_copy_to_from): New.
+	(delete_non_B_K_work_stuff): New.
+	(delete_work_stuff): New.
+	(mop_up): Break out work_stuff partly destruction to
+	delete_non_B_K_work_stuff.
+	(iterate_demangle_function): New.
+	(demangle_prefix): Call iterate_demangle_function instead of
+	demangle_function_name.  Leave handling of name-signature
+	__-delimiters to iterate_demangle_function.
+	* testsuite/demangle-expected: Add five tests for name-signature
+	delimiter testing.
+
+2000-07-05  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cplus-dem.c (demangle_integral_value): Strip an optional
+	following underscore cautiously.  Handle negative numbers.
+	* testsuite/demangle-expected: Add 9 tests.
+

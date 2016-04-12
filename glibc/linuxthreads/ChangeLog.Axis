@@ -1,0 +1,32 @@
+2004-08-21  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/unix/sysv/linux/cris/pt-initfini.c: New file, derived
+	from glibc/sysdeps/cris/elf/initfini.c.
+
+2003-04-21  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/cris/pt-machine.h (testandset): Provide new body
+	conditional on __arch_v32.
+	* shlib-versions: Change cris.*-.*-linux.* to cris-.*-linux.*.
+
+2002-07-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* internals.h: Change all __thread to __thr.
+	* sysdeps/pthread/pthread.h: Ditto.
+	* sysdeps/unix/sysv/linux/bits/sigthread.h: Ditto.
+
+2001-05-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/cris/pt-machine.h (testandset): Add *spinlock as input.
+
+	* sysdeps/cris/pspinlock.c (__pthread_spin_unlock): Split out
+	return to avoid reading spinlock after clearing it.
+	(__pthread_spin_init): Ditto.  Tweak comment for readability.
+
+2001-04-09  Hans-Peter Nilsson  <hp@axis.com>
+
+	* sysdeps/cris/pt-machine.h: New file.
+	* sysdeps/cris/pspinlock.c: New file.
+
+	* shlib-versions: Add case for GNU/Linux on CRIS.
+

@@ -1,0 +1,456 @@
+2005-12-08  Hans-Peter Nilsson  <hp@axis.com>
+
+	Import (adjusted) from FSF CVS:
+	* gas/cris/rd-pcplus.s, gas/cris/rd-pcplus.d: New test.
+
+2005-10-25  Hans-Peter Nilsson  <hp@axis.com>
+
+	Import from FSF CVS:
+	PR gas/1049
+	* gas/cris/rd-pic-2.d, gas/cris/rd-pic-2.s: New test.
+
+2004-09-21  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gas/cris/rd-mulbug-1.d: Missing adjustments for
+	backport.
+
+2004-02-29  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gas/cris/regreg.d: Assemble with --no-mul-bug-abort.
+	* gas/cris/mulbug-err-1.s, gas/cris/rd-mulbug-1.d: New
+	tests.
+
+2003-05-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gas/macros/app1.s, gas/macros/app1.d, gas/macros/app2.s,
+	gas/macros/app2.d, gas/macros/app3.s, gas/macros/app3.d,
+	gas/macros/app4.s, gas/macros/app4b.s, gas/macros/app4.d: New
+	tests.
+	* gas/macros/macros.exp: Run them.
+
+2002-11-26  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gas/cris/rd-bcnst.d, gas/cris/rd-bcnst.d: New test.
+
+2002-10-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gas/cris/rd-pcrel1.d, gas/cris/rd-pcrel1.s,
+	gas/cris/rd-pcrel2.d, gas/cris/rd-pcrel2.s: New tests.
+
+2002-06-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* All: Import of FSF-binutils-2_12_1.
+
+2002-02-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* All: Import of FSF-binutils-2002-02-01-snapshot.
+
+2000-07-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gas/cris/cris.exp (test_template_insn_reg_mem): Comment out
+	format verbose messages.
+	Comment out unwritten testcases.
+	* gas/ieee-fp/x930509a.exp: Tweak comment.
+
+	* gas/cris/binop-cmpmove.d, gas/cris/binop-cmpmovx.d,
+	gas/cris/binop-extx.d, gas/cris/binop.d, gas/cris/branch.d,
+	gas/cris/brokw-1.d, gas/cris/brokw-2.d, gas/cris/brokw-3.d,
+	gas/cris/bwtest-err-1.s, gas/cris/clear.d, gas/cris/fragtest.d,
+	gas/cris/jump-type.d, gas/cris/labfloat.d,
+	gas/cris/movem-to-reg.d, gas/cris/prefix.d, gas/cris/reg-to-mem.d,
+	gas/cris/sreg-to-x.d, gas/cris/test.d, gas/cris/unimplemented.d,
+	gas/cris/unop-mem.d, gas/cris/x-to-byte-sreg.d,
+	gas/cris/x-to-dcr1-sreg.d, gas/cris/x-to-dword-sreg.d,
+	gas/cris/x-to-word-sreg.d: Adjust to handle ELF objdump reloc
+	format.
+
+	* ChangeLog.Axis: Move local changes from ChangeLog to
+	ChangeLog.Axis.
+
+Wed Mar  8 19:45:57 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* gas/cris/binop.s: Remove commented-out code that was moved to
+	binop-segref.
+	* gas/cris/unop.s: Ditto.
+	* gas/cris/binop-segref.s: Update comments.
+
+	* gas/cris/labfloat.s, gas/cris/labfloat.d, gas/cris/bork.s,
+	gas/cris/bork.d: New tests.
+	* gas/cris/cris.exp: Run them.
+	Update expected errors note.
+
+Mon Feb 28 19:14:39 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* gas/cris/brokw-3.d: Adjust for printing addresses for case
+	offsets.
+
+Sat Feb 26 10:50:28 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* gas/cris/x-to-word-sreg.d: Adjust for printing addresses in
+	operands.
+	* gas/cris/x-to-dword-sreg.d: Ditto.
+	Correct cut-and-paste typo, word to dword.
+	* gas/cris/x-to-byte-sreg.d: Adjust for printing addresses in
+	operands.
+	* gas/cris/unop-mem.d: Ditto.
+	* gas/cris/unimplemented.d: Ditto.
+	* gas/cris/test.d: Ditto.
+	* gas/cris/sreg-to-x.d: Ditto.
+	* gas/cris/separator.d: Ditto.
+	* gas/cris/scc.d: Ditto.
+	* gas/cris/return.d: Ditto.
+	* gas/cris/reg-to-mem.d: Ditto.
+	* gas/cris/quick-u6.d: Ditto.
+	* gas/cris/quick-u5.d: Ditto.
+	* gas/cris/quick-s6.d: Ditto.
+	* gas/cris/pushpop.d: Ditto.
+	* gas/cris/pushpop-word-sreg.d: Ditto.
+	* gas/cris/pushpop-dword-sreg.d: Ditto.
+	* gas/cris/pushpop-byte-sreg.d: Ditto.
+	* gas/cris/prefix.d: Ditto.
+	Adjust for splitting prefix from main insn for dip+postinc instead
+	of printing "OOPS".
+	* gas/cris/oneop-type.d: Adjust for printing addresses in
+	operands.
+	* gas/cris/nosep.d: Ditto.
+	* gas/cris/movem-to-reg.d: Ditto.
+	* gas/cris/jump-type.d: Ditto.
+	* gas/cris/fragtest.d: Ditto.
+	* gas/cris/fragtest.s: Add "nops" and adjust ".space" directives
+	for different disassembly output when setting info about branch
+	delays.
+	* gas/cris/clear.d: Ditto.
+	Adjust for printing addresses in operands.
+	* gas/cris/ccr.d: Adjust for printing addresses in operands.
+	* gas/cris/brokw-3.d: Ditto.
+	* gas/cris/brokw-2.d: Ditto.
+	* gas/cris/brokw-1.d: Ditto.
+	* gas/cris/break.d: Ditto.
+	* gas/cris/branch.d: Ditto.
+	* gas/cris/binop.d: Ditto.
+	* gas/cris/binop-extx.d: Ditto.
+	* gas/cris/binop-cmpmovx.d: Ditto.
+	* gas/cris/binop-cmpmove.d: Ditto.
+	* gas/cris/addi.d: Ditto.
+
+Tue Feb 22 13:05:31 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* gas/cris/binop-cmpmove.d: Make leading zero in a byte optional.
+	* gas/cris/binop-cmpmovx.d: Ditto.
+	* gas/cris/binop-extx.d: Ditto.
+	* gas/cris/binop.d: Ditto.
+	* gas/cris/brokw-3.d: Ditto.
+	* gas/cris/fragtest.d: Ditto.
+	* gas/cris/prefix.d: Ditto.
+	* gas/cris/x-to-dword-sreg.d: Ditto.
+	* gas/cris/x-to-word-sreg.d: Ditto.
+
+Thu Feb 17 19:33:53 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* gas/cris/cris.exp: Update expected errors note.
+	(shexpr-1): xfail.
+
+Wed Feb 16 00:58:13 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* gas/cris/cris.exp: Update expected errors note.
+	* gas/ieee-fp/x930509a.exp: Correct target conditional.
+	* gas/cris/range-err-2.s: Update changed error message.
+
+	* gas/all/gas.exp: Don't run float.s for cris-*-* now that float
+	support is shut off.
+	* gas/ieee-fp/x930509a.exp: Similarly don't run dotest.
+
+Wed Feb  9 20:25:51 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* gas/cris/brokw-1.d, gas/cris/brokw-2.d: Adjust for change in
+	md_create_short_jump.
+
+Tue Feb  8 19:23:05 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* gas/cris/string-2.s (start): Adjust for ONLY_STANDARD_ESCAPES.
+	* gas/cris/string-1.s (start): Ditto.
+
+	* gas/cris/bwtest-err-1.s: Adjust for having line-number.
+
+Thu Feb  3 21:13:58 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* gas/cris/macroat.s, gas/cris/macroat.d, gas/cris/nosep.s,
+	gas/cris/nosep.d: New tests.
+	* gas/cris/cris.exp: Run new tests, setup xfail for macroat.
+	Update expected results.
+
+Tue Feb  1 20:28:43 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* gas/cris/continue.d, gas/cris/continue.s: New test.
+	* gas/cris/cris.exp: Run new test, update expected results.
+
+	* gas/cris/movem-to-reg.d: Fix typo.
+
+Sat Jan 22 00:25:05 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* gas/cris/cris.exp: Update expected results.
+
+	* gas/cris/fragtest.d: Adjust for tweak in 2.9.1 objdump format.
+
+Thu Jan 20 15:48:09 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* gas/cris/cris.exp: Update expected results.
+
+	* gas/cris/addi.d: Adjustments for changed disassembly format in
+	binutils-2.8.
+	* gas/cris/binop-cmpmove.d, gas/cris/binop-cmpmovx.d: Ditto.
+	* gas/cris/binop-extx.d, gas/cris/binop.d: Ditto.
+	* gas/cris/branch.d, gas/cris/break.d, gas/cris/brokw-1.d: Ditto.
+	* gas/cris/brokw-2.d, gas/cris/brokw-3.d, gas/cris/ccr.d: Ditto.
+	* gas/cris/clear.d, gas/cris/cris.exp, gas/cris/fragtest.d: Ditto.
+	* gas/cris/jump-type.d, gas/cris/movem-to-reg.d: Ditto.
+	* gas/cris/oneop-type.d, gas/cris/prefix.d: Ditto.
+	* gas/cris/pushpop-byte-sreg.d: Ditto.
+	* gas/cris/pushpop-dword-sreg.d: Ditto.
+	* gas/cris/pushpop-word-sreg.d, gas/cris/pushpop.d: Ditto.
+	* gas/cris/quick-s6.d, gas/cris/quick-u5.d: Ditto.
+	* gas/cris/quick-u6.d, gas/cris/reg-to-mem.d: Ditto.
+	* gas/cris/regreg.d, gas/testsuite/gas/cris/return.d: Ditto.
+	* gas/cris/scc.d, gas/cris/separator.d, gas/cris/shexpr-1.d: Ditto.
+	* gas/cris/sreg-to-x.d, gas/cris/test.d: Ditto.
+	* gas/cris/unimplemented.d, gas/cris/unop-mem.d: Ditto.
+	* gas/cris/x-to-byte-sreg.d, gas/cris/x-to-dword-sreg.d: Ditto.
+	* gas/cris/x-to-word-sreg.d: Ditto.
+
+Sun Jan  9 12:02:36 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* gas/cris/separator.d: Remove incorrect copied "#name ...".
+
+	* gas/cris/shexpr-1.s, gas/cris/shexpr-1.d: New test.
+	* gas/cris/cris.exp: Run it.
+	Update expected test results.
+
+Sat Dec 18 00:02:48 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* gas/cris/diffexp-ovwr.s, gas/cris/diffexp-ovwr.d: New test.
+	* gas/cris/cris.exp: Run the new tests.
+	Update expected test results.
+	Do not mark "False broken words" as an expected failure.
+
+Tue Dec 14 20:51:02 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* gas/cris/scc.d, gas/cris/scc.s: Add "swf".
+	Change "sext" to "swf".
+
+Mon Dec 13 14:27:56 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* gas/cris/branch.s, gas/cris/branch.d: Change "bir" to "bext".
+	Change "bf" to "bwf".
+
+Wed Nov 24 08:39:57 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* gas/cris/cris.exp: Update note on expected testresults.
+
+	* gas/cris/cris.exp: Run the new tests.
+	Update "untested"s.
+	* gas/cris/brokw-1.sgas/cris/brokw-1.s, gas/cris/brokw-2.s,
+	gas/cris/brokw-2.s, gas/cris/brokw-3.s, gas/cris/brokw-3.s,
+	gas/cris/fragtest.s, gas/cris/fragtest.s: New tests and output
+	patterns.
+	* gas/cris/break.d, gas/cris/break.s: Add test for operand as symbol.
+
+	* gas/cris/string-1.s, gas/cris/string-1.d, gas/cris/string-2.s,
+	gas/cris/string-2.d: New tests and output patterns.
+
+	* gas/cris/binop-cmpmovs.d, binop-cmpmovu.d: Removed, folded into ...
+	* gas/cris/binop-cmpovx.d: ... this new file.
+	* gas/cris/binop-exts.d, binop-extu.d: Removed, folded into ...
+	* gas/cris/binop-extx.d: ... this new file.
+
+	* gas/cris/cris.exp: Run new tests.
+	Use binop-cmpmovx.d and binop-extx.d instead of binop-exts.d,
+	binop-extu.d, binop-cmpmovd.d and binop-cmpmovu.d
+
+Mon Nov 22 17:28:09 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* gas/cris/unop-mem.d: New.
+
+	* gas/cris/cris.exp: Add back untested "case detection".
+	Move CRIS v8 (ETRAX 100) jump-type insns to after CRIS v3
+	additions.
+	Add CRIS v10 (ETRAX NG) insns.
+
+	* prefix.d: Update to disassembler anti-detection of dip on a
+	postincremented insn.
+
+	* gas/cris/ccr.d, gas/cris/ccr.s: Add tests for ETRAX 100 flag
+	names.
+	Change test name to "flags: clearf, setf and nop".
+	* gas/cris/cris.exp (test_template_insn_reg_mem): Update some
+	comments.
+	Add tests for ETRAX 100 reg names.
+	Add tests for ETRAX 100 jump-type insns.
+	Update "untested"s.
+
+Sun Nov 21 16:59:07 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* branch-warn-1.s, branch-warn-2.s, branch-warn-3.s, sep-err-1.s,
+	sep-err-2.s, sep-err-3.s, range-err-1.s, range-err-2.s,
+	range-err-3.s, operand-err-1.s: New dg-tests.
+	* separator.s, separator.d: New test and output pattern.
+	* gas/cris/cris.exp: Run new tests.
+	Update "untested"s.
+	* binop.s: Fix FIXME on out-of-range operands.
+	* unop.s: Ditto.
+
+Sat Nov 20 19:13:50 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* gas/cris/cris.exp: Add "brp".
+	Update "untested"s.
+
+	* break.s, break.d: New test and output pattern.
+	* gas/cris/cris.exp: Run new tests.
+	Run "lz" tests using regreg template.
+
+	* gas/cris/cris.exp: Test casing using swapn.
+	Update "untested"s.
+	(test_template_insn_reg): Remove leftover "call" comments.
+
+	* branch.s, branch.d: New test and output pattern.
+	* gas/cris/cris.exp: Run new tests.
+
+	* unimplemented.s, unimplemented.d: Add "div.S".
+
+	* return.s, return.d: New test and output pattern.
+	* gas/cris/cris.exp: Run new tests.
+
+	* unimplemented.s, unimplemented.d: New test and output pattern.
+	* gas/cris/cris.exp: Run new tests.
+
+	* prefix.s, prefix.d: New test and output pattern.
+	* gas/cris/cris.exp: Run new tests.
+
+	* addi.s addi.d oneop-type.d: New tests and output patterns.
+	* gas/cris/cris.exp: Run new tests; addi, swap(n)-type.
+	Update "untested"s.
+	(test_template_insn_reg_mem): Correct parameters comment.
+	Correct @OR@ replacement calculation - use ircode03, not imcode03.
+	(test_template_insn_reg): Convert to varargs, accept optional
+	parameters for "regex" "replace" and "OR_replace".
+
+	* pushpop.s, pushpop.d, pushpop-byte-sreg.d, pushpop-word-sreg.d,
+	pushpop-dword-sreg.d, pushpop-dcr1-sreg.d: New tests and output
+	patterns.
+	* gas/cris/cris.exp: Run the new tests.
+	(push_pop): New function.
+
+Fri Nov 19 11:36:18 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* gas/cris/sreg-to-x.d: Correct pattern for insns recognized as
+	"clear.S".
+
+	* sreg-to-x.d, x-to-byte-sreg.d, x-to-dcr1-sreg.d,
+	x-to-dword-sreg.d, x-to-word-sreg.d: New expected-output patterns.
+	* gas/cris/cris.exp:
+	New list spec_reg_list.
+	Call do_spec_reg with to_sreg and sreg_to implementing test of
+	assembling insn using special registers.
+	Update "untested"s.
+	(test_template_insn_reg_mem): Change @IR+ and @IM+-handling to be
+	like @IS+, with the third digit optional.
+	Remove @IS+-handling.  All users (*.d:s) changed to use @IM+.
+	New optional replacement @OR@.
+	(to_sreg, sreg_to): New functions calling
+	test_remplate_insn_reg_mem with substitutions deduced from
+	parameters.
+	(do_spec_regs): New function for iterating with an inner
+ 	function (to_sreg, sreg_to) over an array describing special
+	registers.
+
+Thu Nov 18 00:07:25 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* gas/cris/movem-to-reg.d: New expected-output pattern.
+	* gas/cris/cris.exp: Use regex replacements to turn around
+	operands for adding corresponding movem.
+ 	(test_template_insn_reg_mem): Convert to
+	varargs.
+	Optional arguments regex_replace and replacement.
+	If present, regsub with these before regsub "@OC@" with insn.
+	(test_template_insn_mem): Convert to varargs.
+
+	* gas/cris/reg-to-mem.d: New expected-output pattern.
+	* gas/cris/binop.s: Add to-mem insns.
+	Correct location of note about missing address-mode-sizes in the
+	tests.
+	* gas/cris/unop.s: Ditto.
+	* gas/cris/cris.exp: Use new tests.
+	Add now needed avoid_regex:es.
+	Break long lines.
+
+	* gas/cris/binop.s: Add note about missing address-mode-sizes in
+	the tests.
+	* gas/cris/unop.s: Ditto.
+	Add fixed-size operations.
+	* gas/cris/jump-type.d: New expected-output patterns.
+	* gas/cris/cris.exp: Correct avoid_regex:es by adding extra "\".
+	Add new needed avoid_regex:es.
+	Break long lines.
+	Implement tests for jump, jir, jsr.
+ 	(test_template_insn_reg_mem): Update comments.
+	Support three digits for imcode0 and imcode, and adjust
+	accordingly the third digit for new placeholder tag "IS".
+	Fix buggy "verbose"s.
+
+	* gas/cris/scc.s, gas/cris/scc.d: New tests.
+	* gas/cris/cris.exp: Use them
+
+Wed Nov 17 05:54:19 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* gas/cris/ccr.s, gas/cris/ccr.d: New tests.
+	* gas/cris/cris.exp: Use them.
+	Update "untested"s for missing testcases.
+
+	* gas/cris/quick.s, gas/cris/regreg.s gas/cris/regreg.d: New
+	tests.
+	* gas/cris/cris.exp: Use them.
+	Update "untested"s for missing testcases.
+
+	* gas/cris/quick.s, gas/cris/quick-u5.s gas/cris/quick-u6.s,
+	gas/cris/quick-s6.s: New tests.
+	* gas/cris/cris.exp: Use them.
+
+	* gas/cris/cris.exp: Test using clear.d and test.d for output
+	matching of unop.s via test_template_insn_single.
+	test_template_insn_single: New function.
+	* gas/cris/unop.s: New test.
+	* gas/cris/test.d, gas/cris/test.d: New expected-output patterns.
+
+	* gas/cris/cris.exp: Add reminder for movs/movu reg-reg.
+	Do not put assignment addr mode in avoid_regex for cmp and move.
+	Use binop-cmpmovs, binop-cmpmovu to test movs, movu, cmps, cmpu
+	mem-reg.
+	* gas/cris/binop-cmpmovs.d, gas/cris/binop-cmpmovu.d: New
+	expected-output patterns.
+
+	* testsuite/gas/cris/binop-cmpmove.d: Fix thinko; assignment is
+	allowed here.
+
+	* gas/cris/binop-exts.d, gas/cris/binop-extu.d: Remove spurious
+	"\" at header.
+	* gas/cris/cris.exp: Add untested "Old regressions".
+	Use binop-cmpmove.d to test cmp and move-to-register.
+	* gas/cris/binop-cmpmove.d: New expected-output pattern.
+
+	* gas/cris/cris.exp: (test_template_insn_reg_mem): Add appendix
+	"-test" to temporary files.
+	Add parameters avoid_regex, dname, ircode0, imcode0.  All callers
+	changed.
+	Subtract ircode0, imcode0 from expected output insn code, not
+	"add" opcode.
+	Only assemble lines not matching avoid_regex, if avoid_regex is
+	non-empty.
+	Get expected output from dname, if dname is non-empty.
+	Un-comment intended removal of temporary files.
+	Test addu, adds, subu, subs with the new patterns and binop.s	
+	* gas/cris/binop-exts.d, gas/cris/binop-extu.d: New
+	expected-output patterns.
+
+	* gas/cris/binop.s, gas/cris/binop.d: New tests
+	* gas/cris/binop-segref.s: New test.
+	* gas/cris/cris.exp: New file.
+

@@ -1,0 +1,242 @@
+2007-03-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Makefile (install): Disable ld/rld-cris, nm/rnm-cris,
+	strip/rstrip-cris wrappers.
+
+2001-06-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ldur-cris <Parsing ld map output>: Don't assume that libraries
+	have a directory part; prepend "./" if not.
+
+2001-04-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ldur-cris: Add support for new simulator-related option
+	-msim-input-pre=*.
+
+2001-01-15  Hans-Peter Nilsson  <hp@axis.com>
+
+	* nm-wrap: Use my_readlink, not readlink.
+	(my_readlink): Copied from ldur-cris.
+	* strip-wrap: Ditto.
+
+2000-12-20  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ldur-cris <finding real ld>: Use my_readlink to follow symlink.
+	<following symlink to library>: Ditto.
+	(my_readlink): New function.
+	(do_relocations): Fix fatal typo in modifying weak-became-defined
+	symbols.
+
+2000-12-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* bin-cris.sh (tmpfile): Do not set until parameters are parsed.
+	(width, block): Initialize to 1 and 0, respectively.  Do not test
+	for empty values.
+  	Try running objcopy-cris in PATH before trying installation
+	directory.  Work around objcopy problem with ELF files with two
+	program segments (gap between segments) by parsing readelf output
+	and including/excluding sections when calling objcopy.
+
+2000-11-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Makefile (the_files): Add strip-wrap.  Remove bin-cris and
+	cris-burn.c
+	(install): Install bin-cris.sh as bin-cris and cris-burn.
+	(clean): Remove cris-burn
+	(cris-burn): Delete rule.
+	(all): Do not depend on cris-burn
+	* README: Update.
+	* cris-burn.c, bin-cris: Delete.
+	* bin-cris.sh: Clean up.  Change objcopy workaround to accommodate
+	for latest binutils version.
+
+2000-11-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* strip-wrap: Tweak message.
+
+2000-10-31  Hans-Peter Nilsson  <hp@axis.com>
+
+	* strip-wrap: New.
+	* Makefile (install): Install strip-wrap as strip.
+
+	* nm-wrap: "Declare" $nm_path.
+
+2000-09-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Makefile (final_libsubdir): New.
+
+Sat May  6 01:00:38 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* nm-wrap (after system call of real nm): Add missing setting of
+	"$errvalue" from "$?".  Simplify and correct error-handling.
+
+Fri May  5 16:26:20 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* nm-wrap (Pointing to the real file): Do not try and resolve
+	relative paths.
+
+Wed May  3 01:31:58 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* nm-wrap ($hashbangshell): Include the ending "\n" as well.
+	Handle shell-scripts pointing to the real file via a
+	<URL:file:...> marker on the second line.
+
+Mon May  1 23:07:28 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Makefile (the_files): Add nm-wrap.
+	(.PHONY): Add install dist distrib.
+
+	* xasum.c: Deleted.  All references removed.
+
+Fri Apr 28 21:50:54 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ldur-cris (sim options): Handle "-msim-input=".
+	Put stripping of -mwrap-exec, -mtimeout and -msim-input=
+	together.
+	(simulator invocation here doc): Insert "-msim-input" options.
+
+Mon Apr 24 00:09:46 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Makefile (install): Install nm-wrap as nm.
+	* nm-wrap: New.
+
+	* ldur-cris: Update copyright.
+
+Sun Apr 23 16:02:41 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ldur-cris (wrap-exec, xsim invocation here-doc): Remove
+	misplaced \$exename as program argument.
+
+Sat Apr 22 03:07:13 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ldur-cris (timeout handling): Typo: remove \ escaping
+	parenthesis to catch value in regex.
+	(wrap-exec handling): Do not mention name of program in wrapper
+	script.  Deduce from $0.
+
+Sat Apr  8 11:11:11 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ldur-cris (timeout handling): Filter out -mtimeout* option from
+	options.
+	(wrap-exec handling): Remove ineffective data size limitation.
+
+Fri Apr  7 23:35:47 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ldur-cris (wrap-exec handling): Limit data size to 256M.
+
+Tue Mar 28 08:56:33 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ldur-cris: Move $outfile assignment out from if "-Ur -d" block.
+	Rename $next to $next_arg.
+	Implement "-mtimeout" and "-mwrap-exec".
+
+Thu Mar  9 18:32:46 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* ldur-cris: Add support for format of binutils ld 2.9.1
+	When linking dynamically, rework handling of objects to allow the
+	unpatched-linker map format which does not list segments with no
+	contents.
+
+Thu Mar  9 01:06:27 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* ldur-cris: Change nop-option from "-F" to "-g" to make
+	binutils-2.9.1 work.
+
+Wed Oct 20 02:46:40 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* ldur-cris: Perform @SEARCH_LIBPATH@file path substitution.
+	Make sure error code is >= 1 and unlink outfile when real linker
+	fails.
+	Add copyright line.
+
+Wed Sep 22 19:28:30 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* ldur-cris: Fix library recognition regex to recognize path not
+	starting with "." or "/" (like for example "../").
+
+Wed Sep  8 10:18:11 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* ldur-cris (do_relocations): Change \n to \x0a in binary data.
+
+Tue Sep  7 01:29:45 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* ldur-cris (do_relocations): Fix off-by-length error (unnoticed)
+	when reading strings.  Fix error message s/$ME/$infile/.
+
+Wed Jun  2 12:40:42 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* ldur-cris: Removed handling of "hinted" symbol.
+
+Mon May 31 17:10:06 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* ldur-cris: Added ground level of dynamic linking.
+
+Thu Mar 25 14:50:45 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* ldur-cris (do_relocations): Added recognition of weak
+	definitions abs, text, data, bss.
+
+Thu Mar 18 18:08:45 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* ldur-cris (do_relocations): Explicitly delete output if
+	undefined references.
+
+Mon Feb 22 14:35:52 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* ldur-cris: Do not try the special one- and two-argument
+	usage if first argument is an option (starts with '-').
+
+	* ldur-cris (do_relocations): Allow relocs to (file-) address 0.
+
+	* ldur-cris: Follow symlinks before substituting path for calling
+	"real" linker.
+
+	* Makefile (install): Accept Perl 5.003 for bin-cris.
+
+	* bin-cris.sh (usage printouts): Minor tweaks to the help-output.
+
+Thu Jan 14 16:34:18 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* Makefile (install): Say version >= 5.004 rather than version 5.
+
+Mon Jan 11 13:06:33 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* ldur-cris: Require 5.004, as 5.003 "miscompiles" it.
+	Apply chmod on the output-file afterwards so not to use sysopen
+	which might not be available.
+
+	* Makefile (install): Require 5.004 instead of grepping for
+	version number.
+
+Mon Jan  4 14:05:03 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* ldur-cris: The command name is $0, not $ARGV[0]...
+
+Fri Nov 13 23:23:00 1998  Hans-Peter Nilsson  <hp@axis.se>
+
+	* Makefile: Remove "version 1.0".  Add ldur-cris to "the_files".
+	* Makefile (install): If neither of cris-burn or bin-cris (perl
+	version) installs, install the /bin/sh version of bin-cris.
+	* Add installation of ldur-cris as ld if perl 5 is found at
+	/usr/bin/perl; do not mention it as necessary for bin-cris.
+	* README: Mention ldur-cris and elinux.
+
+Mon Nov  9 17:17:24 1998  Hans-Peter Nilsson  <hp@axis.se>
+
+	* xasum.c (main): Use int, not uword, for return-value and argc.
+
+Mon Nov  9 11:38:58 1998  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris-burn.c: Changed to K&R-style parameter definitions.
+	Removed rudimentary "changelog" in file.
+
+	* Makefile (install): Check that either of bin-cris or cris-burn
+	succeeds.
+
+Mon Sep  7 12:57:18 1998  Hans-Peter Nilsson  <hp@scar.axis.se>
+
+
+Mon Sep  7 12:56:40 1998  Hans-Peter Nilsson  <hp@axis.se>
+
+        * bin-cris: Use /usr/bin/perl, not /usr/local/bin/perl
+        * (First entry; post cris-dist-1.0, cris-romtools-1.1)

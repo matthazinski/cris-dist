@@ -1,0 +1,1326 @@
+#! /usr/bin/perl -w
+# Keep the -w and remove your bugs instead.
+#
+# ldur-cris - wrapper for "ld-cris" to make "ld -Ur" DTRT.
+#	      Later abused to handle shared libraries.
+#
+# Copyright (C) 1998, 1999, 2000, 2001 Axis Communications.
+#
+# The Right Thing here is to have relocations in .text and
+# .data relative only to .text, .data and .bss *without* going
+# through any symbols.  Currently - with binutils-2.6 - ld -Ur
+# still has relocations to symbols, which makes it necessary to
+# parse the symbol table when writing a loader for relocatable
+# images.
+#
+#  ldur-cris is called with a single argument, the "-Ur"
+# relocated file to "patch", or with two arguments, the original
+# file and the file to patch, or with the same arguments as ld
+# (which must be located in the same directory as ldur-cris);
+# in this case ld is called as "rld-cris", and the output is
+# corrected iff the switch "-Ur" was given to ld.
+
+# All previous releases have problems with the syntax of some
+# reference elements.  I don't like to work around them by
+# rewriting it, so just make them go away.
+require 5.004;
+
+keel ("one, two or same arguments as \"ld\", please.")
+    # We always want an argument
+    unless ($#ARGV >= 0);
+
+$real_linker = "rld-cris";
+
+# For dynamic linking:
+$rpath = '';
+$ME = $0;
+@lib = ();                      # object (number) -> lib:index
+@objs = ();                     # objects in found order (as emitted in a
+                                # statically linked object).
+undef %shlib;                   # lib-as-linked -> dirless-lib-symread-once.
+@libs = ();                     # lib-as-linked in found order
+@liboff = ();                   # Byte-offset into library,
+				# indexed on object number
+undef %strings;                 # Offset of string S into string area.
+$outfile = '';                  # The output (must be deleted if errors).
+$search_libpath_marker = "\@SEARCH_LIBPATH\@"; # Work around limitation in gcc.
+
+if ($#ARGV == 0 && substr($ARGV[0], 0, 1) ne '-')
+{
+  # One argument - perform relocations on that file
+
+  do_relocations ($ARGV[0], $ARGV[0], 0);
+}
+elsif ($#ARGV == 1 && substr($ARGV[0], 0, 1) ne '-')
+{
+  # Two arguments - relocate input file and write output file.
+  do_relocations ($ARGV[0], $ARGV[1], 0);
+}
+else # Will call linker in some form
+{
+  # Note that we assume '/' is a dirseparator.  MS users beware.
+  # Replace the name we are called with, but keep the rest of
+  # the path.
+  my ($ldpath) = $0;
+  my $wrap_exec = 0;
+  my $timeout = 0;
+  my $next_arg = 0;
+  my @simargs = grep ($_ =~ /^-msim-input=/, @ARGV);
+  my @simargs_pre = grep ($_ =~ /^-msim-input-pre=/, @ARGV);
+
+  if (grep ($_ eq "-mwrap-exec", @ARGV))
+  {
+    $wrap_exec = 1;
+  }
+
+  if (grep ($_ =~ /^-mtimeout/, @ARGV))
+  {
+    $timeout = 300;
+    grep
+    {
+      if ($_ =~ /^-mtimeout=(\d+)/)
+      {
+	$timeout = $1;
+      }
+    } @ARGV;
+  }
+
+  map { $_ =~ s/^-msim-input=//; } @simargs;
+  
+  map { $_ =~ s/^-msim-input-pre=//; } @simargs_pre;
+  
+  @ARGV = grep ($_ ne "-mwrap-exec"
+		&& $_ !~ /^-mtimeout/
+		&& $_ !~/^-msim-input=/
+		&& $_ !~/^-msim-input-pre=/, @ARGV);
+
+  $ldpath = my_readlink($ldpath)
+      while (-l $ldpath);
+
+  $0 = substr ($ldpath, 0, rindex ($ldpath, '/')) . "/$real_linker";
+
+  # We need this for -melinux and -wrap-exec.
+  $outfile = join ('',
+		   map
+		   {
+		     if ($next_arg == 1)
+		     {
+		       $next_arg = 0;
+		       $_;
+			}
+		     else
+		     {
+		       $next_arg = 1 if $_ eq "-o";
+		       '';
+		     }
+		   } @ARGV);
+
+  $outfile = 'a.out' if $outfile eq '';
+
+  # Is "-Ur" and "-d" given? (once or more).
+  if (index (join ('', map { $_ eq "-Ur" ? $_ : "";} @ARGV), "-Ur") == 0
+      && index (join ('', map { $_ eq "-d" ? $_ : "";} @ARGV), "-d") == 0)
+  {
+    my @lpaths;
+    my $arg;
+
+    # Skip this normally, but punish timely if it's there.
+    if (grep {/\Q$search_libpath_marker\E/} @ARGV)
+    {
+      # Perform ugly library path substitution here, since gcc currently
+      # cannot handle this kind of dynamically-modified-path search.
+      #
+      # When we find a $search_libpath_marker, use the rest of the argument
+      # (assuming it's a file) and use preceding "-L"-switches to resolve
+      # which one of them to substitute, to find a valid path for the file.
+      #  Then modify that argument to the correct path.
+      $next_arg = 0;
+    LPATHS:
+      foreach $arg (@ARGV)
+      {
+        if ($next_arg)
+        {
+          chop $arg
+              if (substr($arg, -1) eq "/");
+
+          push @lpaths, $arg;
+          $next_arg = 0;
+
+          next LPATHS;
+        }
+
+        if (substr($arg, 0, 2) eq "-L")
+        {
+          if ($arg eq "-L")
+          {
+            $next_arg = 1;
+
+            next LPATHS;
+          }
+
+          chop $arg
+              if (substr($arg, -1) eq "/");
+
+          push @lpaths, substr($arg, 2);
+        }
+        elsif (index($arg, $search_libpath_marker) != -1)
+        {
+          my $tmpfilenam
+              = substr($arg,
+                       index($arg, $search_libpath_marker)
+                       + length($search_libpath_marker));
+
+
+          foreach (@lpaths)
+          {
+            if (-f "$_/$tmpfilenam")
+            {
+              $arg =~ s:\Q$search_libpath_marker\E:$_/:;
+              last LPATHS;
+            }
+          }
+        }
+      }
+    }
+
+    # Then check if this is static or dynamic linking.
+    if (index (join ('', map { $_ eq "-Bstatic" ? $_ : "";} @ARGV),
+               "-Bstatic") == 0)
+    {
+      # Static; call the linker, then modify the output if successful.
+      system $0, @ARGV;
+      if ($?/256 != 0)
+      {
+        # If the linker aborted, then make sure we also fail and do not
+        # leave any output dangling.
+        unlink $outfile;
+
+        exit ($?/256 >= 1 ? $?/256 : 1);
+      }
+
+#    print STDERR "Got $? - $! here!\n";
+
+
+      do_relocations ($outfile, 0);
+    }
+    else
+    {
+      # Dynamic linking.  First, get options suitable for making a link-map.
+      # The "-g" option is used as a (spurious) ignored option, replacing
+      # the ones we do not want at this moment.
+      my $lastseg = "";
+      my @deferred_libs = ();
+      my @deferred_lib = ();
+      my @deferred_objs = ();
+      my @deferred_liboff = ();
+      my $imp_rpath = ':';
+      my $deferred_imp_rpath = ":";
+      my $next_arg = 0;
+      my ($curr_lib, $curr_obj);
+      my %objs_index;           # lib:obj -> index in @objs.
+      my (@mapopts)
+          = map
+            {
+              if ($next_arg)
+              {
+                $rpath .= "$_:";
+                $next_arg = 0;
+                $_ = "-g";
+              }
+              elsif ($_ eq "-rpath")
+              {
+                $next_arg = 1;
+              }
+
+              ($_ eq "-rpath" || $_ eq "-Bdynamic"
+               || $_ eq "-Ur" || $_ eq "-d") ? "-g" : $_;
+
+            } @ARGV;
+
+      my ($errvalue, $cmdline, $line);
+      my @mapout;
+      my $linked_lib;
+      my $dirpart;
+      my $has_common = 0;
+      my @shlibopts
+          = map
+            {
+              if ($next_arg)
+              {
+                $next_arg = 0;
+                $_ = "-g";
+              }
+              # A single "-L" means the path is in the next_arg argument.
+              elsif ($_ eq "-rpath" || $_ eq "-L")
+              {
+                $next_arg = 1;
+              }
+
+              ($_ eq "-rpath" || $_ eq "-Bdynamic"
+               # Library paths begone.
+               || $_ =~ /^-[lL]/
+               # (Versioned) libraries specified as files begone too.
+               # If people want to call them .so, let them.
+               || $_ =~ /(\.\d+)*\.(a|so)(\.\d+)*$/) ? "-g" : $_;
+
+            } @ARGV;
+
+      unshift @mapopts, "-M";
+
+      $cmdline = "$0 " . (join ' ', @mapopts);
+
+      # Get the link map.
+      @mapout = `$cmdline`;
+
+      $errvalue = $?/256;
+
+      # Make sure there's no output if we later fail (and fail in failing
+      # correctly).
+      unlink $outfile;
+
+      exit $errvalue if $errvalue != 0;
+
+      # Take a look at the map, and note the interesting bits.
+      # This area is sensitive to changes in the linker map output format.
+      #
+      # There is a little complication here; segments without contents (zero
+      # size) are not listed.  It requires a simple patch to
+      # binutils/ld/ldlang.c which we used to have, but since we want to
+      # play by the rules of an official unpatched version, we might not be
+      # able to convince people that the map format should be as we want.
+      #  Instead we now keep lists of the stuff that new objects carry with
+      # them, and insert that in the "real" lists before any object we've
+      # seen before.  It's not perfect, there *will* be differences in
+      # object link order between static and dynamic links.
+      # We have to assume that (not a complete analysis):
+      #  * Objects with competing weak symbol definitions have those symbols
+      #    located in the same segment.
+      #  * There are no "winning" weak bss symbols in objects with no
+      #    contents in other segments.
+      #  * Link order does not matter in other aspects.
+      # 
+      # Everything works fine if we get to have the nicely formatted link
+      # map output, and things will hopefully still work if we don't.
+      foreach $line (@mapout)
+      {
+        chomp $line;
+
+	if ($has_common && $line !~ /^Common symbol/)
+	{
+	  # For 2.9.1, the name of the first common symbol comes two lines
+	  # down from where we found the trigger.  For long symbol names,
+	  # the file name is not on that line.  Instead of jumping through
+	  # hoops to find the file-name, we just print the first line.
+	  keel ("Symbols of type COMMON not allowed for shared libraries.\n"
+		. " (use asm `.lcomm $1' and `.globl $1', not `.comm $1')\n"
+		. " First found: $line");
+	}
+
+        if ($line =~ /^Allocating common ([^:]+): (?:[^ ]+ )+([^ ]+)$/)
+        {
+          keel ("Symbols of type COMMON not allowed for shared libraries; first found `$1' in `$2'"
+                . "\n (use asm `.lcomm $1' and `.globl $1', not `.comm $1')");
+        }
+	elsif ($line =~ /^Allocating common /)
+	{
+	  # In 2.9.1, that's just the header.  Let's skip the next line and
+	  # take the one after that.
+	  $has_common = 1;
+	  next;
+	}
+
+	# This regex is a little ad-hoc (with 2 bugs killed).
+	# There's the output-difference between 2.6 and 2.9.1 to take
+	# care of.  Check 2.9.1 format first.  The 2.6 support is allowed
+        # to rot.
+	elsif ($line =~ m@^\s*\.(text|data|bss)\s*0x[0-9a-f]+\s*0x[0-9a-f]+\s*((?:[^/]*/)?[^)]+)\(([^)]+)\)@
+	       || $line =~ m@^\s*\.(text|data|bss)[^\*]*\*\*[0-9]  a\.out-cris \[([^/]*/[^]]+)\]([^ (]+)@)
+	{
+	  my $seg = $1;
+	  $curr_lib = $2;
+	  $curr_obj = $3;
+
+	  # Make sure the library has a dirpart.
+	  $curr_lib = "./$curr_lib"
+	      if index ($curr_lib, "/") == -1;
+
+	  if ($seg ne $lastseg && $#deferred_objs != -1)
+	  {
+	    my $objindex;
+
+	    # If we're now in a new segment, it means all those previous
+	    # homeless objects belong to the end of the object lists.
+
+	    # Give proper index for the new members.
+	    for ($objindex = 0; $objindex <= $#deferred_objs; $objindex++)
+	    {
+	      $objs_index{"$deferred_lib[$objindex]:$deferred_objs[$objindex]"}
+	      = $#objs + 1 + $objindex;
+	    }
+
+	    # Put them last.
+	    push @objs, @deferred_objs;
+	    push @lib, @deferred_lib;
+	    push @liboff, @deferred_liboff;
+
+	    push @libs, @deferred_libs;
+
+            $imp_rpath .= substr ($deferred_imp_rpath, 1);
+
+	    @deferred_objs = ();
+	    @deferred_lib = ();
+	    @deferred_liboff = ();
+
+	    @deferred_libs = ();
+            $deferred_imp_rpath = ":";
+          }
+
+	  $lastseg = $seg;
+
+          # Make the shlib translation right here; get the first level of
+          # symlinks and remove directories.
+          if (! defined($shlib{$curr_lib}))
+          {
+            push @deferred_libs, $curr_lib;
+            $linked_lib = (-l $curr_lib ? my_readlink ($curr_lib) : $curr_lib);
+
+            # Dirseparator '/' again.  MS users beware!
+            $dirpart = substr($linked_lib, 0, rindex($linked_lib, '/'));
+            $shlib{$curr_lib} = substr($linked_lib, length($dirpart) + 1);
+
+            if (index($imp_rpath, ":$dirpart:") == -1
+		&& index($deferred_imp_rpath, ":$dirpart:") == -1)
+            {
+              $deferred_imp_rpath .= "$dirpart:";
+            }
+          }
+
+	  # Is this a new or seen object?
+          if (! defined($objs_index{"$curr_lib:$curr_obj"}))
+          {
+	    # A new object is found.  Stash it until we know where to put it
+	    # (before another object, or at the end of objects).
+            push @deferred_objs, $curr_obj;
+            push @deferred_liboff, indexof($curr_lib, $curr_obj);
+            push @deferred_lib, $curr_lib;
+
+	    # Give this a dummy (but defined) value.  Maybe not needed.
+	    $objs_index{"$curr_lib:$curr_obj"} = -1;
+          }
+	  elsif ($#deferred_objs != -1)
+	  {
+	    # If this is an object we've seen before, place all previously
+	    # "homeless" objects before it.
+	    my $objindex;
+
+	    for ($objindex = 0; $objindex <= $#deferred_objs; $objindex++)
+	    {
+	      # Give proper index for them.
+	      $objs_index{"$deferred_lib[$objindex]:$deferred_objs[$objindex]"}
+	      = $objs_index{"$curr_lib:$curr_obj"} + $objindex;
+	    }
+
+	    # Then increase the offsets of the old list members, starting
+	    # with the one we know.
+	    for ($objindex = $objs_index{"$curr_lib:$curr_obj"};
+		 $objindex <= $#objs;
+		 $objindex++)
+	    {
+	      $objs_index{"$lib[$objindex]:$objs[$objindex]"}
+		+= $#deferred_objs + 1;
+	    }
+
+	    # Put the homeless objects at the index we just computed.
+	    splice (@objs, $objs_index{"$deferred_lib[0]:$deferred_objs[0]"},
+		    0, @deferred_objs);
+	    splice (@lib, $objs_index{"$deferred_lib[0]:$deferred_objs[0]"},
+                    0, @deferred_lib);
+	    splice (@liboff,
+                    $objs_index{"$deferred_lib[0]:$deferred_objs[0]"},
+                    0, @deferred_liboff);
+
+	    # This list should also be in order of use, but we have to find
+	    # the right index manually.  Walk it from the last item.
+	    for ($objindex = $#libs; $objindex >= 0; $objindex--)
+	    {
+	      if ($libs[$objindex] eq $curr_lib)
+	      {
+		splice (@libs, $objindex, 0, @deferred_libs);
+		last;
+	      }
+	    }
+
+	    keel ("Did not find old occurrence of $curr_lib in liblist ("
+		  . join (", ", @libs) . ")")
+		if ($objindex == -1);
+
+            $imp_rpath .= substr ($deferred_imp_rpath, 1);
+
+	    @deferred_objs = ();
+	    @deferred_lib = ();
+	    @deferred_liboff = ();
+
+	    @deferred_libs = ();
+            $deferred_imp_rpath = ":";
+	  }
+        }
+      }
+
+      if ($#deferred_objs != -1)
+      {
+	# If there are objects that were not placed, place them after the
+	# rest, as when a new segment is seen.
+	my $objindex;
+
+	# If we're now in a new segment, it means all those previous
+	# homeless objects belong to the end.
+	for ($objindex = 0; $objindex <= $#deferred_objs; $objindex++)
+	{
+	  # Give proper index for them.
+	  $objs_index{"$deferred_lib[$objindex]:$deferred_objs[$objindex]"}
+	  = $#objs + 1 + $objindex;
+	}
+
+	# Put them last.
+	push @objs, @deferred_objs;
+	push @lib, @deferred_lib;
+	push @liboff, @deferred_liboff;
+
+	push @libs, @deferred_libs;
+	$imp_rpath .= substr ($deferred_imp_rpath, 1)
+	    unless $deferred_imp_rpath eq ":";
+
+	@deferred_objs = ();
+	@deferred_libs = ();
+	@deferred_liboff = ();
+	@deferred_lib = ();
+	$deferred_imp_rpath = ":";
+      }
+
+
+      # Ok, now link it the way we used to *but without any libraries*.
+      $cmdline = "$0 " . (join ' ', @shlibopts);
+      # Get the link map.
+      system("$cmdline");
+
+      $errvalue = $?/256;
+
+      if ($?/256 != 0)
+      {
+        # If the linker aborted, then make sure we also fail and do not
+        # leave any output dangling.
+        unlink $outfile;
+
+        exit ($?/256 >= 1 ? $?/256 : 1);
+      }
+
+      # Remove the first and last ":".
+      if ($rpath ne '')
+      {
+        chop $rpath;
+      }
+      else
+      {
+        $rpath = substr($imp_rpath, 1, length($imp_rpath) - 2);
+      }
+
+      do_relocations($outfile, 1);
+    }
+  }
+  else
+  {
+    # No "-Ur", just call the real linker.
+    if ($wrap_exec == 0)
+    {
+      exec $0, @ARGV;
+    }
+    else
+    {
+      system $0, @ARGV;
+
+      $errvalue = $?/256;
+
+      if ($errvalue != 0)
+      {
+        # If the linker aborted, then make sure we also fail and do not
+        # leave any output dangling.
+        unlink $outfile;
+
+        exit ($errvalue >= 1 ? $?/256 : 1);
+      }
+    }
+  }
+
+  # If we're supposed to wrap the linked output into a self-executing
+  # shell script, handle that here.  The "executable" to wrap is in a file
+  # named as the result-file, so we have to move it first.
+  if ($wrap_exec != 0)
+  {
+    my $outbase = substr ($outfile, rindex ($outfile, "/") + 1);
+    my $outtmp = "$outfile.ldcris.$$.tmp";
+    my $uuout;
+
+    rename ($outfile, $outtmp)
+      || keel ("Cannot move $outfile (for \"wrapping\"): $!");
+
+    open (OUTFILE, ">$outfile")
+      || keel ("Cannot re-open $outfile (for \"wrapping\"): $!");
+
+    # Note that we avoid mentioning the name of the program in the
+    # script.  This since the gcc testsuite compares output of a
+    # compilation with the last, and avoids executing the new output if
+    # the contents is the same.  They will never be the same if they
+    # contain different, unique names.
+    print OUTFILE <<EOH
+#! /bin/sh
+TMPDIR=\${TMPDIR:-/tmp}
+exename=\$TMPDIR/\`basename \$0\`.\$\$
+trap "rm -f \$exename \$exename.in \$exename.out \$exename.err 2>/dev/null 2>&1; exit 1" 1 2 15 
+uudecode -o \$exename <<'EXEEOF'
+EOH
+      || keel ("Cannot print to $outfile (for \"wrapping\"): $!");
+    $uuout = `uuencode noname < $outtmp`;
+    $errvalue = $?/256;
+
+    # We're done with the binary file, so remove it.
+    unlink $outtmp;
+
+    if ($errvalue != 0)
+    {
+      # If the linker aborted, then make sure we also fail and do not
+      # leave any output dangling.
+      close OUTFILE;
+      unlink $outfile;
+
+      exit ($errvalue >= 1 ? $errvalue : 1);
+    }
+
+    print OUTFILE $uuout;
+    print OUTFILE "EXEEOF\n";
+    print OUTFILE "ulimit -t $timeout\n" if $timeout != 0;
+
+    my $simargs = join ("\n", @simargs_pre, q[l"$exename"], @simargs);
+    print OUTFILE <<EOF
+cat > \$exename.in <<EOI
+$simargs
+g2000000000
+g2000000000
+g2000000000
+g2000000000
+q
+EOI
+xsim -i \$exename.in -o \$exename.out -a \$exename.err -e \$*
+errcode=\$?
+rm -f \$exename.in \$exename.out \$exename.err \$exename
+exit \$errcode
+EOF
+      || keel ("Cannot print to $outfile (for \"wrapping\"): $!");
+
+    close OUTFILE || keel ("Cannot close $outfile (for \"wrapping\"): $!");
+    chmod (0777 & ~(umask()), $outfile)
+      || keel ("Could not make $outfile executable: $!");
+  }
+}
+
+exit;
+
+sub do_relocations
+{
+  # Note infile and outfile may be the same file; don't start the write
+  # before the read is finished.
+  my ($infile, $dynamic) = @_;
+  my $header = '';
+  my ($magic, $textlen, $datalen, $bsslen, $symsize, $startaddr,
+      $trelocsize, $drelocsize);
+  my ($text, $data, $syms, $trelocs, $drelocs, $stringlenV, $strings)
+      = ('', '', '', '', '', '', '');
+  my ($stringlen);
+
+  # First we read the header
+  open (IN, "<$infile")
+      || keel ("Cannot open $infile: $!");
+
+  binmode IN; # Prepare for MS systems or other creatures.
+
+  # We know at least the header should be there.
+  defined (read IN, $header, 32)
+      || keel ("Cannot read header of $infile: $!");
+
+  # Split up the header parts.
+  ($magic, $textlen, $datalen, $bsslen, $symsize, $startaddr,
+      $trelocsize, $drelocsize)
+      = unpack ("VVVVVVVV", $header);
+
+  # Note that this (with -Ur) is the same magic as for a "normal"
+  # *object*-file file (OMAGIC).  We have to find out ourselves
+  # if this will be completely linkable by itself.
+  #  Note also that the "old" linker from binutils-1.94 does not
+  # create valid output with -Ur, so it would be wrong to check
+  # for it.
+  keel ("This file is not an a.out-cris file linked with -Ur: $infile")
+      unless ($magic == 0x1ff0107);
+
+  # Later on, we may get crazy enough to generate PIC; then this
+  # *may* happen.  Hopefully this is in "ld" by then, and not as
+  # an external wrapper.
+  if ($trelocsize == 0 && $drelocsize == 0)
+  {
+    printf STDERR "$ME: Warning: $infile has no relocations, need no massage\n";
+  }
+
+  # Read each part of the file into a "string".
+  defined (read IN, $text, $textlen)
+      || keel ("Cannot read .text segment of $infile: $!");
+
+  defined (read IN, $data, $datalen)
+      || keel ("Cannot read .data segment of $infile: $!");
+
+  defined (read IN, $trelocs, $trelocsize)
+      || keel ("Cannot read .text relocations of $infile: $!");
+
+  defined (read IN, $drelocs, $drelocsize)
+      || keel ("Cannot read .data relocations of $infile: $!");
+
+  defined(read IN, $syms, $symsize)
+      || keel ("Cannot read symbol table entry $i of $infile: $!");
+
+  # Take a break here.
+#  print "Textsize: $textlen, Datasize: $datalen\n";
+#  print "Textrelocs: $trelocsize, Datarelocs: $drelocsize\n";
+#  print "Syms: $symsize, Start: $startaddr, Bss: $bsslen\n";
+
+  # There may be no strings.  This cannot be seen until we try
+  # to read them, as the length is not located in the header.
+  if (!defined (read IN, $stringlenV, 4)
+      # Give it some slack; 0..4 bytes for length equals no strings.
+      || ($stringlen = unpack ("V", $stringlenV)) < 4)
+  {
+    if ($infile eq $outfile)
+    {
+      # I guess we're done then?  There can't be any
+      # symbol string-lookups when there are no strings.
+      exit 0;
+    }
+    else
+    {
+      close IN || keel ("Cannot close $infile: $!");
+      exec "cp -f $infile $outfile";
+#      keel ("Could not exec cp -f $infile $outfile: $!");
+    }
+  }
+
+  # Get the strings, so we can start with the cumbersome stuff.
+  $stringlen = unpack ("V", $stringlenV);
+
+#  print "Strings: $stringlen\n";
+
+  defined (read IN, $strings, $stringlen - 4)
+      || keel ("Cannot read strings of $infile: $!");
+
+  # Sanity check:
+  keel ("Textrelocs of strange length, not a multiple of 12: $trelocsize")
+      unless $trelocsize % 12 == 0;
+
+  keel ("Datarelocs of strange length, not a multiple of 12: $drelocsize")
+      unless $drelocsize % 12 == 0;
+
+  keel ("Symbols of strange length, not a multiple of 12: $symsize")
+      unless $symsize % 12 == 0;
+
+  # Now unpack the symbols
+
+  # Syms:
+
+  # udword index in stringtable
+  # symtype 5:1  (<<1): 0 undef 2 abs 4 text 6 data 8 bss 12 weak
+  # (including extern bit:) 13 undefweak 14 absweak 15 textweak 16 dataweak
+  #  17 bssweak
+  # 0: extern
+  # udword value (into filespace)
+
+  # Will unpack the symbol, halfway
+
+  foreach $i (0 .. ($symsize/12 - 1))
+  {
+    my ($segsym, $extern, $symtype, $string);
+    my ($index, $symtyperaw, $value) = unpack("VVV", substr($syms, $i*12, 12));
+
+    $extern = $symtyperaw & 1;
+
+    $symtype = $symtyperaw & 30;
+
+    # Weak symbols always have global linkage, and the extern bit is used as
+    # part of the symbol type.
+    if ($symtype > 12)
+    {
+      $symtype |= $extern;
+      $extern = 1;
+    }
+
+    keel ("Strange string index $index, (stringsize: $stringlen)")
+        unless $index < $stringlen-1 || ($index != 0 && $index < 4);
+
+    if ($index != 0)
+    {
+      $string = substr ($strings, $index - 4,
+                        index($strings, "\0", $index - 4) - $index + 4);
+      $strings{$string} = $index;
+    }
+    else
+    {
+      $string = "";
+    }
+
+# This goes for a lot of stabs-type symbols, which are not used
+# for relocation (should be checked if they are actually used then).
+#    keel ("Unexpected raw symtype: $symtyperaw, string: $string")
+#        unless ($symtyperaw & ~31) == 0;
+#
+#    keel ("Strange symtype $symtype, not 0, 2, 4, 8, 13, 14, 15, 16, 17")
+#        unless ($symtype == 0 || $symtype == 2 || $symtype == 4 || $symtype == 6
+#                || $symtype == 8 || $symtype == 12 || || $symtype == 14 ||
+#                $symtype == 15 || $symtype == 16 || $symtype == 17);
+
+# Take no notice about "strange" symbols or empty symbol
+# strings.  They may be used some other time; they're stabs and
+# such ilk.
+
+    $string = '' if (($symtyperaw & ~31) != 0
+                     || !($symtype == 0 || $symtype == 2
+                          || $symtype == 4 || $symtype == 6 || $symtype == 8
+                          || $symtype == 12 || $symtype == 14 || $symtype == 15 
+                          || $symtype == 16 || $symtype == 17));
+
+    $syms_halfcooked[$i] = [ $extern, $symtype, $string, $value ];
+
+#    printf "$i: u%s $string\n", $symtype == 12 ? "weak" : $extern ? "e" : ""
+#               if $symtype == 0 || $symtype == 12;
+#    print  "$i:   $string == $value\n" if $symtype == 2;
+#    printf "$i: %s $string == %s%s$value\n", $extern ? ($symtype > 12 ? "we" : "e") : " ",
+#     ($symtype == 4 || $symtype == 15 ? "t" : $symtype == 6 || $symtype ==
+#               16 ? "d" : $symtype == 8 || $symtype == 17 ? "b" : "?"),
+#     ($value >= 0 ? "+" : "") unless $symtype == 0 || $symtype == 2
+#      || $symtype == 12;
+  }
+
+#  print "\n";
+
+  # filespace 0 text:data:bss
+
+  # relocs:
+  # addr to text/data to be reloced
+  # 31:8 segment (extern = 0): 4 text 6 data 8 bss
+  #   /symbol (extern = 1) index from 0
+  # 7 extern
+  # 6:2 ?
+  # 1:0 reloctype: 0 reloc_8 1 reloc_16 2 reloc_32 3 reloc_bdisp8
+
+  foreach $i (0 .. ($trelocsize/12 - 1))
+  {
+    my ($segsym, $extern, $reloctype);
+    my ($address, $segsymraw, $offset) = unpack("VVV", substr($trelocs, $i*12, 12));
+
+    $extern = ($segsymraw >> 31) & 1;
+    $reloctype = ($segsymraw >> 24) & 3;
+    $segsym = $segsymraw & 0xffffff;
+
+    # Eh, reloc_8, .._16 and _bdisp8 are not used from the
+    # compiler and not very well tested, so croak on them too.
+    keel ("Reloctype $reloctype unknown") unless $reloctype == 2;
+
+    keel ("Address $address not in 0 .. $textlen")
+        unless $address >= 0 && $address < $textlen - 3;
+
+    keel ("Symbol $segsym not in 0 .. $symsize/12")
+        unless $extern == 0 || ($segsym >= 0 && $segsym < $symsize/12);
+
+#    keel ("Symbol $segsym not a multiple of 12")
+#        unless $extern == 0 || ($segsym % 12 == 0);
+
+    keel ("Segment $segsym not 2, 4, 6, 8")
+        unless $extern == 1 || ($segsym == 2 || $segsym == 4 || $segsym == 6 ||
+                                $segsym == 8);
+#    printf "%x = %s\n", $address,
+#     sprintf ("%s%s%s%s%d", $syms_halfcooked[$segsym][2],
+#              $syms_halfcooked[$segsym][1] == 2
+#              && $syms_halfcooked[$segsym][3] >= 0 ? "+" : "",
+#              $syms_halfcooked[$segsym][1] == 2 ? $syms_halfcooked[$segsym][3] : "",
+#              $offset >= 0 ? "+" : "", $offset)
+#         unless $extern == 0;
+#
+#    printf "%x = %s\n", $address,
+#     sprintf ("%s%s%s",
+#              $segsym == 4 ? "text" : $segsym == 6 ? "data" : $segsym == 8 ? "bss" :
+#              $segsym == 12 ? "uweak" : "?",
+#              $offset >= 0 ? "+" : "", $offset)
+#         unless $extern == 1;
+
+    $trelocs_halfcooked[$i] = [ $address, $segsym, $extern, $reloctype, $offset ];
+  }
+
+#  print "\nDRELOCS:\n";
+
+  foreach $i (0 .. ($drelocsize/12 - 1))
+  {
+    my ($segsym, $extern, $reloctype);
+    my ($address, $segsymraw, $offset) = unpack("VVV", substr($drelocs, $i*12, 12));
+
+    $extern = ($segsymraw >> 31) & 1;
+    $reloctype = ($segsymraw >> 24) & 3;
+    $segsym = $segsymraw & 0xffffff;
+
+    keel ("Loss of sign") unless $segsym >= 0 || $segsymraw < 0;
+
+    # Eh, reloc_8, .._16 and _bdisp8 are not used from the
+    # compiler and not very well tested, so croak on them too.
+    keel ("Reloctype $reloctype unknown") unless $reloctype == 2;
+
+    keel ("Address $address not in 0 .. $datalen")
+        unless $address >= 0 && $address < $datalen - 3;
+
+    keel ("Symbol $segsym not in 0 .. $symsize/12")
+        unless $extern == 0 || ($segsym >= 0 && $segsym < $symsize/12);
+
+#    keel ("Symbol $segsym not a multiple of 12")
+#        unless $extern == 0 || ($segsym % 12 == 0);
+
+    keel ("Segment $segsym not 2, 4, 6, 8")
+        unless $extern == 1 || ($segsym == 2 || $segsym == 4 || $segsym == 6 ||
+                                $segsym == 8);
+
+#    printf "%x = %s\n", $address,
+#     sprintf ("%s%s%s%s%d", $syms_halfcooked[$segsym][2],
+#              $syms_halfcooked[$segsym][1] == 2
+#              && $syms_halfcooked[$segsym][3] >= 0 ? "+" : "",
+#              $syms_halfcooked[$segsym][1] == 2 ? $syms_halfcooked[$segsym][3] : "",
+#              $offset >= 0 ? "+" : "", $offset)
+#         unless $extern == 0;
+#
+#    printf "%x = %s\n", $address,
+#     sprintf ("%s%s%s",
+#              $segsym == 4 ? "text" : $segsym == 6 ? "data" : $segsym == 8 ? "bss" :
+#              $segsym == 12 ? "uweak" : "?",
+#              $offset >= 0 ? "+" : "", $offset)
+#         unless $extern == 1;
+
+    $drelocs_halfcooked[$i] = [ $address, $segsym, $extern, $reloctype, $offset ];
+  }
+
+  # Change symbols to something more useful; an associative
+  # array from the string to [ segment offset ] anonarrays (with
+  # segment 2 for absolute values).  The offset is still from
+  # the beginning of the file, not the beginning of the segment.
+
+  $errs = 0;
+
+# Actually, all symbols are resolved if -Ur -d is used;
+# importing symbols could only lead to papering over errors.
+# (This means "provide" will actually be "override" or something.)
+# Too bad the "linker-provided" symbols are still undefined.
+
+#  foreach $sym (@syms_halfcooked)
+#  {
+#    print STDERR "$ME: $$sym[2] defined more than once\n"
+#        if $$sym[0] && defined ($syms{$$sym[2]}) && ++$errs;
+#
+#    # If undefined or strange (empty string), then skip it.
+#    next if ($$sym[1] == 0 || $$sym[2] eq '');
+#
+##    print ".. $$sym[2] = $$sym[0] : $$sym[1] - $$sym[3]\n";
+#    $syms{$$sym[2]} = [ $$sym[1], $$sym[3] ];
+#  }
+#
+#  keel ("$errs multiple definitions") unless $errs == 0;
+
+  # Provide some symbols that the linker normally would do (and
+  # maybe *should* do even now, since the link is useless to
+  # link more files against.
+
+  provide ("__Stext", 4, 0);
+  provide ("__Etext", 4, $textlen);
+  provide ("_etext",  4, $textlen);
+  provide ("__Sdata", 6, $textlen);
+  provide ("__Edata", 6, $textlen + $datalen);
+  provide ("_edata", 6, $textlen + $datalen);
+  provide ("__Sbss", 8, $textlen + $datalen);
+  provide ("_bss_start", 8, $textlen + $datalen);
+  provide ("__Ebss", 8, $textlen + $datalen + $bsslen);
+  provide ("_end", 8, $textlen + $datalen + $bsslen);
+  provide ("__end", 8,  $textlen + $datalen + $bsslen);
+  provide ("__Eall", 8,  $textlen + $datalen + $bsslen);
+  provide ("__Endmem", 2, 0x10000000);
+  provide ("__Stacksize", 2, 0); # Zero means loader will decide.
+
+  # Change undefined symbols to real values.
+  # This is the real "linking" part.  Ignore undefined symbols
+  # with no definitions at this point.
+  #  Undefined weaks are considered having the value zero, but it might be
+  # "provided" above with a different value.
+  # Also, change the symbol in the "binary" symbol table, which we will
+  # write out again, and that may be used to resolve undefined symbols in
+  # libraries(?).
+  for ($i = 0; $i <= $#syms_halfcooked; $i++)
+  {
+#        print "$syms_halfcooked[$i][2]\n" if $syms_halfcooked[$i][2] ne '' && $syms_halfcooked[$i][1] == 0 && defined($syms{$syms_halfcooked[$i][2]});
+    if (($syms_halfcooked[$i][1] == 0 || $syms_halfcooked[$i][1] == 12)
+        && defined($syms{$syms_halfcooked[$i][2]}))
+    {
+      $syms_overcooked[$i]
+#             EXTERN, SYMTYPE, STRING, VALUE
+          = [ 1, ${$syms{$syms_halfcooked[$i][2]}}[0],
+              $syms_halfcooked[$i][2], ${$syms{$syms_halfcooked[$i][2]}}[1] ];
+
+      substr($syms, $i*12+4, 8)
+          = pack("VV", ${$syms{$syms_halfcooked[$i][2]}}[0] | 1,
+                       ${$syms{$syms_halfcooked[$i][2]}}[1]);
+    }
+    elsif ($syms_halfcooked[$i][1] == 12 && $dynamic == 0)
+    {
+      # Weak undef gets here as symtype 12.  Make it ABS 0, unless we're dynamic.
+      $syms_overcooked[$i] = [ 1, 2, $syms_halfcooked[$i][2], 0 ];
+      substr($syms, $i*12+4, 8) = pack("VV", 2 | 1, 0);
+    }
+    else
+    {
+      $syms_overcooked[$i] = $syms_halfcooked[$i];
+    }
+  }
+
+  # Now we've come to the point: Relocate relocations that point
+  # to symbols; change the image directly.
+
+  # Number of removed relocations:  Needed when we shrink the
+  # relocation table for the *next* shrunk relocation.
+  $dremoved = 0;
+  $tremoved = 0;
+
+  foreach $i (0 .. $#trelocs_halfcooked)
+  {
+    my ($seg, $value);
+    my ($segsymraw, $offset);
+
+    # Skip over "non-external" relocations.
+    next unless ($trelocs_halfcooked[$i][2]);
+
+    print STDERR "$ME: undefined reference to $syms_overcooked[$trelocs_halfcooked[$i][1]][2]\n"
+        if $dynamic == 0 && $syms_overcooked[$trelocs_halfcooked[$i][1]][1] == 0 && ++$errs;
+
+#    print "Resolving text reference to $syms_overcooked[$trelocs_halfcooked[$i][1]][2] ";
+
+    # If the value has turned out absolute, then just write the
+    # image and remove the relocation (and decrease the counter).
+    if ($syms_overcooked[$trelocs_halfcooked[$i][1]][1] == 2)
+    {
+#      print ".. became absolute $syms_overcooked[$trelocs_halfcooked[$i][1]][3]" .
+#          " + $trelocs_halfcooked[$i][4]\n";
+
+      substr($text, $trelocs_halfcooked[$i][0], 4)
+          = pack("V", $trelocs_halfcooked[$i][4]
+                 + $syms_overcooked[$trelocs_halfcooked[$i][1]][3]);
+
+      substr($trelocs, ($i - $tremoved)*12, 12) = '';
+      $trelocsize -= 12;
+      $tremoved++;
+    }
+    elsif ($syms_overcooked[$trelocs_halfcooked[$i][1]][1] != 0
+           # Don't change weak symbols that are still weak, if dynamic linking
+           && ($dynamic == 0 
+               || $syms_overcooked[$trelocs_halfcooked[$i][1]][1] != 12))
+    {
+#      print ".. became normal\n";
+
+      $segsymraw = (2 << 24) + $syms_overcooked[$trelocs_halfcooked[$i][1]][1];
+
+      substr($trelocs, ($i - $tremoved)*12, 12)
+          = pack ("VVV",
+                  $trelocs_halfcooked[$i][0],
+                  $segsymraw,
+                  $syms_overcooked[$trelocs_halfcooked[$i][1]][3]
+                  + $trelocs_halfcooked[$i][4]);
+
+    }
+  }
+
+  foreach $i (0 .. $#drelocs_halfcooked)
+  {
+    my ($seg, $value);
+    my ($segsymraw, $offset);
+
+    # Skip over "non-external" relocations.
+    next unless ($drelocs_halfcooked[$i][2]);
+
+    print STDERR "$ME: undefined reference to $syms_overcooked[$drelocs_halfcooked[$i][1]][2]\n"
+        if $dynamic == 0 && $syms_overcooked[$drelocs_halfcooked[$i][1]][1] == 0 && ++$errs;
+
+#    print "Resolving data reference to $syms_overcooked[$drelocs_halfcooked[$i][1]][2] ";
+
+    # If the value has turned out absolute, then just write the
+    # image and remove the relocation (and decrease the counter).
+    if ($syms_overcooked[$drelocs_halfcooked[$i][1]][1] == 2)
+    {
+#      print ".. became absolute $syms_overcooked[$drelocs_halfcooked[$i][1]][3]" .
+#          " + $drelocs_halfcooked[$i][4]\n";
+
+      # Note that the *address of the relocation* in the
+      # relocations are relative to the start of the segment,
+      # *not* to the start of the "file-space" (as opposed to
+      # the symbols and the offset to add to the value to
+      # relocate to).
+      substr($data, $drelocs_halfcooked[$i][0], 4)
+          = pack("V", $drelocs_halfcooked[$i][4]
+                 + $syms_overcooked[$drelocs_halfcooked[$i][1]][3]);
+
+      substr($drelocs, ($i - $dremoved)*12, 12) = '';
+      $drelocsize -= 12;
+      $dremoved++;
+    }
+    elsif ($syms_overcooked[$drelocs_halfcooked[$i][1]][1] != 0
+           # Don't change weak symbols that are still weak, if dynamic linking
+           && ($dynamic == 0 
+               || $syms_overcooked[$drelocs_halfcooked[$i][1]][1] != 12))
+    {
+#      print ".. became normal\n";
+      $segsymraw = (2 << 24) + $syms_overcooked[$drelocs_halfcooked[$i][1]][1];
+
+      substr($drelocs, ($i - $dremoved)*12, 12)
+          = pack ("VVV", $drelocs_halfcooked[$i][0], $segsymraw,
+                  $syms_overcooked[$drelocs_halfcooked[$i][1]][3]
+                  + $drelocs_halfcooked[$i][4]);
+
+    }
+  }
+
+  close IN || keel ("Cannot close $infile: $!");
+
+  if ($errs != 0)
+  {
+    keel ("$errs undefined references");
+  }
+
+#  keel ("Not allowed to overwrite $outfile yet") if $infile eq $outfile;
+
+  # Add magic symbol (containing powerful potion) for shared libraries.
+  if ($dynamic)
+  {
+    my $dynstr = " ELINUX SHLIB\x0a$rpath\0";
+    my %libno;
+    # my %objno;
+    my $i;
+    my $maxlib = 0;
+    my $tmpstr = '';
+
+    keel("Sorry: Max number of libraries allowed is 256; needed %d", $#libs+1)
+        if $#libs > 255;
+
+    # Enumerate the libraries, and name them in the "shared library" form.
+    for ($i = 0; $i <= $#libs; $i++)
+    {
+      $libno{$libs[$i]} = $i;
+      $tmpstr .= "$shlib{$libs[$i]}\0";
+
+      $maxlib = length($shlib{$libs[$i]}) if length($shlib{$libs[$i]}) > $maxlib;
+    }
+
+    $dynstr .= sprintf("%x %x ", $#libs+1, $maxlib+1);
+
+    # For each object, put the library number, the offset, and the name.
+    for ($i = 0; $i <= $#objs; $i++)
+    {
+      # $objno{$objs[$i]} = $i;
+      $tmpstr .= sprintf("%s%s%s\0",
+                         # This sets an "artificial limit" of 255 libraries
+                         # used in one program, just because I'm a fascist
+                         # pig with a RO mind. 
+                         pack("C",$libno{$lib[$i]}),
+                         pack("V", $liboff[$i]),
+
+                         $objs[$i]);
+    }
+
+    
+    $dynstr .= sprintf("%x\x0a%s", $#objs + 1, $tmpstr);
+
+    # Make it a weak undefined.
+    # It is the last symbol, and so has the index corresponding to last
+    # string-length.  The value can be seen as "reserved, set to 0".
+    $syms .= pack("VVV", $stringlen, 12 | 1, 0);
+    $symsize += 12;
+
+    $strings .= "$dynstr\0";
+    $stringlen += length($dynstr) + 1;
+    $stringlenV = pack("V", $stringlen);
+  }
+
+  # Ok, just write out the new contents.  Change magic to 0x1ff0108.
+  open (OUT, ">$outfile") || keel ("Could not open $outfile: $!");
+
+  binmode OUT;
+
+  # Test the first and the last write.
+  # Note that we put stringlen in the place of "start", so an mmap can be
+  # saved.
+  print OUT pack("VVVVVVVV", 0x1ff0108, $textlen, $datalen,
+    $bsslen, $symsize, $stringlen,
+    $trelocsize, $drelocsize)
+    || keel ("Could not write header to $outfile: $!");
+
+  print OUT $text;
+  print OUT $data;
+  print OUT $trelocs;
+  print OUT $drelocs;
+  print OUT $syms;
+  print OUT $stringlenV;
+
+  print OUT $strings ||  keel ("Could not write to $outfile: $!");
+  close OUT || keel ("Cannot close $infile: $!");
+
+  # Don't forget to make it executable; "ld" does not do that.
+  # We do not use sysopen above because of one test environment where
+  # perl 5.001 failed to find sysopen.  (It failed for other
+  # reasons later, but let's keep this one workaround).
+  chmod  (0777 & ~(umask()), $outfile) || keel ("Could not make $outfile executable: $!");
+
+  # All well, mission completed.
+}
+
+sub keel
+{
+  ($arg) = @_;
+
+  unlink $outfile;
+  die ("$ME: $arg\n");
+}
+
+sub bintodec
+{
+  unpack("N", pack("B32", substr("0" x 32 . shift, -32)));
+}
+
+# Return a *usable* path when a symlink is read.
+sub my_readlink
+{
+  my ($symlink_loc) = @_;
+  my $followed_link = readlink ($symlink_loc);
+
+  # If it doesn't *start* with a "/", then it's relative.
+  if (index ($followed_link, "/") != 0)
+  {
+    # If symlink_loc *contains* a "/", then prepend everything before the
+    # last slash to what we read from the symlink.
+    if (index ($symlink_loc, "/") != -1)
+    {
+      $followed_link
+	  = substr ($symlink_loc, 0, rindex ($symlink_loc, '/'))
+	      . "/$followed_link";
+    }
+  }
+
+  $followed_link;
+}
+
+sub provide
+{
+  my ($sym, $seg, $value) = @_;
+
+  $syms{$sym} = [ $seg, $value]
+      unless defined($syms{$sym}) && ${$syms{$sym}}[0] == 12;
+}
+
+# Also used in modified form in optlibs.
+sub indexof
+{
+  my ($lib, $file) = @_;
+  my ($data, $names);
+  # Can I use "my" (not used in the FAQ) to make ARF local?
+  local *ARF;
+
+  my $index = 0;
+  my ($name, $date, $uid, $gid, $mode, $size, $fmag);
+
+  open (ARF, "<$lib") || keel ("Could not open $lib: $!");
+
+  defined (read ARF, $data, 8)
+      || keel ("Cannot read header of $lib: $!");
+  $index += 8;
+
+  # Expect magic "!<arch>\012".
+  keel ("Inconsistency: bad magic in library")
+      unless $data eq "!<arch>\012";
+
+  while (1)
+  {
+    defined (read ARF, $data, 60)
+        || keel ("Cannot read header of $lib: $!");
+
+    # Beware! spaces are lost; use "a".  Perform a song and dance if
+    # that's not ok.
+    ($name, $date, $uid, $gid, $mode, $size, $fmag)
+        = unpack ("A16A12A6A6A8A10a2", $data);
+
+    # Expect ranlibism "__.SYMDEF       " as the first 16 bytes
+    # the first time when reading the first "file"...
+    #  The symdef stuff is ar_size (atol here) long; advance ar_size.
+    # (It's symbols and offsets to the right object; will be useful
+    # for the loader but not here and right now)
+    #  ??? Something else than symdef may describe an extended entry;
+    # check libc.a
+
+    # Reading 60 bytes into
+    # struct ar_hdr {
+    #   char ar_name[16];		/* name of this member */
+    #   char ar_date[12];		/* file mtime */
+    #   char ar_uid[6];		/* owner uid; printed as decimal */
+    #   char ar_gid[6];		/* owner gid; printed as decimal */
+    #   char ar_mode[8];		/* file mode, printed as octal   */
+    #   char ar_size[10];		/* file size, printed as decimal */
+    #   char ar_fmag[2];		/* should contain ARFMAG */
+    # };
+    #
+
+    # Expect "`\012" as ARFMAG.
+    keel ("Inconsistency: bad magic inside library")
+        unless $fmag eq "`\012";
+
+    # Just padding; but since we do not use the contents (in a
+    # way that the presence of padding data hurts), we can
+    # just adjust the size.
+    $size++ if ($size % 2);
+
+    # Check for extended header information (should only do this
+    # for the first or second (if first is armap) entries, but
+    # just assume people do not name their object files
+    # "ARFILENAMES/"...)
+    #  Now each file has the same layout of the
+    # header information:  16 byte header that may be the name or
+    # "ARFILENAMES/    " or "//              " (check glibc).
+    # and the rest of the ar_hdr; advance if not the right name.
+    if ($name eq "ARFILENAMES/")
+    {
+      defined (read ARF, $names, $size)
+          || keel ("Cannot read extended header of $lib: $!");
+      $index += 60 + $size;
+
+      next;
+    }
+
+    # If this name was "extended", get it from the hunk of
+    # extended names.
+    if (substr($name, 0, 1) eq ' ' && $name =~ /^ (\d+)/)
+    {
+      $name = substr($names, $1, index($names, "\012", $1)-$1);
+    }
+
+    #  The index of the filename entry (start of ar_hdr) is what is wanted.
+
+    if ($file eq $name)
+    {
+      close ARF || keel ("Error when closing $lib: $!");
+      return $index;
+    }
+
+    # Padding "to an even boundary" as mentioned in archive.c
+    $index += 60 + $size;
+    seek ARF, $size, 1
+        || keel ("Unexpected consistency or file error in library $lib: $!");
+  }
+}

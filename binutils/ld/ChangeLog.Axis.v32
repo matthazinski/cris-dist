@@ -1,0 +1,5 @@
+2007-03-05  Hans-Peter Nilsson  <hp@axis.com>
+
+	* emulparams/criself.sh (OTHER_READONLY_SECTIONS): Remove definition.
+	(DATA_ADDR): Instead provide __Etext here.
+

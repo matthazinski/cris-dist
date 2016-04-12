@@ -1,0 +1,6 @@
+- Autoconfiscate it slightly.
+- Test on freebsd
+- Get all possible manpages, infopages installed.
+- Make installation of wrappers detect that it's replacing a wrapper.
+- Make wrappers detect that they're exec:ing another wrapper (and abort
+  rather that run into an "exec loop").

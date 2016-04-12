@@ -1,0 +1,26 @@
+This is a rudimentary collection of tools for modifying the linked
+"executable" in a.out-cris little endian format.
+
+For producing ROMmable binary files, I recommend using the
+binutils "objcopy" program.  It can be used if you need to
+generate S1-record format output.  However, it has a bug when
+using the "-i" option, which is worked around in the bin-cris.sh
+shell-script.  The script takes slightly different options in
+order to be compatible with an old program compatible with an
+even older program.  The script is installed as bin-cris and
+cris-burn.
+
+There is a linker-modifier script called ldur-cris, which does nothing
+but passing through everything to the real linker, unless the switches
+"-Ur -d" are given; it then makes adjustments to the relocations to make
+sure no symbols are needed.  This is for the MMU-less version of linux,
+"elinux"; derived from uClinux (somewhat outdated info about that project
+at <URL:http://ryeham.ee.ryerson.ca/uClinux/>).  The program ldur-cris is
+installed as the linker, but only on systems with perl version 5.  This
+does not matter if you have no need to support the elinux compilation
+environment.  This program has grown to incorporate a few other
+uses which should be of no interest to the wider public.
+
+There are also wrapper programs called nm-wrap and strip-wrap,
+to handle specific situations with usage of the binutils program
+nm and strip.

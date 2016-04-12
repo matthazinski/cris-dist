@@ -1,0 +1,2704 @@
+#! /bin/sh
+#
+# Compiler tool-chain installer for the CRIS architecture.
+# Copyright (C) 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007 Axis Communications.
+#
+# Will install a source distribution of all tools and libraries needed
+# for compilation in a simplified directory layout, based on helpful
+# interaction.
+#
+# Stuff is stolen from the Axis "axinstall" printserver installation script
+# and GNU configure, the latter found in the source of the programs to install.
+# This isn't as portable as GNU configure or autoconf generated stuff though.
+#
+#  arg1=target-bin-dir arg2=man-dir arg3=info_dir
+#  arg4=temp-dir ( arg5=install-prefix FIXME: doesn't work, gcc breakage.)
+#  arg6=tuples
+#
+ICT_VERSION=1.64
+
+faname=cris
+archname=CRIS
+contact=compiler-contact@axis.com
+
+# There are assumptions that tools emit messages in the C locale.  We
+# need to enforce that, and better make sure it's before *any* command
+# that may output text.
+LC_ALL=C
+export LC_ALL
+
+argv0=$0
+program0=install-$faname-tools
+program="$program0 v$ICT_VERSION"
+default_lib=/usr/local/$faname/lib/gcc-lib/$faname
+default_bin=/usr/local/$faname
+default_tmp=./tmpdir
+
+# The *-linux* tuples will be prepended later, if glibc sources are present.
+default_tuples="crisv32-axis-elf, cris-axis-elf"
+default_installprefix=
+dist_os_file=dist-os
+default_lib_file=dist-libdir
+dist_gccver_file=dist-gccver
+dist_utils_file=dist-utils
+default_mandir=/usr/local/man/man1
+default_infodir=/usr/local/info
+compiler_binaries="gcc ar as objdump objcopy readelf addr2line ranlib"
+compiler_binaries="$compiler_binaries nm size strip strings ld collect2"
+compiler_binaries="$compiler_binaries g++ c++ c++filt cpp"
+# Make sure these match those of the installation stage (with directories).
+infodir_file=dist-infodir
+startdate=`date`
+
+# Split compiler_binaries into something that has embedded newlines
+# suitable for 80 columns (settle for 70).
+x=
+split_compiler_binaries=
+for y in `echo $compiler_binaries`
+do
+ if test `echo "$x $y" | wc -c` -gt 70
+ then
+   split_compiler_binaries="$split_compiler_binaries
+$y"
+   x=$y
+ else
+   split_compiler_binaries="$split_compiler_binaries $y"
+   x="$x $y"
+ fi
+done
+
+
+##### DEBUG STUFF HERE
+
+# For debugging, set this to something other than "$$".
+pid=$$
+
+# Skip some parts.  This is *only* for debugging purposes; might cause
+# unexpected inconsistencies.
+skip_binutils_configure=false
+skip_binutils_make=false
+skip_binutils_install=false
+skip_romtools=false
+skip_gcc_configure=false
+skip_gcc_make=false
+skip_glibc_configure=false
+skip_glibc_build=false
+skip_lib_make=false
+skip_gcc_install=false
+skip_glibc_install=false
+skip_relibs=false
+skip_man=false
+skip_info=false
+
+# See also tools tuple loop regarding disabling toolchains.
+# Disable some tool-chains by defining these variables to : or true.
+# Their use is prepended to ordinary commands, expanding to nothing
+# (command runs) or ":" (always-true command with no effect is run).
+# FIXME: Consider making this user-selectable, with appropriate
+# cleanups.
+nixelf=
+# Must not be less empty than nixelf.
+nixelfv32=
+
+# Temporarily disabled (rottening crt0), likely removed in the next release.
+nixaout=:
+nixlin=
+nixlinv32=
+
+# More generic ones, to be used when we skip *some* parts of the gcc installation.
+skip_gcc=false
+{ $skip_gcc_configure || $skip_gcc_make || $skip_gcc_install; } \
+ && skip_gcc=true
+
+skip_binutils=false
+{ $skip_binutils_configure || $skip_binutils_make \
+  || $skip_binutils_install; } && skip_binutils=true
+
+#####
+
+#
+# Maybe choose another shell for some reason.
+#
+
+# --- if we do have a /bin/sh5 then use that instead
+
+test "X$1" != "Xuse_sh5" && test "X$1" != "Xuse_ksh" && test -f /bin/sh5 && exec /bin/sh5 "$0" use_sh5 $*
+
+# --- if we're running HP-UX, use ksh instead
+
+OSNAME=
+test -f /usr/bin/uname && OSNAME=`/usr/bin/uname -sr`
+test -f /bin/uname && OSNAME=`/bin/uname -sr`
+
+OSVERSION=
+test -f /usr/bin/uname && OSVERSION=`/usr/bin/uname -v`
+
+echo $OSNAME | grep "HP-UX" >/dev/null
+test $? = 0 && test "X$1" != "Xuse_sh5" && test "X$1" != "Xuse_ksh" && test -f /bin/ksh && exec /bin/ksh "$0" use_ksh $*
+
+if test "X$1" = "Xuse_sh5" || test "X$1" = "Xuse_ksh"
+then shift
+fi
+
+# Set to something known sane, to avoid surprises.  Note: trailing space-tab on next line.
+IFS=" 	
+"
+export IFS
+
+#
+# We may now, after removing "other shell" arguments, extract the "normal"
+# arguments.
+#
+bin_arg=$1
+man_arg=$2
+info_arg=$3
+tmp_arg=$4
+# FIXME: Doesn't work due to gcc breakage.
+installprefix_arg=$5
+tuples_arg=$6
+
+# -----------------------------------------------------------------------------
+
+test -f /usr/bsd/clear  && clear=/usr/bsd/clear
+test -f /usr/ucb/clear  && clear=/usr/ucb/clear
+test -f /bin/clear      && clear=/bin/clear
+test -f /usr/bin/clear  && clear=/usr/bin/clear
+
+test -f /usr/etc/mknod  && mknod=/usr/etc/mknod
+test -f /etc/mknod      && mknod=/etc/mknod
+test -f /etc/sbin/mknod && mknod=/etc/sbin/mknod
+
+test -f /usr/bin/cut    && cut=/usr/bin/cut
+test -f /bin/cut        && cut=/bin/cut
+
+test -f /usr/bin/tee    && tee=/usr/bin/tee
+test -f /bin/tee        && tee=/bin/tee
+
+# --- echo come in many colours. ----------------------------------------------
+
+madepaths=
+
+echo_n=NO
+test X`echo -n` = X && echo_n=YES
+
+cleanup()
+{
+#
+# Remove all made directories unless it is one on the paths to $*
+#
+  for removedir in $madepaths
+  do
+    keep=false
+    for keepdir in $*
+    do
+      case $keepdir in
+	$removedir/*)
+	  keep=true
+	  break
+	  ;;
+	*) ;;
+      esac
+    done
+    if ! $keep
+    then
+      #echo '***' Removing $removedir and below.
+      rm -rf $removedir 2>/dev/null
+    # else echo Keeping $removedir
+    fi
+  done
+}
+
+myecho()
+{
+  if test X"$1" = "X-n"
+  then
+    shift
+    test $echo_n = YES && echo -n ${1+"$@"}
+    test $echo_n = NO  && echo ${1+"$@"} '\c'
+  else echo ${1+"$@"}
+  fi
+}
+
+echodo()
+{
+ # Eval used to make an argument "more than one" expand into multiple
+ # arguments for visibility, while retaining the one-ness for command
+ # execution.
+
+ eval echo ${1+"$@"}
+ eval ${1+"$@"}
+}
+
+croak()
+{
+  echo "*** $argv0:"
+  echo "    $*"
+  exit 1
+}
+
+abort_install()
+{
+  touch $errfile || echo "*** Could not mark error by creating $errfile"
+
+  echo "*** The installation is aborted, the time is:" `date`
+  echo
+  cleanup $instalog $errfile
+}
+
+bug_report()
+{
+cat <<EOF
+
+Please email a bug report to $contact
+The bug report should have a subject containing the text $program0-bug
+and the location of the file $instalog
+(or the file itself, if you can not put it at a convenient place)
+in the message.  Thank you for your patience.
+
+EOF
+  abort_install
+}
+
+installprog ()
+   # $1 is src
+   # $2 is dest
+{
+  if test -d $2
+  then
+    base=`basename $1`
+    cp -p $1 $2 && $strip $2/$base
+  else cp -p $1 $2 && $strip $2
+  fi
+}
+
+installdata ()
+   # $1 is src
+   # $2 is dest
+{
+  cp -p $1 $2
+}
+
+# --- Prompt with default for a yes or no answer. -----------------------------
+# --- Leave answer in yes_or_no.
+
+yes_or_no=
+yes_or_noP()
+   # $1 is prompt string.
+   # $2 is default answer (yes/no).
+{
+  yes_or_no=
+  while true
+  do
+    myecho -n "$1 [yn] ? (default $2): "
+    read yes_or_no
+
+    test "X$yes_or_no" = "X" && yes_or_no=$2
+
+    case $yes_or_no in
+      y | Y | yes | Yes | YES)
+	yes_or_no=YES
+	break # out of the while loop
+	;;
+      n | N | no | No | NO)
+	yes_or_no=NO
+	break # out of the while loop
+	;;
+      *)
+	yes_or_no=
+	;;
+      esac
+  done
+}
+
+# --- Simple prompt with default for a text string answer.
+# --- Leave answer in variable answer.
+
+answer=
+answerP()
+   # $1 is prompt string.
+   # $2 is default answer.
+{
+  answer=
+  if test "X$2" != "X"
+  then
+    myecho -n "$1 (default $2): "
+    read answer
+  else
+    myecho -n "$1":
+    read answer
+  fi
+  test "X$answer" = "X" && answer=$2
+}
+
+# --- Change relative paths to absolute paths
+# --- Leave answer in variable abs_path
+abs_path=
+pwdify()
+   # $1 is a path, perhaps "./"-prefixed or "."
+{
+ abs_path=$1
+ case $1 in
+   /*) ;;
+   .)   abs_path=`pwd`;;
+   ./*) abs_path=`pwd`/`echo $1 | $cut -c3-`;;
+   *)   abs_path=`pwd`/$1;;
+ esac
+ # Strip a trailing "/".  It works long enough that arising
+ # problems seem non-obvious.
+ abs_path=`echo $abs_path | sed -e 's,/$,,'`
+}
+
+# --- Simple prompt with default for a file path and name.
+# --- The path MUST begin with a / or "./" or will be assumed
+#     to start with "."
+# --- Leave answer in variable path_answer.
+
+path_answer=
+path_answerP()
+   # $1 is prompt string.
+   # $2 is default answer.
+{
+  path_answer=
+  while true
+  do
+    if test "X$2" !=  "X"
+    then
+      myecho -n "$1 (default $2): "
+      read path_answer
+    else
+      myecho -n "$1":
+      read path_answer
+    fi
+    test "X$path_answer" = "X" && path_answer=$2
+    if ! nospace "$path_answer"
+    then
+	echo "No space in the directory name, please."
+	continue
+    fi
+    pwdify $path_answer
+    path_answer=$abs_path
+    if test "X$path_answer" = "X/dev/null"
+    then break
+    elif test X$ipp != X
+    then break
+    elif has_permission $path_answer
+    then break
+    else
+      echo "Wrong answer: \"$path_answer\" is not as a directory writable by you."
+    fi
+  done
+}
+
+# --- Say not if the parameter = NO
+
+say_not()
+{
+  test "X$1" = "XNO" && echo " NOT"
+}
+
+# --- Say y or n when $1 is YES or NO.
+
+say_y_or_n()
+{
+  test "X$1" = "XYES" && echo y
+  test "X$1" = "XNO"  && echo n
+}
+
+# --- Say i or o when $1 is if or of.
+
+say_io()
+{
+  test "X$1" = "Xif" && echo i
+  test "X$1" = "Xof" && echo o
+}
+
+# --- Say in or out when $1 is if or of.
+
+say_in_or_out()
+{
+  test "X$1" = "Xif" && echo input
+  test "X$1" = "Xof" && echo output
+}
+
+# --- Test if we hawe write permission for this file.
+
+has_permission()
+   # $1 is path to test
+{
+  # If this is not a directory but is a file, then check write
+  # permissions for the directory and the file.
+  if test ! -d $1 && test -f $1
+  then has_permission `dirname $1` && test -w $1
+
+  # If not a directory and not a symlink, then we deduce that it does not
+  # exist, and we go check parent dir.
+  # (It seems -h is the most portable way to test for symlink-ness.  It is
+  #  not confirmed to work for all systems, but does so for bash in linux
+  #  and some sh on solaris/sunos.)
+  elif test ! -d $1 && test ! -h $1
+  then has_permission `dirname $1`
+  elif test -w $1
+  then true
+  else false
+  fi
+}
+
+# --- Create the directory and its path if it does not exist.
+
+mkdir_path()
+   # $1 is path to test
+{
+  if test ! -d $1
+  then mkdir_path `dirname $1` && mkdir $1 && madepaths="$madepaths $1"
+  else test -w $1
+  fi
+}
+
+# --- Check for spaces in $1 and abort with message in $2 if so.
+nospace()
+{
+  nospace=true
+  case "$1" in
+   *" "*) nospace=false;;
+   *"	"*) nospace=false;;
+   *"
+"*) nospace=false;;
+  esac
+  $nospace
+}
+
+# --- Welcome.  The main program starts here. ------------------------------------
+
+nospace "`pwd`" \
+ || croak "The current directory (`pwd`) must contain no spaces.  Start elsewhere."
+
+nospace "$argv0" \
+ || croak "No space in the directory name, please.  Unpack elsewhere and retry."
+
+nospace "$bin_arg" \
+ || croak "Main installation path, \"$bin_arg\", must contain no spaces"
+
+nospace "$man_arg" \
+ || croak "Manual path, \"$man_arg\", must contain no spaces"
+
+nospace "$info_arg" \
+ || croak "Info path, \"$info_arg\", must contain no spaces"
+
+nospace "$tmp_arg" \
+ || croak "Temporary-files path, \"$tmp_arg\", must contain no spaces"
+
+nospace "$installprefix_arg" \
+ || croak "Installation prefix, \"$installprefix_arg\", must contain no spaces"
+
+# FIXME: Trap?  What do we want to do then?  I guess we just don't
+# want to touch anything, so no traps.
+
+# Remove write permissions for g o
+umask 022
+
+#
+# Try to find things
+#
+srcpath=`echo $0 | sed 's|//|/|' | sed 's|/[^/]*$||'`
+test "x$srcpath" = "x$0" && srcpath=.
+
+case $srcpath in
+ /*) srcpath=$srcpath;;
+ *) srcpath=`pwd`/$srcpath;;
+esac
+
+#
+# Check for standard host environments we have tested.
+#
+osfound=NO
+OSNAME=`$srcpath/gnu-toplev/config.guess`
+
+# 
+case $OSNAME in
+  i[3-9]86-*-linux*) osfound=YES;;
+  x86_64-*-linux*) osfound=YES;;
+esac
+
+cat << WELCOME_END
+
+================================================================
+
+ This is the installation script for $faname-tools.  It will
+ lead you through the procedure to install the cross-compilation
+ tools for the $archname architecture on your system.  You can stop
+ this installation with the interrupt key sequence (normally <ctrl-C>)
+ at any time.
+
+ After the following questions about file locations are answered, an
+ installation log will be saved to a file, logging all events in the
+ installation process.  Should the installation fail, that log is
+ useful to people at Axis and will help speed up the process of
+ finding a correction.
+
+ As the tools are distributed in source form they will be compiled,
+ which may take a long time.  Therefore, now is a good time to exit,
+ or make this script run "nice".
+
+ The renice command might be "renice 10 $pid", depending on the
+ type of this system.
+
+WELCOME_END
+
+#
+# If the system is not "supported" then let the user stop here.
+#
+if test $osfound = NO
+then cat <<EOF
+Your system has not been tested for installation of this distribution.
+Proceed at own risk.
+EOF
+  yes_or_noP "Do you want to quit now" y
+  if test "X$yes_or_no" = "XYES"
+  then
+    echo "*** Installation aborted."
+    exit 0
+  fi
+fi
+#
+# Find out the version of the compiler
+#
+if test -f $srcpath/gnu-toplev/gcc/version.c
+then
+  gccver=`sed -n -e 's/^[^"]*version_string[^"]*"\([^" ]*\).*/\1/p;' \
+   < $srcpath/gnu-toplev/gcc/version.c`
+else
+cat <<EOF
+Installation problem: there should be a directory in the distribution
+by the name "$srcpath/gnu-toplev/gcc" with a file "version.c",
+but it seems to be absent.  Has anybody tampered with the distribution?
+Sorry, I cannot continue.
+EOF
+  exit 1
+fi
+
+default_lib=$default_lib/$gccver
+
+
+# Check for GNU make.  Ask user if MAKE not set, and if gnumake or
+# gmake or make is not GNU make.
+if test "X$MAKE" = "X"
+then
+   if (make --version -f /dev/null nothing 2>/dev/null | grep GNU >/dev/null)
+   then
+     MAKE=make
+   elif (gnumake --version -f /dev/null nothing 2>/dev/null | grep GNU >/dev/null)
+   then
+     MAKE=gnumake
+   elif (gmake --version -f /dev/null nothing 2>/dev/null | grep GNU >/dev/null)
+   then
+     MAKE=gmake
+   else
+     echo "*** I cannot find the GNU make program."
+     echo "    as neither \"make\" nor \"gnumake\" nor \"gmake\"."
+     answerP "Please tell how to call GNU make on this system" make
+     MAKE=$answer
+   fi
+fi
+
+# We assume that we found GNU make above.  For glibc, we also need it
+# to be >= 3.79, so test that and abort installation if we find
+# an unusable version, rather than failing later when configuring glibc.
+ict_make_prog_version=`$MAKE --version 2>&1 | sed -n 's/^.*GNU Make[^0-9]*\([0-9][0-9.]*\).*$/\1/p'`
+case $ict_make_prog_version in
+  '') ict_make_prog_version="unknown, unusable for glibc"; ict_make_verc_fail=yes;;
+  3.79* | 3.[89]* | [456].*)
+     ict_make_prog_version="GNU make $ict_make_prog_version, ok for glibc"; ict_make_verc_fail=no;;
+  *) ict_make_prog_version="GNU make $ict_make_prog_version, unusable for glibc"; ict_make_verc_fail=yes;;
+esac
+
+do_linux=false
+nongnu_warned=false
+
+# If there's *any* indication of a wish to build and install glibc by
+# any of the sources present, try it and complain visibly if we can't.
+# Split up in separate CRIS and CRISv32 for sanity.
+if ! $nixlin false \
+   && { test -f $srcpath/glibc/doconf \
+	|| test -f $srcpath/glibc/COPYING.LIB \
+	|| test -f $srcpath/linux-headers/asm/types.h; }
+then
+  fail=;
+  if test -f $srcpath/glibc/COPYING.LIB
+  then
+    test -f $srcpath/glibc/doconf \
+     || fail="$fail@glibc sources are not from an Axis distribution"
+  else   
+    fail="$fail@Axis glibc sources are not present"
+  fi
+  (test -f $srcpath/glibc/config.h \
+   || test -f $srcpath/glibc/config.log \
+   || test -f $srcpath/glibc/config.make \
+   || test -f $srcpath/glibc/config.status \
+   || test -f $srcpath/glibc/config.cache) \
+  && fail="$fail@glibc directory already configured.  Always unpack in an empty directory."
+  test -f $srcpath/linux-headers/asm/types.h \
+    || fail="$fail@linux headers are not present"
+  test -f $srcpath/linux-headers/_G_config.h \
+    || fail="$fail@obsolete version of linux headers"
+  test "`echo $OSNAME | sed -e 's/.*[Ll]inux.*/GNUish/g;' \
+    | sed -e 's/.*GNU.*/GNUish/g;'`" = "GNUish" \
+    || fail="$fail@the host OS environment is not GNU/Linux-like enough" && nongnu_warned=true
+  test $ict_make_verc_fail = no \
+    || fail="$fail@the make program is $ict_make_prog_version"
+  if test "X$fail" != "X"
+  then
+    echo "*** Installation problem.  Some glibc or kernel header sources are present, but"
+    save_IFS="$IFS"; IFS="@"
+    set $fail; shift;
+    for msg; do
+      echo "    - $msg"
+    done
+    IFS="$save_IFS"
+    echo "     *** WARNING: Cannot install cris-axis-linux-gnu compiler toolchain ***"
+    echo "     (The installation, if you continue, will be partial.)"
+  else
+    do_linux=true
+  fi
+else
+  $nixlin echo "*** Installation problem.  No glibc or kernel header sources are present"
+  $nixlin echo "    (Did you forget to unpack the linux-headers and glibc tar-balls?)"
+  $nixlin echo "    The installation will only be partial if you continue."
+  $nixlin echo
+fi
+
+do_linuxv32=false
+
+# See above; CRISv32 version.
+if ! $nixlinv32 false \
+   && { test -f $srcpath/glibc/doconf \
+	|| test -f $srcpath/glibc/COPYING.LIB \
+	|| test -f $srcpath/linux-headersv32/asm/types.h; }
+then
+  fail=;
+  if test -f $srcpath/glibc/COPYING.LIB
+  then
+    test -f $srcpath/glibc/doconf \
+     || fail="$fail@glibc sources are not from an Axis distribution"
+    grep crisv32 $srcpath/glibc/configure >/dev/null 2>/dev/null \
+      || fail="$fail@glibc sources do not support CRISv32"
+  else   
+    fail="$fail@Axis glibc sources are not present"
+  fi
+  (test -f $srcpath/glibc/config.h \
+   || test -f $srcpath/glibc/config.log \
+   || test -f $srcpath/glibc/config.make \
+   || test -f $srcpath/glibc/config.status \
+   || test -f $srcpath/glibc/config.cache) \
+  && fail="$fail@glibc directory already configured.  Always unpack in an empty directory."
+  test -f $srcpath/linux-headersv32/asm/types.h \
+    || fail="$fail@linux headers for CRISv32 are not present"
+  test -f $srcpath/linux-headersv32/_G_config.h \
+    || fail="$fail@obsolete version of linux headers for CRISv32"
+  test "`echo $OSNAME | sed -e 's/.*[Ll]inux.*/GNUish/g;' \
+    | sed -e 's/.*GNU.*/GNUish/g;'`" = "GNUish" \
+    || $nongnu_warned || fail="$fail@the host OS environment is not GNU/Linux-like enough"
+  test $ict_make_verc_fail = no \
+    || fail="$fail@the make program is $ict_make_prog_version"
+  if test "X$fail" != "X"
+  then
+    echo "*** Installation problem.  Some glibc or kernel header sources are present, but"
+    save_IFS="$IFS"; IFS="@"
+    set $fail; shift;
+    for msg; do
+      echo "    - $msg"
+    done
+    IFS="$save_IFS"
+    echo "     *** WARNING: Cannot install crisv32-axis-linux-gnu compiler toolchain ***"
+    echo "     (The installation, if you continue, will be partial.)"
+  else
+    do_linuxv32=true
+  fi
+else
+  $nixlinv32 echo "*** Installation problem.  No glibc or kernel header sources are present"
+  $nixlinv32 echo "    (Did you forget to unpack the linux-headersv32 and glibc tar-balls?)"
+  $nixlinv32 echo "    The installation will only be partial if you continue."
+  $nixlinv32 echo
+fi
+
+#
+# Make sure the user is on the right track in the first place.
+#
+yes_or_noP "Do you want to continue" y
+test $yes_or_no = NO && exit 0
+
+$do_linux && default_tuples="cris-axis-linux-gnu, $default_tuples"
+$do_linuxv32 && default_tuples="crisv32-axis-linux-gnu, $default_tuples"
+
+#
+# Make the user confirm the arguments or default-values.
+# Check the permissions.
+#
+
+# First check the installprefix argument (if any) for correctness, so
+# we could (if needed) use it when checking the other options.  We
+# don't get interactive over this one.
+
+if test "X$installprefix_arg" != "X" && test "X$installprefix_arg" != "X/"
+then
+  pwdify $installprefix_arg
+  specify="You have specified that"
+  installprefixpath=$abs_path
+else
+  specify="The default value"
+  installprefixpath=$default_installprefix
+fi
+
+if test "X$installprefixpath" != "X" && test "X$installprefixpath" != "X/"
+then
+  echo "***  $specify $installprefixpath"
+  echo " to be prepended to installation paths during the installation"
+  echo " but that feature is not supported in this version."
+  echo "Sorry, I cannot continue."
+  exit 1
+fi
+
+test "X$installprefixpath" = "X/" && installprefixpath=
+
+# Save some typing and reading.
+ipp=$installprefixpath
+
+# Loop until user ^C:s out or accepts.
+while true
+do
+
+# Compiler-tools
+
+  echo
+  echo
+
+  if test "X$bin_arg" != "X"
+  then
+    specify="You have specified that"
+    pwdify $bin_arg
+    binpath=$abs_path
+  else
+    specify="The default value"
+    binpath=$default_bin
+  fi
+
+  cat <<EOF
+  $specify $binpath
+ will be the top-level installation directory-path prefix for the
+ compiler tools.  There will be several sub-directories below this
+ top-level directory.  The different tool-chains compiler and utilities,
+ with base names
+  $split_compiler_binaries
+ will be installed in the subdirectory "bin", with names prefixed with
+ "$faname-axis-elf-", "$faname-axis-aout-", "$faname-axis-linux-gnu-",
+ "${faname}v32-axis-elf-" and "${faname}v32-axis-linux-gnu-" where applicable.
+ There will also be backward-compatibility scripts and links, with names
+ prefixed with "$faname-" and suffixed with "-$faname", both in the top-level
+ directory and in "bin".
+
+EOF
+
+  while true
+  do
+    clear_bin=false
+    path_answerP "Choose directory" $binpath
+
+    if test X = "X$ipp" && ! { $skip_binutils || $skip_romtools || $skip_gcc; }
+    then
+      # Test with both -r (there is a file) and -h (there is a symlink).
+      # Note that test -h works with both Solaris /bin/sh and bash,
+      # hence a more portable test than "-L", which is not a builtin
+      # test in e.g. Solaris 2.8/SunOS 5.8.
+      if test -r $path_answer/gcc-$faname \
+	|| test -h $path_answer/objdump-$faname \
+	|| test -r $path_answer/gcc-$faname \
+	|| test -h $path_answer/objdump-$faname \
+	|| test -h $path_answer/lib
+      then
+	echo "*** The directory $path_answer is not empty."
+	echo "    You may want to save it now."
+	yes_or_noP "*** Do you want me to delete all files in
+     $path_answer as a destructive update" y
+
+	if test $yes_or_no = YES
+	then
+	  clear_bin=true
+	  break
+	else
+	  echo "*** Please remove those files yourself (always backup),"
+	  echo "    or choose another directory."
+	fi
+      else break
+      fi
+    else break
+    fi
+  done
+
+  binpath=$path_answer
+  bin_arg=$binpath
+
+# Manpath
+
+  echo
+  echo
+
+  if test "X$man_arg" != "X"
+  then
+    pwdify $man_arg
+    specify="You have specified that"
+    manpath=$abs_path
+  else
+    specify="The default value"
+    manpath=$default_mandir
+  fi
+
+  new_man=false
+  cat <<EOF
+  $specify $manpath
+ will be the directory for installation of Unix-type man-page manuals.
+ If you do not want to install the manuals, specify /dev/null.
+ The specified path must end in "/man1", which will be added, if
+ it is missing.  Note that man-pages may be out of date.  Please
+ consider using the info-pages (next question) instead.
+
+EOF
+
+  while true
+  do
+    clear_man=false
+    path_answerP "Choose directory" $manpath
+    if test "X$path_answer" = "X/dev/null"
+    then break
+    else
+      case $path_answer in
+	*/man1) ;;
+	*) path_answer=$path_answer/man1
+	   echo
+	   echo "(I added /man1 to make that $path_answer)";;
+      esac
+    fi
+
+    if test X$ipp = X \
+       && (test -f $path_answer/gcc-$faname.1 || test -f $path_answer/$faname-gcc.1)
+    then
+      echo "*** There is a previous installation of gcc-$faname & Co. manuals there:"
+      ls -l $path_answer/*$faname*.1
+      echo "*** The directory $path_answer is not empty.  You may want to save it now."
+      yes_or_noP "*** Do you want me to delete these *$faname*.1  files
+    as a destructive update" y
+      if test $yes_or_no = YES
+      then
+	clear_man=true
+	break
+      else
+	echo "*** Please remove those files yourself (always backup),"
+	echo "    or choose another directory."
+      fi
+
+      # Note that the "test -f" above thankfully already covered the
+      # previous-installation case.
+    elif test X$ipp != X || test -d $path_answer
+    then break
+    else
+      echo "*** There was no directory called $path_answer."
+      echo "    You'll also need to modify your \$MANPATH."
+      yes_or_noP "Is it ok to create $path_answer anyway" y
+      if test $yes_or_no = YES
+      then
+	new_man=true
+	break
+      fi
+    fi
+  done
+
+  manpath=$path_answer
+  man_arg=$manpath
+
+# Info files
+
+  echo
+  echo
+
+  if test "X$info_arg" != "X"
+  then
+    pwdify $info_arg
+    specify="You have specified that"
+    infopath=$abs_path
+  else
+    specify="The default value"
+    infopath=$default_infodir
+  fi
+
+  ro_infodir=false
+
+  cat <<EOF
+  $specify $infopath
+ will be the directory where the GNU info-files (more up-to-date than
+ the man-pages) will be installed.  If you do not want to install
+ the info-files, specify "/dev/null".
+
+EOF
+
+  while true
+  do
+    clear_info=false
+    path_answerP "Choose directory" $infopath
+    if test "X$path_answer" = "X/dev/null"
+    then break
+    fi
+
+    if test X = "X$ipp" && ! { $skip_binutils || $skip_romtools || $skip_gcc; }
+    then
+      # FIXME: Add more library-info files to the test.
+      if test -f $path_answer/gcc-$faname.info \
+	|| test -f $path_answer/binutils-$faname.info \
+	|| test -f $path_answer/bfd-$faname.info \
+	|| test -f $path_answer/$faname-gcc.info \
+	|| test -f $path_answer/$faname-binutils.info \
+	|| test -f $path_answer/$faname-bfd.info
+      then
+	echo "*** There is a previous overlapping installation"
+	echo "    of $info_files files in $path_answer:"
+	ls -l $path_answer/*$faname*.info*
+	yes_or_noP "*** Do you want me to delete these *$faname*.info*
+    files as a destructive update" y
+
+	if test $yes_or_no = YES
+	then
+	  clear_info=true
+	  # Duplicated from below.  Keep in sync.  Sorry.
+	  if has_permission $path_answer/dir
+	  then break
+	  else
+	    echo "*** I do not have permissions to modify the index-file $path_answer/dir"
+	    if has_permission $path_answer/dir2
+	    then
+	      echo "*** I will remind you to remedy this at the end of the installation."
+	      ro_infodir=true
+	      break
+	    else
+	      echo "*** I need at least to modify \"$path_answer/dir2\", but I can not."
+	      echo "    Give me another info-path"
+	    fi
+	  fi
+	  # End of duplicate from below.
+	else
+	  echo "*** Please remove those files yourself (always backup),"
+	  echo "    or choose another directory."
+	fi
+      else
+	if has_permission $path_answer/dir
+	then break
+	else
+	  echo "*** I do not have permissions to modify the index-file $path_answer/dir"
+	  if has_permission $path_answer/dir2
+	  then
+	    echo "*** I will remind you to remedy this at the end of the installation"
+	    ro_infodir=true
+	    break
+	  else
+	    echo "*** I need at least to modify dir2.  Give me another info-path"
+	  fi
+	fi
+      fi
+    else break
+    fi
+  done
+
+  infopath=$path_answer
+  info_arg=$infopath
+
+# Tempdir
+
+  echo
+  echo
+
+  if test "X$tmp_arg" != "X"
+  then
+    pwdify $tmp_arg
+    specify="You have specified that"
+    tmppath=$abs_path
+  else
+    specify="The default value"
+    tmppath=$default_tmp
+  fi
+
+  echo "  $specify $tmppath"
+  echo " will be the directory for temporary files during the installation"
+  echo
+
+  while true
+  do
+    path_answerP "Choose directory" $tmppath
+    if has_permission $path_answer
+    then break
+    else
+      echo "*** You do not have permissions to create or write in $path_answer."
+    fi
+  done
+
+  tmppath=$path_answer
+  tmp_arg=$tmppath
+
+# Tuples
+
+  echo
+  echo
+
+  if test "X$tuples_arg" != "X"
+  then
+    specify="You have specified that"
+    tmptup=$tuples_arg
+  else
+    specify="The default is that"
+    tmptup=$default_tuples
+  fi
+
+  echo "  $specify tools for $tmptup"
+  echo " will be built and installed"
+  echo
+
+  while true
+  do
+    answerP "Choose tool tuples" "$tmptup"
+    spctuples=`echo $answer | sed -e 's/,/ /g'`
+    tuples=
+    del=
+
+    nixelf_=:
+    nixelfv32_=:
+    nixlin_=:
+    nixlinv32_=:
+
+    bad=false
+    for tuple in $spctuples
+    do
+      canontup=`$srcpath/gnu-toplev/config.sub $tuple 2>/dev/null`
+      case $canontup in
+        cris-axis-linux-gnu)
+	  if $do_linux
+	  then
+	    nixlin_=
+	  else
+	    echo "*** Can't build $canontup, see earlier messages"
+	    continue
+	  fi;;
+        crisv32-axis-linux-gnu)
+	  if $do_linuxv32
+	  then
+	    nixlinv32_=
+	  else
+	    echo "*** Can't build $canontup, see earlier messages"
+	    continue
+	  fi;;
+        cris-axis-elf) nixelf_=;;
+        crisv32-axis-elf) nixelfv32_=;;
+        *) echo "*** The specified \"$tuple\" is not a supported toolchain tuple variant"
+	   bad=true
+	   continue;;
+      esac
+      tuples="$tuples$del$canontup"
+      del=", "
+    done
+    tuples_arg=$tuples
+    if test "x$nixelf_$nixelfv32_$nixlin_$nixlinv32_" = "x::::"
+    then
+      $bad || echo "*** You have to choose at least one toolchain tuple"
+      continue
+    fi
+    $bad || break
+  done
+
+  tmppath=$path_answer
+  tmp_arg=$tmppath
+
+# End of options.
+
+  cat <<EOF
+
+
+
+ Please confirm
+ Building and installing toolchains for:
+  $tuples
+ Compiler tools installed in:     $binpath
+EOF
+  $clear_bin \
+    && echo " (all current files there will be deleted)" \
+    && echo
+  echo " Manuals:                         $manpath"
+  $clear_man \
+    && echo " (all *$faname*.1 files there will be deleted)" \
+    && echo
+  echo " Info-files:                      $infopath"
+  $clear_info \
+    && echo " (all *$faname*.info* files there will be overwritten)" \
+    && echo
+
+  echo " Temporaries during installation: $tmppath"
+
+  if test X$ipp != X
+  then
+    echo " ( Installation path prefix:      $ipp )"
+  else
+    echo " ( Installation path prefix:      (none) )"
+  fi
+
+  yes_or_noP "Install these toolchains using these directories" y
+
+  if test $yes_or_no = YES
+  then break # Out of the big honking  while-loop around user input.
+  else
+    echo
+    echo "Here we go again."
+    echo
+  fi
+done # Big honking while-loop around user input.
+
+$nixelf eval nixelf=$nixelf_
+$nixelfv32 eval nixelfv32=$nixelfv32_
+$nixlin eval nixlin=$nixlin_
+$nixlinv32 eval nixlinv32=$nixlinv32_
+
+# $nixelf echo cris-axis-elf
+# $nixelfv32 echo crisv32-axis-elf
+# $nixlin echo cris-axis-linux-gnu
+# $nixlinv32 echo crisv32-axis-linux-gnu
+if $do_linux
+then
+  do_linux=false
+  $nixlin eval do_linux=true
+fi
+
+if $do_linuxv32
+then
+  do_linuxv32=false
+  $nixlinv32 eval do_linuxv32=true
+fi
+
+libpathelf=$binpath/lib/gcc-lib/$faname-axis-elf/$gccver
+libpathaout=$binpath/lib/gcc-lib/$faname-axis-aout/$gccver
+libpathlinuxgcc=$binpath/lib/gcc-lib/$faname-axis-linux-gnu/$gccver
+libpathlinux=$binpath/$faname-axis-linux-gnu/lib
+incpathlinux=$binpath/$faname-axis-linux-gnu/sys-include
+libpathlinuxgccv32=$binpath/lib/gcc-lib/${faname}v32-axis-linux-gnu/$gccver
+libpathlinuxv32=$binpath/${faname}v32-axis-linux-gnu/lib
+incpathlinuxv32=$binpath/${faname}v32-axis-linux-gnu/sys-include
+libpathelfv32=$binpath/lib/gcc-lib/${faname}v32-axis-elf/$gccver
+
+cat << WELCOME_2_END
+================================================================
+
+WELCOME_2_END
+
+# Go down one level, create a session-specific temporary directory.
+mytmpdir=$tmppath/$program0.$pid
+
+# Make a logfile as promised.
+if mkdir_path $mytmpdir
+then :
+else
+  echo "Could not create temporary directory $mytmpdir, despite checking,"
+  echo "in preparation for making a log-file; no log-file created yet."
+  echo "Sorry."
+  exit 1
+fi
+
+instalog=$mytmpdir/$program0"_log"
+errfile=$mytmpdir/$program0"_log.err"
+
+rm -f $errfile 2>/dev/null
+
+cat << START_MSG_END
+
+----------------------------------------------------------------
+
+			   $program
+
+       An installation log will be saved in the file
+       $instalog
+
+----------------------------------------------------------------
+START_MSG_END
+
+supported=`say_not $osfound`
+cat > $instalog << INSTALOG_HEAD_END
+================= $program installation log ====================
+
+The program run is:          $0
+The log file is:             $instalog
+Sources were in:             $srcpath
+Compiler tools in:           $binpath
+Installation temps:          $tmppath
+Installation prefix:         $ipp
+Manual files:                $manpath
+New mandir:                  $new_man
+Info files:                  $infopath
+Non-writable dir:            $ro_infodir
+The system is a:             $OSNAME
+The total system id is:      $OSTOT
+It is$supported officially supported.
+The installation date:       $startdate
+Make program:                $ict_make_prog_version
+Install GNU/Linux toolchain: $do_linux
+Ditto for CRISv32:           $do_linuxv32
+Toolchain tuples:	     $tuples
+
+INSTALOG_HEAD_END
+
+echo
+
+if $clear_bin
+then
+  if rm -rf $binpath/* 2>&1 | $tee -a $instalog
+  then true
+  else
+    bug_report
+    exit 1
+  fi
+fi
+
+if mkdir_path $ipp$binpath
+then echo "Binaries $ipp$binpath ok" >>$instalog
+else
+  echo "*** Binaries path $ipp$binpath could not be created: $?" \
+    | $tee -a $instalog
+  bug_report
+  exit 1
+fi
+
+if $nixelf mkdir_path $ipp$libpathelf \
+   && $nixelfv32 mkdir_path $ipp$libpathelfv32 \
+   && $nixaout mkdir_path $ipp$libpathaout \
+   && { { ! $do_linux; } \
+        || (mkdir_path $ipp$libpathlinux && mkdir_path $ipp$libpathlinuxgcc); } \
+   && { { ! $do_linuxv32; } \
+        || (mkdir_path $ipp$libpathlinuxv32 && mkdir_path $ipp$libpathlinuxgccv32); } \
+   && $nixelf mkdir_path $ipp$binpath/$faname-axis-elf/bin \
+   && $nixelfv32 mkdir_path $ipp$binpath/${faname}v32-axis-elf/bin \
+   && $nixaout mkdir_path $ipp$binpath/$faname-axis-aout/bin \
+   && $nixlin mkdir_path $ipp$binpath/$faname-axis-linux-gnu/bin \
+   && $nixlinv32 mkdir_path $ipp$binpath/${faname}v32-axis-linux-gnu/bin
+then echo "Library paths ok" >>$instalog
+else
+  (echo "*** Library paths $ipp$libpathelf $ipp$libpathaout $ipp$libpathlinux";
+   echo "    $ipp$libpathlinuxgcc $ipp$libpathlinuxgccv32 $ipp$libpathelfv32" \
+		"could not be created: $?") \
+   | $tee -a $instalog
+  bug_report
+  exit 1
+fi
+
+if $clear_man
+then
+  if rm -rf $manpath/*$faname*.1 2>&1 | $tee -a $instalog
+  then true
+  else
+    bug_report
+    exit 1
+  fi
+fi
+
+if test $manpath != /dev/null
+then
+  if mkdir_path $ipp$manpath
+  then echo "Manuals $ipp$manpath ok" >>$instalog
+  else
+    echo "*** Manpath $ipp$manpath could not be created: $?" | $tee -a $instalog
+    bug_report
+    exit 1
+ fi
+fi
+
+if $clear_info
+then
+  # It might be that we will be asked to delete a non-existing
+  # info-bunch, so check that the main file is there.
+  if rm -rf $infopath/*$faname*.1 2>&1 | $tee -a $instalog
+  then true
+  else
+    bug_report
+    exit 1
+  fi
+fi
+
+if test $infopath != /dev/null
+then
+  if mkdir_path $ipp$infopath
+  then echo "Info-files $infopath ok" >> $instalog
+  else
+    echo "*** Info path $infopath could not be created: $?" \
+      | $tee -a $instalog
+    bug_report
+    exit 1
+  fi
+fi
+
+# Prepare for compiling the four parts: utilities, binutils, compiler, libraries.
+
+#
+# Set up environment variables; some are shortnames for long paths.
+#
+
+# These are for modules to store into, so we can just forget it if we
+# will not install man or info pages.
+# do something.
+mantmp=$mytmpdir/mantmp
+infotmp=$mytmpdir/infotmp
+
+# Path for modules to put unused things in.
+dummydir=$mytmpdir/dummydir
+
+topobj=$mytmpdir/top
+binuobj=$mytmpdir/binutils
+romobj=$mytmpdir/rom
+glibcobj=$mytmpdir/glibc
+glibcobjv32=$mytmpdir/glibcv32
+libsubdir=POISONED-libsubdir
+libdir=POISONED-libdir
+libtmp=$mytmpdir/mergelibs
+
+if test X$ipp != X
+then
+  ippmakeopts="RANLIB_FOR_TARGET=$ipp$libpathelf/ranlib AR_FOR_TARGET=$ipp$libpathelf/ar NM_FOR_TARGET=$ipp$libpathelf/nm"
+  ngcc="$ipp$binpath/gcc-$faname -B$ipp$libpathelf/"
+  ngxx="$ipp$binpath/g++-$faname -B$ipp$libpathelf/ -isystem $ipp$libpathelf/g++-include"
+
+  # The order of -B switches will change, so make it symmetric, with
+  # the least wanted in the center.
+  egbflags=-B$ipp$libpathelinux/
+  lgbflags=-B$ipp$libpathlinux/ -B$ipp$libpathlinuxgcc/
+  negcc="$ipp$binpath/gcc-$faname $egbflags"
+  negxx="$ipp$binpath/g++-$faname $egbflags -isystem $ipp$libpathelinux/include/g++"
+  nlgcc="$ipp$binpath/gcc-$faname $lgbflags -isystem $ipp$libpathlinuxgcc -isystem $ipp$libpathlinux"
+  nlgxx="$ipp$binpath/g++-$faname $lgbflags -isystem $ipp$libpathlinuxgcc/include/g++"
+  # libc.so is a script which contains absolute paths, so avoid it
+  # when we have an installroot.
+  linux_test_compile_flags=-static
+else
+  ippmakeopts=
+  egbflags=
+  lgbflags=
+  ngcc=$binpath/gcc-$faname
+  ngxx=$binpath/g++-$faname
+  negcc=$binpath/gcc-$faname
+  negxx=$binpath/g++-$faname
+  nlgcc=$binpath/gcc-$faname
+  nlgxx=$binpath/g++-$faname
+  linux_test_compile_flags=
+fi
+
+#
+# Make directories from some of those variables
+#
+if { $nixelf mkdir_path $topobj/elf \
+     && $nixelfv32 mkdir_path $topobj/elfv32 \
+     && $nixaout mkdir_path $topobj/aout \
+     && { { ! $do_linux; } || mkdir_path $topobj/linux0; } \
+     && { { ! $do_linux; } || mkdir_path $topobj/linux; } \
+     && { { ! $do_linuxv32; } || mkdir_path $topobj/linuxv320; } \
+     && { { ! $do_linuxv32; } || mkdir_path $topobj/linuxv32; } \
+     && mkdir_path $binuobj \
+     && $nixlin mkdir_path $glibcobj \
+     && $nixlinv32 mkdir_path $glibcobjv32 \
+     && mkdir_path $romobj \
+     && mkdir_path $libtmp \
+     && mkdir_path $dummydir
+   } >>$instalog 2>&1
+then true
+else
+  echo "*** Could not create temporary files in $mytmpdir" | $tee -a $instalog
+  bug_report
+  exit 1
+fi
+
+echo "*** Created temp directories in $mytmpdir" >> $instalog
+
+(echo
+ echo "*** Using \"$MAKE\" as a GNU make compatible program."
+ echo
+ echo "  Invoke an equivalent session as:"
+ echo "  env \"MAKE=$MAKE\" $0 $binpath $manpath $infopath $tmppath $ipp"
+ echo "  Add \"</dev/null\" to it make non-interactive."
+ echo) | $tee -a $instalog
+
+# Unfortunately the glibc makefile contains too many dependencies of
+# tools being GNUish, so it cannot be built on e.g. Solaris systems.  Stop it
+# from failing, only allowing when uname -s says Linux (or perhaps GNU
+# or Hurd?).
+#
+# We use the somewhat CRIS-linux-specific "doconf" script, so check that it is
+# there (someone too-smart might have added a standard tarball which would
+# lose).
+
+(echo
+ echo "*** Starting the main compilation and installation stage."
+ echo "*** Do not be alarmed by compiler warnings from this point on."
+ echo "    The time is:" `date`
+ echo "    Now preparing to configure the source code.") | $tee -a $instalog
+
+if ! { $skip_binutils || $skip_romtools || $skip_gcc; }
+then
+  # If people checked this out via CVS, we need to touch *some* of the generated
+  # (the ones that are not trivially regenerated) so they are not attempted to
+  # be re-generated.
+  (cd $srcpath/gnu-toplev \
+   && $srcpath/gnu-toplev/contrib/gcc_update --touch 2>&1) >> $instalog
+
+  # Partly stolen from egcs/contribute/egcs_update.
+  # Never mind if we can't touch them; if the files are read-only then they
+  # hopefully have OK dates.  Else there will be big kaboom later.
+  find $srcpath/binutils/. -name configure -exec touch {} \;
+  for f in \
+   binutils/binutils/arparse.c \
+   binutils/binutils/arparse.h \
+   binutils/binutils/arlex.c \
+   binutils/ld/ldlex.c \
+   binutils/ld/ldgram.c \
+   binutils/ld/ldgram.h \
+   gnu-toplev/newlib/libc/machine/$faname/aclocal.m4 \
+   gnu-toplev/newlib/libc/machine/$faname/Makefile.in \
+   gnu-toplev/newlib/libc/machine/$faname/configure \
+
+  do
+    if test -f $srcpath/$f
+    then touch $srcpath/$f 2>/dev/null
+      sleep 1 # FIXME: Can we have a shorter discernible portable delay?
+#    else
+#      echo $srcpath/$f is gone
+    fi
+  done
+fi
+
+if ! $skip_binutils_configure
+then
+  # Then configure the binary tools.
+  (echo
+   echo "*** Starting configuration of binutils (please be patient):"
+   echo) | $tee -a $instalog
+
+  # Glibc of some versions collide with the NLS gettext functions, so
+  # we disable that.
+  if (echodo cd $binuobj
+      echodo $srcpath/binutils/configure --target=$faname \
+      --manpath=$mantmp --infopath=$infotmp --disable-nls --prefix=$binpath) 2>&1
+  then true
+  else
+    echo
+    echo "*** $program: Could not configure binutils for $archname: configure failed"
+    bug_report
+  fi | $tee -a $instalog
+
+  test -f $errfile && exit 1
+
+  (echo
+   echo "*** $program: Configuration of binutils succeeded.") | $tee -a $instalog
+fi # skip_binutils_configure = no
+
+# We grep the compiler from the binutils Makefile.  This is brittle
+# since we don't get linker flags, for example; and the existence and
+# meaning of a "CC = " line is not cast in stone.
+if test "X$CC" != "X"
+then
+  myCC=$CC
+else
+  myCC=`sed -n -e 's/^CC[ 	]*=[ 	]*//p' \
+          -e 's/^CFLAGS[ 	]*=[ 	]*//p' \
+        < $binuobj/Makefile`
+  # Filter out newlines and excessive spacing.
+  myCC=`echo $myCC`
+fi >> $instalog 2>&1
+
+if test "X$myCC" = "X"
+then
+  echo "*** Failed to read compiler flags from the binutils Makefile"
+  bug_report
+else
+  if (cd $dummydir; $myCC -v 2>&1) | grep gcc >/dev/null 2>&1
+  then
+    echo "*** Compiler is \"$myCC\" which seems to be gcc:"
+    echo
+    echo $myCC -v -c -xc /dev/null
+    (cd $dummydir; $myCC 2>&1 -v -c -xc /dev/null)
+  else
+    echo "*** Unknown compiler \"$myCC\""
+  fi
+  echo
+fi | $tee -a $instalog
+
+test -f $errfile && exit 1
+
+# We'll need basic test files from now on.
+ctestf=$mytmpdir/test.c
+cat >$ctestf <<EOF
+#include <stdio.h>
+int main() { printf("%cHello, world%c",10,10); exit (0);}
+EOF
+
+cxxtestf=$mytmpdir/hello.cc
+cat >$cxxtestf <<EOF
+#include <iostream>
+int main () { std::cout << "%cHello, world%c" << std::endl; }
+EOF
+
+# Check for a strip utility, but accept its absence if we don't find it right away.
+
+tstexe=$mytmpdir/mytst.stripit
+if $myCC -o $tstexe $ctestf 2>/dev/null \
+   && strip $tstexe 2>/dev/null \
+   && $tstexe > $mytmpdir/testout \
+   && grep '^Hello, world$' $mytmpdir/testout >/dev/null
+then
+  strip=strip
+  msg="Host strip program working, will strip binaries at installation."
+else
+  strip=:
+  msg="Host strip program not working, so binaries will not be stripped at installation."
+fi
+
+echo "*** $msg" | $tee -a $instalog
+rm -f $tstexe 2>/dev/null
+
+if ! $skip_binutils_make
+then
+   # Then make the binutils
+   (echo "*** Now making binutils (please be patient):"
+    echo) | $tee -a $instalog
+
+  if (echodo cd $binuobj
+      echodo $MAKE all)  2>&1
+  then true
+  else
+    echo
+    echo "*** $program: Make all failed for binutils."
+    bug_report
+  fi | $tee -a $instalog
+
+  test -f $errfile && exit 1
+fi # skip_binutils_make = no
+
+if ! $skip_binutils_install
+then
+  (echo
+   echo "*** $program: Made binutils."
+   echo "*** Now installing binutils binaries."
+   echo) | $tee -a $instalog
+
+  # Let's use the standard install target and work from that.
+  # It will install in $infotmp, $mantmp, $binpath/bin, $binpath/$faname/bin,
+  # $binpath/$faname/lib $binpath/$faname/bin $binpath/lib. $binpath/include.
+  # The last two are installs of a static libbfd that might be useful
+  # e.g. when building ksymoops.  Perhaps there are other libbfd users.
+  if (echodo cd $binuobj && echodo $MAKE install prefix=$ipp$binpath) 2>&1
+  then
+    # We don't install gasp at all so it's not covered in the loop below.
+    rm -f $ipp$binpath/bin/$faname-gasp
+
+    # Temporarily rename the libiberty from binutils, so it doesn't get
+    # overwritten by the GCC one.
+    mv $ipp$binpath/lib/libiberty.a $ipp$binpath/lib/libiberty.a.binutils \
+      || { abort_install; exit 1; }
+
+    for tool in $compiler_binaries
+    do
+      case $tool in
+	# We replace the hardlinks in $binpath/bin with symlinks since I
+	# don't think hardlinks survive being packaged.  Also install
+	# symlinks to expected places.
+        ar | as | ld | nm | ranlib | strip)
+	   rm -f $ipp$binpath/$tool-$faname \
+		 $ipp$binpath/$faname-$tool \
+		 $ipp$binpath/bin/$tool-$faname \
+		 $ipp$binpath/bin/$faname-axis-elf-$tool \
+		 $ipp$binpath/bin/${faname}v32-axis-elf-$tool \
+		 $ipp$binpath/bin/$faname-axis-aout-$tool \
+		 $ipp$binpath/$faname-axis-linux-gnu-$tool \
+		 $ipp$binpath/bin/$faname-$tool 2>/dev/null
+	   if ln -s ../$faname/bin/$tool $ipp$binpath/bin/$faname-$tool \
+	      && $nixelf ln -s ../$faname/bin/$tool $ipp$binpath/bin/$faname-axis-elf-$tool \
+	      && $nixelfv32 ln -s ../$faname/bin/$tool $ipp$binpath/bin/${faname}v32-axis-elf-$tool \
+	      && $nixaout ln -s ../$faname/bin/$tool $ipp$binpath/bin/$faname-axis-aout-$tool \
+	      && { { ! $do_linux; } \
+                   || ln -s ../$faname/bin/$tool $ipp$binpath/bin/$faname-axis-linux-gnu-$tool; } \
+	      && { { ! $do_linuxv32; } \
+                   || ln -s ../$faname/bin/$tool $ipp$binpath/bin/${faname}v32-axis-linux-gnu-$tool; } \
+	      && $nixelf ln -s ../../$faname/bin/$tool $ipp$binpath/$faname-axis-elf/bin/$tool \
+	      && $nixelfv32 ln -s ../../$faname/bin/$tool $ipp$binpath/${faname}v32-axis-elf/bin/$tool \
+	      && $nixaout ln -s ../../$faname/bin/$tool $ipp$binpath/$faname-axis-aout/bin/$tool \
+	      && $nixlin ln -s ../../$faname/bin/$tool $ipp$binpath/$faname-axis-linux-gnu/bin/$tool \
+	      && $nixlinv32 ln -s ../../$faname/bin/$tool $ipp$binpath/${faname}v32-axis-linux-gnu/bin/$tool \
+	      && ln -s ../$faname/bin/$tool $ipp$binpath/bin/$tool-$faname \
+	      && ln -s $faname/bin/$tool $ipp$binpath/$tool-$faname \
+	      && ln -s $faname/bin/$tool $ipp$binpath/$faname-$tool \
+	      && $strip $ipp$binpath/$faname/bin/$tool
+	   then true
+	   else
+	     echo
+	     echo "*** $program: Could not install binutils tool $tool into $ipp$binpath"
+	     echo "An 'ls -lR' of $ipp$binpath:" && ls -lR $ipp$binpath
+	     bug_report
+	     exit 1
+	   fi;;
+
+        objcopy | readelf | addr2line | size | strings | objdump)
+	   rm -f $ipp$binpath/bin/$tool-$faname \
+		 $ipp$binpath/$tool-$faname \
+		 $ipp$binpath/$faname-$tool \
+		 $ipp$binpath/bin/$faname-axis-elf-$tool \
+		 $ipp$binpath/bin/$faname-axis-aout-$tool \
+		 $ipp$binpath/$faname-axis-linux-gnu-$tool 2>/dev/null
+	   doextra=:
+	   if test $tool = objdump
+           then
+	     # Install this one also as "dis$faname".
+    	     rm -f $ipp$binpath/dis$faname 2>/dev/null
+	     doextra="ln -s bin/$faname-objdump $ipp$binpath/dis$faname"
+	   fi
+	   if $nixelf ln -s $faname-$tool $ipp$binpath/bin/$faname-axis-elf-$tool \
+	      && $nixelfv32 ln -s $faname-$tool $ipp$binpath/bin/${faname}v32-axis-elf-$tool \
+	      && $nixaout ln -s $faname-$tool $ipp$binpath/bin/$faname-axis-aout-$tool \
+	      && ln -s $faname-$tool $ipp$binpath/bin/$tool-$faname \
+	      && { { ! $do_linux; } \
+                   || ln -s $faname-$tool \
+			$ipp$binpath/bin/$faname-axis-linux-gnu-$tool; } \
+	      && { { ! $do_linuxv32; } \
+                   || ln -s $faname-$tool \
+			$ipp$binpath/bin/${faname}v32-axis-linux-gnu-$tool; } \
+	      && ln -s bin/$faname-$tool $ipp$binpath/$tool-$faname \
+	      && ln -s bin/$faname-$tool $ipp$binpath/$faname-$tool \
+	      && $nixelf ln -s ../../bin/$faname-$tool $ipp$binpath/$faname-axis-elf/bin/$tool \
+	      && $nixelfv32 ln -s ../../bin/$faname-$tool $ipp$binpath/${faname}v32-axis-elf/bin/$tool \
+	      && $nixaout ln -s ../../bin/$faname-$tool $ipp$binpath/$faname-axis-aout/bin/$tool \
+	      && $nixlin ln -s ../../bin/$faname-$tool $ipp$binpath/${faname}-axis-linux-gnu/bin/$tool \
+	      && $nixlinv32 ln -s ../../bin/$faname-$tool $ipp$binpath/${faname}v32-axis-linux-gnu/bin/$tool \
+	      && $doextra && $strip $ipp$binpath/bin/$faname-$tool
+	   then true
+	   else
+	     echo
+	     echo "*** $program: Could not install binutils tool $tool into $ipp$binpath"
+	     echo "An 'ls -lR' of $ipp$binpath:" && ls -lR $ipp$binpath
+	     bug_report
+	     exit 1
+	   fi;;
+
+	# Remove these one.  We'll install the gcc c++filt.
+	c++filt)
+	   rm -f $ipp$binpath/bin/$faname-$tool
+	   ;;
+      esac
+    done
+  else
+    echo
+    echo "*** $program: Could not install binutils"
+    bug_report
+  fi | $tee -a $instalog
+
+  test -f $errfile && exit 1
+
+  (echo; echo "*** Installed binutils.") | $tee -a $instalog
+fi # skip_binutils_install = no
+
+if ! $skip_romtools
+then
+  # Install our own little tools and wrappers.
+  (echo "*** Now installing simple tools from" $srcpath/$faname-romtools
+   echo) | $tee -a $instalog
+
+  # Note that binpath is not stored anywhere or used to create
+  # symbolic links in "$faname-romtools", or else we will have to
+  # add a final_binpath there too.
+  if (cd $romobj
+      $MAKE -f $srcpath/$faname-romtools/Makefile \
+	   strip=$strip clean install "CC=$myCC" \
+	   libsubdir=$ipp$binpath/$faname-axis-aout/bin \
+	   final_libsubdir=$binpath/$faname-axis-aout/bin \
+	   binpath=$ipp$binpath/bin \
+	   srcdir=`echo $srcpath/$faname-romtools*` \
+      && ln -s bin/$faname-burn $ipp$binpath/$faname-burn \
+      && ln -s bin/bin-$faname $ipp$binpath/bin-$faname) 2>&1
+  then true
+  else
+    echo
+    echo "*** $program: Could not install $archname romtools"
+    bug_report
+  fi | $tee -a $instalog
+
+  test -f $errfile && exit 1
+fi # skip_romtools = no
+
+(echo
+ echo "*** $program: Installation of simple tools succeeded."
+ echo "*** Now configuring compiler and libraries."
+ echo) | $tee -a $instalog
+
+if $do_linux && ! $skip_glibc_configure
+then
+  echo "*** Installing linux header files in"
+  echo "        $ipp$incpathlinux"
+  echo
+  if mkdir_path $ipp$incpathlinux \
+     && (cd $srcpath/linux-headers && tar fc - .) \
+	 | (cd $ipp$incpathlinux && tar fx -) 2>&1
+  then true
+  else
+    echo
+    echo "*** Installation of linux headers failed."
+    bug_report
+    exit 1
+  fi
+fi | $tee -a $instalog
+
+if $do_linuxv32 && ! $skip_glibc_configure
+then
+  echo "*** Installing linux header files in"
+  echo "        $ipp$incpathlinuxv32"
+  echo
+  if mkdir_path $ipp$incpathlinuxv32 \
+     && (cd $srcpath/linux-headersv32 && tar fc - .) \
+	 | (cd $ipp$incpathlinuxv32 && tar fx -) 2>&1
+  then true
+  else
+    echo
+    echo "*** Installation of linux headers for CRISv32 failed."
+    bug_report
+    exit 1
+  fi
+fi | $tee -a $instalog
+
+test -f $errfile && exit 1
+
+if ! $skip_gcc_configure
+then
+  # Then configure GCC and others from toplev and down.
+  # Specify everything the user specified.
+  # Glibc of some versions collide with the NLS gettext functions, so
+  # we disable that.
+  if ($nixelf echodo cd $topobj/elf
+      $nixelf echodo env PATH=$ipp$binpath/bin:$PATH \
+	"'gcc_cv_as=$ipp$binpath/$faname-axis-elf/bin/as --em=criself'" \
+	"'gcc_cv_ld=$ipp$binpath/$faname-axis-elf/bin/ld -mcriself'" \
+       $srcpath/gnu-toplev/configure --enable-version-specific-runtime-libs \
+       --disable-nls --target=$faname-axis-elf \
+       --enable-languages=c,c++ --prefix=$binpath) 2>&1 \
+     && ($nixelfv32 echodo cd $topobj/elfv32
+	 $nixelfv32 echodo env PATH=$ipp$binpath/bin:$PATH \
+	   "'gcc_cv_as=$ipp$binpath/${faname}v32-axis-elf/bin/as --em=criself'" \
+	   "'gcc_cv_ld=$ipp$binpath/${faname}v32-axis-elf/bin/ld -mcriself'" \
+	  $srcpath/gnu-toplev/configure --enable-version-specific-runtime-libs \
+	  --disable-nls --target=${faname}v32-axis-elf \
+	  --enable-languages=c,c++ --prefix=$binpath) 2>&1 \
+     && ($nixaout echodo cd $topobj/aout
+         $nixaout echodo env PATH=$ipp$binpath/bin:$PATH \
+		"'gcc_cv_as=$ipp$binpath/cris-axis-aout/bin/as --em=crisaout'" \
+		"'gcc_cv_ld=$ipp$binpath/cris-axis-aout/bin/ld -mcrisaout'" \
+       $srcpath/gnu-toplev/configure --enable-version-specific-runtime-libs \
+          --disable-nls --target=$faname-axis-aout \
+          --enable-languages=c,c++ --prefix=$binpath) 2>&1 \
+     && { { ! $do_linux; } \
+	   || (echodo cd $topobj/linux0
+	       echodo env PATH=$ipp$binpath/bin:$PATH \
+		"'gcc_cv_as=$ipp$binpath/cris-axis-linux-gnu/bin/as --em=criself --no-underscore'" \
+		"'gcc_cv_ld=$ipp$binpath/cris-axis-linux-gnu/bin/ld -mcrislinux'" \
+		$srcpath/gnu-toplev/configure --enable-version-specific-runtime-libs \
+		--disable-nls --target=${faname}-axis-linux-gnu --without-newlib \
+		--enable-languages=c --disable-shared --enable-threads=posix \
+		--prefix=$binpath); } \
+     && { { ! $do_linuxv32; } \
+	   || (echodo cd $topobj/linuxv320
+	       echodo env PATH=$ipp$binpath/bin:$PATH \
+		"'gcc_cv_as=$ipp$binpath/crisv32-axis-linux-gnu/bin/as --march=v32 --em=criself --no-underscore'" \
+		"'gcc_cv_ld=$ipp$binpath/crisv32-axis-linux-gnu/bin/ld -mcrislinux'" \
+		$srcpath/gnu-toplev/configure --enable-version-specific-runtime-libs \
+		--disable-nls --target=${faname}v32-axis-linux-gnu --without-newlib \
+		--enable-languages=c --disable-shared --enable-threads=posix \
+		--prefix=$binpath); } 2>&1
+  then true
+  else
+    echo
+    echo "*** $program: Could not configure; $srcpath/gnu-toplev/configure failed."
+    bug_report
+  fi | $tee -a $instalog
+
+  test -f $errfile && exit 1
+fi # skip_gcc_configure = no
+
+if ! $skip_gcc_make
+then
+  (echo
+   echo "*** $program: Configuration of compiler succeeded."
+   echo "*** Now making the compiler (please be patient):"
+   echo) | $tee -a $instalog
+
+  # Let "make all" have its way.  For cris-axis-linux-gnu, we
+  # compile only the basic gcc, so we can build and install
+  # glibc.  We need to specify the path to the newly-built and
+  # perhaps-pseudo installed binutils.  We also specify the
+  # build-time paths to the manuals and info directories;
+  # specifying them at configure time makes "gcc -v" emit build time cruft.
+  if : \
+     && ($nixelf echodo cd $topobj/elf \
+         && $nixelf echodo env PATH=$ipp$binpath/bin:$PATH $MAKE \
+	     build_tooldir=$ipp$binpath/cris-axis-elf \
+	     mandir=$mantmp infodir=$infotmp \
+	     all \
+         && $nixelf echodo env PATH=$ipp$binpath/bin:$PATH $MAKE \
+	     build_tooldir=$ipp$binpath/cris-axis-elf \
+	     mandir=$mantmp infodir=$infotmp \
+	     install prefix=$ipp$binpath) \
+     && ($nixelfv32 echodo cd $topobj/elfv32 \
+         && $nixelfv32 echodo env PATH=$ipp$binpath/bin:$PATH $MAKE \
+	     build_tooldir=$ipp$binpath/crisv32-axis-elf \
+	     mandir=$mantmp infodir=$infotmp \
+	     all \
+         && $nixelfv32 echodo env PATH=$ipp$binpath/bin:$PATH $MAKE \
+	     build_tooldir=$ipp$binpath/crisv32-axis-elf \
+	     mandir=$mantmp infodir=$infotmp \
+	     install prefix=$ipp$binpath) \
+     && ($nixaout echodo cd $topobj/aout \
+         && $nixaout echodo env PATH=$ipp$binpath/bin:$PATH $MAKE \
+	     build_tooldir=$ipp$binpath/cris-axis-aout \
+	     mandir=$mantmp infodir=$infotmp \
+	     all \
+         && $nixaout echodo env PATH=$ipp$binpath/bin:$PATH $MAKE \
+	     build_tooldir=$ipp$binpath/cris-axis-aout \
+	     mandir=$mantmp infodir=$infotmp \
+	     install prefix=$ipp$binpath) \
+     && $nixaout $strip $ipp$binpath/bin/cris-axis-aout-cpp \
+     && $nixelf $strip $ipp$binpath/bin/cris-axis-elf-cpp \
+     && $nixelfv32 $strip $ipp$binpath/bin/crisv32-axis-elf-cpp \
+     && $nixaout $strip $ipp$binpath/bin/cris-axis-aout-gcov \
+     && $nixelf $strip $ipp$binpath/bin/cris-axis-elf-gcov \
+     && $nixelfv32 $strip $ipp$binpath/bin/crisv32-axis-elf-gcov \
+     && $nixelf rm $ipp$binpath/bin/cris-axis-elf-gccbug \
+     && $nixelfv32 rm $ipp$binpath/bin/crisv32-axis-elf-gccbug \
+     && $nixaout rm $ipp$binpath/bin/cris-axis-aout-gccbug \
+     && $nixelf $strip $ipp$binpath/bin/cris-axis-elf-g++ \
+     && $nixelfv32 $strip $ipp$binpath/bin/crisv32-axis-elf-g++ \
+     && $nixaout $strip $ipp$binpath/bin/cris-axis-aout-g++ \
+     && $nixelf $strip $ipp$binpath/bin/cris-axis-elf-c++filt \
+     && $nixelfv32 $strip $ipp$binpath/bin/crisv32-axis-elf-c++filt \
+     && $nixaout $strip $ipp$binpath/bin/cris-axis-aout-c++filt \
+     && $nixelf rm $ipp$binpath/bin/cris-axis-elf-c++ \
+     && $nixelfv32 rm $ipp$binpath/bin/crisv32-axis-elf-c++ \
+     && $nixaout rm $ipp$binpath/bin/cris-axis-aout-c++ \
+     && $nixelf ln -s cris-axis-elf-g++ \
+              $ipp$binpath/bin/cris-axis-elf-c++ \
+     && $nixelfv32 ln -s crisv32-axis-elf-g++ \
+              $ipp$binpath/bin/crisv32-axis-elf-c++ \
+     && $nixaout ln -s cris-axis-aout-g++ \
+              $ipp$binpath/bin/cris-axis-aout-c++ \
+     && { test ! -f $ipp$binpath/lib/libiberty.a \
+	  || rm $ipp$binpath/lib/libiberty.a; } \
+     && $nixelf $strip $ipp$libpathelf/cc1 \
+     && $nixelfv32 $strip $ipp$libpathelfv32/cc1 \
+     && $nixaout $strip $ipp$libpathaout/cc1 \
+     && $nixelf $strip $ipp$libpathelf/cc1plus \
+     && $nixelfv32 $strip $ipp$libpathelfv32/cc1plus \
+     && $nixaout $strip $ipp$libpathaout/cc1plus \
+     && $nixelf $strip $ipp$libpathelf/collect2 \
+     && $nixelfv32 $strip $ipp$libpathelfv32/collect2 \
+     && $nixaout $strip $ipp$libpathaout/collect2 \
+     && $nixelf $strip $ipp$libpathelf/cpp0 \
+     && $nixelfv32 $strip $ipp$libpathelfv32/cpp0 \
+     && $nixaout $strip $ipp$libpathaout/cpp0 \
+     && $nixelf $strip $ipp$libpathelf/tradcpp0 \
+     && $nixelfv32 $strip $ipp$libpathelfv32/tradcpp0 \
+     && $nixaout $strip $ipp$libpathaout/tradcpp0 \
+     && { { ! $do_linux; } \
+	   || (echodo cd $topobj/linux0
+	       echodo env PATH=$ipp$binpath/bin:$PATH $MAKE \
+		build_tooldir=$ipp$binpath/cris-axis-linux-gnu \
+		mandir=$mantmp infodir=$infotmp \
+		all-gcc); } \
+     && { { ! $do_linuxv32; } \
+	   || (echodo cd $topobj/linuxv320
+	       echodo env PATH=$ipp$binpath/bin:$PATH $MAKE \
+		build_tooldir=$ipp$binpath/crisv32-axis-linux-gnu \
+		mandir=$mantmp infodir=$infotmp \
+		all-gcc); }
+  then
+    echo
+    { $do_linux || $do_linuxv32; } && parts=" parts of"
+    echo "*** $program: Built$parts the gcc compiler and some libraries for $archname."
+  else
+    echo
+    echo "*** $program: Could not make gcc and libraries for $archname."
+    bug_report
+  fi 2>&1 | $tee -a $instalog
+
+  test -f $errfile && exit 1
+fi # skip_gcc_make = no
+
+glibcsrcpath=$mytmpdir/glibcsrc
+
+# We will now build and install glibc with the C-only
+# static-only no-threads gcc.  Then we'll build the real gcc
+# using the installed glibc headers and libraries.
+if $do_linux || $do_linuxv32
+then
+  if ! $skip_glibc_configure
+  then
+    echo "*** Preparing for compiling glibc."
+    echo
+
+    # Since glibc does not like when objdir (tmpdir) is on another fs
+    # than srcdir, we copy srcdir to a sibling directory (better than
+    # insist the user to specify a tmpdir on the same fs as srcpath).
+    # We used to do this only when different fs (based on a test if a
+    # hardlink between a file in glibc and tmpdir was successful),
+    # but since glibc pokes a lot of dependency files into its srcdir
+    # (perhaps when dates are out of sync due to CVS), we now do it
+    # always, so we don't have to track dependencies if the src fs is
+    # read-only.
+    if mkdir_path $glibcsrcpath/glibc \
+      && (cd $srcpath/glibc && tar fc - .) \
+    	  | (cd $glibcsrcpath/glibc && tar fx -) 2>&1
+    then true
+    else
+      bug_report
+      exit 1
+    fi
+
+    echo "*** Now configuring glibc for linux."
+    echo
+
+    # There's a bug (or undocumented omission) in the glibc configure
+    # machinery: --libdir= is accepted by configure, but has no effect
+    # on what happens at "make" (does not go into the Makefile or
+    # config.make).  We specify it here anyway.
+    if ($nixlin echodo cd $glibcobj \
+	&& $nixlin echo env "TARGET_CC=$topobj/linux0/gcc/xgcc -B$topobj/linux0/gcc/" \
+	       CC_opts= $ippmakeopts \
+               PATH=$ipp$binpath:$PATH "BUILD_CC=$myCC" $glibcsrcpath/glibc/doconf --host=cris-axis-linux-gnu \
+	     --prefix= --enable-add-ons --disable-profile --enable-kernel=2.4.5 \
+	     --with-headers=$ipp$incpathlinux \
+	&& $nixlin env "TARGET_CC=$topobj/linux0/gcc/xgcc -B$topobj/linux0/gcc/" \
+	       CC_opts= $ippmakeopts \
+               PATH=$ipp$binpath:$PATH "BUILD_CC=$myCC" $glibcsrcpath/glibc/doconf --host=cris-axis-linux-gnu \
+	     --prefix= --enable-add-ons --disable-profile --enable-kernel=2.4.5 \
+	     --with-headers=$ipp$incpathlinux \
+        && $nixlinv32 echodo cd $glibcobjv32 \
+	&& $nixlinv32 echo env "TARGET_CC=$topobj/linuxv320/gcc/xgcc -B$topobj/linuxv320/gcc/" \
+	       CC_opts= $ippmakeopts \
+               PATH=$ipp$binpath:$PATH "BUILD_CC=$myCC" $glibcsrcpath/glibc/doconf --host=crisv32-axis-linux-gnu \
+	     --prefix= --enable-add-ons --disable-profile --enable-kernel=2.4.5 \
+	     --with-headers=$ipp$incpathlinuxv32 \
+	&& $nixlinv32 env "TARGET_CC=$topobj/linuxv320/gcc/xgcc -B$topobj/linuxv320/gcc/" \
+	       CC_opts= $ippmakeopts \
+               PATH=$ipp$binpath:$PATH "BUILD_CC=$myCC" $glibcsrcpath/glibc/doconf --host=crisv32-axis-linux-gnu \
+	     --prefix= --enable-add-ons --disable-profile --enable-kernel=2.4.5 \
+	     --with-headers=$ipp$incpathlinuxv32) 2>&1
+    then
+      echo
+      echo "*** $program: glibc configured."
+    else
+      echo
+      echo "*** $program: glibc configure failed."
+      bug_report
+      exit 1
+    fi
+  fi # skip_glibc_configure = no
+
+  echo "*** Compiling glibc (please be patient):"
+  echo
+
+  if ! $skip_glibc_build
+  then
+    if ($nixlin echodo cd $glibcobj \
+	&& $nixlin echo env PATH=$ipp$binpath:$PATH $MAKE \
+             user-defined-trusted-dirs=/usr/lib \
+             install_root=$dummydir/linux inst_libdir=$ipp$libpathlinux \
+             inst_slibdir=$ipp$libpathlinux inst_infodir=$infotmp \
+             inst_includedir=$ipp$incpathlinux all \
+	&& $nixlin env PATH=$ipp$binpath:$PATH $MAKE \
+             user-defined-trusted-dirs=/usr/lib \
+             install_root=$dummydir/linux inst_libdir=$ipp$libpathlinux \
+             inst_slibdir=$ipp$libpathlinux inst_infodir=$infotmp \
+             inst_includedir=$ipp$incpathlinux all \
+	&& $nixlinv32 echodo cd $glibcobjv32 \
+	&& $nixlinv32 echo env PATH=$ipp$binpath:$PATH $MAKE \
+             user-defined-trusted-dirs=/usr/lib \
+             install_root=$dummydir/linux inst_libdir=$ipp$libpathlinuxv32 \
+             inst_slibdir=$ipp$libpathlinuxv32 inst_infodir=$infotmp \
+             inst_includedir=$ipp$incpathlinuxv32 all \
+	&& $nixlinv32 env PATH=$ipp$binpath:$PATH $MAKE \
+             user-defined-trusted-dirs=/usr/lib \
+             install_root=$dummydir/linux inst_libdir=$ipp$libpathlinuxv32 \
+             inst_slibdir=$ipp$libpathlinuxv32 inst_infodir=$infotmp \
+             inst_includedir=$ipp$incpathlinuxv32 all) 2>&1
+    then
+      echo
+      echo "*** $program: glibc built"
+    else
+      echo
+      echo "*** $program: glibc build failed"
+      bug_report
+      exit 1
+    fi
+
+  fi # skip_glibc_build
+
+
+  if ! $skip_glibc_install
+  then
+    echo
+    $do_linux && echo "*** Installing glibc in $ipp$libpathlinux and $ipp$incpathlinux"
+    $do_linuxv32 && echo "*** Installing glibc in $ipp$libpathlinuxv32 and $ipp$incpathlinuxv32"
+    echo
+
+    # The library path replacement in libc.so must point at the
+    # prefixed installation directory until libstdc++ is recompiled.
+    if ($nixlin echodo cd $glibcobj \
+	&& $nixlin echo env PATH=$ipp$binpath:$PATH $MAKE \
+	   install_root=$dummydir/linux inst_libdir=$ipp$libpathlinux \
+	   inst_slibdir=$ipp$libpathlinux inst_infodir=$infotmp \
+	   inst_includedir=$ipp$incpathlinux install \
+	&& $nixlin env PATH=$ipp$binpath:$PATH $MAKE \
+	   install_root=$dummydir/linux inst_libdir=$ipp$libpathlinux \
+	   inst_slibdir=$ipp$libpathlinux inst_infodir=$infotmp \
+	   inst_includedir=$ipp$incpathlinux install \
+	&& $nixlin echo "(Replacing /lib/ path with $ipp$libpathlinux/ in libc.so)" \
+	&& $nixlin perl -p -i -e "s,/lib/,$ipp$libpathlinux/,g" $ipp$libpathlinux/libc.so \
+	&& $nixlinv32 echodo cd $glibcobjv32 \
+	&& $nixlinv32 echo env PATH=$ipp$binpath:$PATH $MAKE \
+	   install_root=$dummydir/linux inst_libdir=$ipp$libpathlinuxv32 \
+	   inst_slibdir=$ipp$libpathlinuxv32 inst_infodir=$infotmp \
+	   inst_includedir=$ipp$incpathlinuxv32 install \
+	&& $nixlinv32 env PATH=$ipp$binpath:$PATH $MAKE \
+	   install_root=$dummydir/linux inst_libdir=$ipp$libpathlinuxv32 \
+	   inst_slibdir=$ipp$libpathlinuxv32 inst_infodir=$infotmp \
+	   inst_includedir=$ipp$incpathlinuxv32 install \
+	&& $nixlinv32 echo "(Replacing /lib/ path with $ipp$libpathlinuxv32/ in libc.so)" \
+	&& $nixlinv32 perl -p -i -e "s,/lib/,$ipp$libpathlinuxv32/,g" $ipp$libpathlinuxv32/libc.so) 2>&1
+    then
+      echo
+      echo "*** $program: glibc installed"
+      $do_linux && echo "    in $ipp$libpathlinux and $ipp$incpathlinux"
+      $do_linuxv32 && echo "    in $ipp$libpathlinuxv32 and $ipp$incpathlinuxv32"
+    else
+      echo
+      echo "*** $program: glibc install failed"
+      bug_report
+      exit 1
+    fi
+  fi # skip_glibc_install
+
+
+  # FIXME: Cute skip_ name.
+  if true
+  then
+    echo "*** $program: Configuring gcc for glibc"
+    echo
+    if ($nixlin echodo cd $topobj/linux \
+	&& $nixlin echodo env PATH=$ipp$binpath/bin:$PATH \
+	   "'gcc_cv_as=$ipp$binpath/cris-axis-linux-gnu/bin/as --em=criself --no-underscore'" \
+	   "'gcc_cv_ld=$ipp$binpath/cris-axis-linux-gnu/bin/ld -mcrislinux'" \
+	   $srcpath/gnu-toplev/configure --enable-version-specific-runtime-libs \
+	   --disable-nls --target=$faname-axis-linux-gnu --without-newlib \
+	   --with-headers=installed \
+	   --enable-languages=c,c++ --enable-shared --enable-threads=posix \
+	   --prefix=$binpath \
+	&& $nixlinv32 echodo cd $topobj/linuxv32 \
+	&& $nixlinv32 echodo env PATH=$ipp$binpath/bin:$PATH \
+	   "'gcc_cv_as=$ipp$binpath/crisv32-axis-linux-gnu/bin/as --em=criself --march=v32 --no-underscore'" \
+	   "'gcc_cv_ld=$ipp$binpath/crisv32-axis-linux-gnu/bin/ld -mcrislinux'" \
+	   $srcpath/gnu-toplev/configure --enable-version-specific-runtime-libs \
+	   --disable-nls --target=${faname}v32-axis-linux-gnu --without-newlib \
+	   --with-headers=installed \
+	   --enable-languages=c,c++ --enable-shared --enable-threads=posix \
+	   --prefix=$binpath)
+    then
+      echo
+      echo "*** $program: Configured gcc for use with glibc"
+    else
+      echo
+      echo "*** $program: Configuration of gcc for use with glibc failed"
+      bug_report
+      exit 1
+    fi
+  fi
+
+  # FIXME: Cute skip_ name.
+  if true
+  then
+    echo "*** $program: Building gcc and its libraries for use with glibc"
+    echo
+    if ($nixlin echodo cd $topobj/linux \
+	&& $nixlin echodo env PATH=$ipp$binpath/bin:$PATH $MAKE \
+	   build_tooldir=$ipp$binpath/cris-axis-linux-gnu \
+	   mandir=$mantmp infodir=$infotmp \
+	   all \
+	&& $nixlinv32 echodo cd $topobj/linuxv32 \
+	&& $nixlinv32 echodo env PATH=$ipp$binpath/bin:$PATH $MAKE \
+	   build_tooldir=$ipp$binpath/crisv32-axis-linux-gnu \
+	   mandir=$mantmp infodir=$infotmp \
+	   all) 2>&1
+    then
+      echo
+      echo "*** $program: Built gcc and its libraries for use with glibc"
+    else
+      echo
+      echo "*** $program: Building gcc for use with glibc failed"
+      bug_report
+      exit 1
+    fi
+  fi
+
+  # FIXME: Cute skip_ name.
+  if true
+  then
+    echo "*** $program: Installing gcc and its libraries for use with glibc"
+    # After installation, strip binaries and prune libraries and
+    # scripts we don't use.
+    if ($nixlin echodo cd $topobj/linux \
+	&& $nixlin echodo env PATH=$ipp$binpath/bin:$PATH $MAKE \
+	   build_tooldir=$ipp$binpath/cris-axis-linux-gnu \
+	   mandir=$mantmp infodir=$infotmp \
+	   install prefix=$ipp$binpath \
+	&& $nixlin $strip $ipp$binpath/bin/cris-axis-linux-gnu-cpp \
+	&& $nixlin rm $ipp$binpath/bin/cris-axis-linux-gnu-gccbug \
+	&& $nixlin $strip $ipp$binpath/bin/cris-axis-linux-gnu-gcov \
+	&& $nixlin $strip $ipp$binpath/bin/cris-axis-linux-gnu-g++ \
+	&& $nixlin $strip $ipp$binpath/bin/cris-axis-linux-gnu-c++filt \
+	&& $nixlin rm $ipp$binpath/bin/cris-axis-linux-gnu-c++ \
+	&& $nixlin ln -s cris-axis-linux-gnu-g++ \
+	         $ipp$binpath/bin/cris-axis-linux-gnu-c++ \
+	&& $nixlin rm $ipp$binpath/lib/libiberty.a \
+	&& $nixlin $strip $ipp$libpathlinuxgcc/cc1 \
+	&& $nixlin $strip $ipp$libpathlinuxgcc/cc1plus \
+	&& $nixlin $strip $ipp$libpathlinuxgcc/collect2 \
+	&& $nixlin $strip $ipp$libpathlinuxgcc/cpp0 \
+	&& $nixlin $strip $ipp$libpathlinuxgcc/tradcpp0 \
+	&& $nixlinv32 echodo cd $topobj/linuxv32 \
+	&& $nixlinv32 echodo env PATH=$ipp$binpath/bin:$PATH $MAKE \
+	   build_tooldir=$ipp$binpath/crisv32-axis-linux-gnu \
+	   mandir=$mantmp infodir=$infotmp \
+	   install prefix=$ipp$binpath \
+	&& $nixlinv32 $strip $ipp$binpath/bin/crisv32-axis-linux-gnu-cpp \
+	&& $nixlinv32 rm $ipp$binpath/bin/crisv32-axis-linux-gnu-gccbug \
+	&& $nixlinv32 $strip $ipp$binpath/bin/crisv32-axis-linux-gnu-gcov \
+	&& $nixlinv32 $strip $ipp$binpath/bin/crisv32-axis-linux-gnu-g++ \
+	&& $nixlinv32 $strip $ipp$binpath/bin/crisv32-axis-linux-gnu-c++filt \
+	&& $nixlinv32 rm $ipp$binpath/bin/crisv32-axis-linux-gnu-c++ \
+	&& $nixlinv32 ln -s crisv32-axis-linux-gnu-g++ \
+	         $ipp$binpath/bin/crisv32-axis-linux-gnu-c++ \
+	&& $nixlinv32 rm $ipp$binpath/lib/libiberty.a \
+	&& $nixlinv32 $strip $ipp$libpathlinuxgccv32/cc1 \
+	&& $nixlinv32 $strip $ipp$libpathlinuxgccv32/cc1plus \
+	&& $nixlinv32 $strip $ipp$libpathlinuxgccv32/collect2 \
+	&& $nixlinv32 $strip $ipp$libpathlinuxgccv32/cpp0 \
+	&& $nixlinv32 $strip $ipp$libpathlinuxgccv32/tradcpp0) 2>&1
+    then
+      echo
+      echo "*** $program: Installed gcc and its libraries for use with glibc"
+    else
+      echo
+      echo "*** $program: Installation of gcc for use with glibc failed"
+      bug_report
+      exit 1
+    fi
+  fi
+fi | $tee -a $instalog
+
+test -f $errfile && exit 1
+
+# Move back the binutils libiberty.a, which is the one we want
+# because it matches libbfd.a and libopcodes.a.
+(echodo mv $ipp$binpath/lib/libiberty.a.binutils $ipp$binpath/lib/libiberty.a \
+ || abort_install) | $tee -a $instalog
+test -f $errfile && exit 1
+
+# Install shell-scripts named gcc-cris, g++-cris and
+# cpp-cris and vice versa, redirecting to the different ones.
+
+cat > $ipp$binpath/bin/gcc-cris <<'EOF'
+#! /bin/sh
+
+GCC_CRIS_ARCH=cris
+GCC_CRIS_CHAIN=elf
+
+# We may be called as g++-cris or gcc-cris, perhaps c++-cris or
+# other names.  Use the lowest common discriminator.
+case $0 in
+ *++*)
+   GCC_CRIS_NAMEBASE=g++;;
+ *cc*)
+   GCC_CRIS_NAMEBASE=gcc;;
+ *cpp*)
+   GCC_CRIS_NAMEBASE=cpp;;
+ *)
+   echo "$0: Bad command name, must contain 'gcc', 'g++' or 'cpp'" 1>&2
+   exit 2;;
+esac
+
+case " "$*" " in
+ *" -march=v32 "* | *" -mcpu=v32 "*)
+   GCC_CRIS_ARCH=crisv32;;
+esac
+
+case " "$*" " in
+ *" -mlinux "* | *" -shared "*)
+   GCC_CRIS_CHAIN=linux-gnu;;
+ *" -maout "* | *" -melinux "*)
+   GCC_CRIS_CHAIN=aout;;
+esac
+
+# The chain-specific command is in the bin/ directory, so add that if
+# we were found in the old directory with the symlinks.
+GCC_CRIS_PATH=${0%/*}
+case $GCC_CRIS_PATH in
+ */bin)
+   ;;
+ *)
+   GCC_CRIS_PATH=$GCC_CRIS_PATH/bin;;
+esac
+ 
+exec ${GCC_CRIS_PATH}/$GCC_CRIS_ARCH-axis-$GCC_CRIS_CHAIN-$GCC_CRIS_NAMEBASE ${1+"$@"}
+echo "$0: Installation problem: Can't find $GCC_CRIS_ARCH-axis-$GCC_CRIS_CHAIN-$GCC_CRIS_NAMEBASE" 1>&2
+exit 2
+EOF
+
+# Make sure the old names are available in both $binpath and $binpath/bin.
+if (chmod a+x $ipp$binpath/bin/gcc-cris \
+    && ln -s bin/gcc-cris $ipp$binpath/gcc-cris \
+    && ln -s bin/gcc-cris $ipp$binpath/cris-gcc \
+    && ln -s gcc-cris $ipp$binpath/bin/cris-gcc \
+    && ln -s bin/gcc-cris $ipp$binpath/g++-cris \
+    && ln -s gcc-cris $ipp$binpath/bin/g++-cris \
+    && ln -s bin/gcc-cris $ipp$binpath/cris-g++ \
+    && ln -s gcc-cris $ipp$binpath/bin/cris-g++ \
+    && ln -s bin/gcc-cris $ipp$binpath/cris-c++ \
+    && ln -s gcc-cris $ipp$binpath/bin/cris-c++ \
+    && ln -s bin/gcc-cris $ipp$binpath/c++-cris \
+    && ln -s gcc-cris $ipp$binpath/bin/c++-cris \
+    && ln -s bin/gcc-cris $ipp$binpath/cris-cpp \
+    && ln -s gcc-cris $ipp$binpath/bin/cris-cpp \
+    && ln -s bin/gcc-cris $ipp$binpath/cpp-cris \
+    && ln -s gcc-cris $ipp$binpath/bin/cpp-cris \
+    && $nixelf ln -s cris-axis-elf-c++filt $ipp$binpath/bin/c++filt-cris \
+    && $nixelf ln -s cris-axis-elf-c++filt $ipp$binpath/bin/cris-c++filt \
+    && $nixelf ln -s bin/cris-axis-elf-c++filt $ipp$binpath/cris-c++filt \
+    && $nixelf ln -s bin/cris-axis-elf-c++filt $ipp$binpath/c++filt-cris) 2>&1
+then
+ :
+else
+  echo
+  echo "*** $program: Creating compatibility name links failed"
+  bug_report
+  exit 1
+fi | $tee -a $instalog
+
+test -f $errfile && exit 1
+
+
+(echo
+ echo "*** Now checking the installation:") | $tee -a $instalog
+
+rm -f $mytmpdir/mytst* 2> /dev/null
+
+# Make sure we have a usable installed libiberty.a, libbfd.a and libopcodes.a.
+tstprog=$mytmpdir/mytstopc
+
+# May look like a program, but is just for checking that it links.
+# A real program would have been a bit larger.
+cat > $tstprog.c <<EOF
+#include <stdio.h>
+#include <stdlib.h>
+#include "dis-asm.h"
+int main ()
+{
+  bfd *abfd;
+  struct disassemble_info dinfo;
+  disassembler_ftype dfn;
+  asection *s;
+  bfd_init ();
+  abfd = bfd_openr ("x.o", NULL);
+  if (!bfd_check_format_matches (abfd, bfd_object, NULL))
+    abort ();
+  INIT_DISASSEMBLE_INFO (dinfo, stdout, fprintf);
+  dfn = disassembler (abfd);
+  s = bfd_get_section_by_name (abfd, ".text");
+  (*dfn) (s->vma, &dinfo);
+  return 0;
+}
+EOF
+
+(echo
+ echo "*** Checking the installation of libbfd libopcodes and libiberty"
+ echo "    in $ipp$binpath/include and $ipp$binpath/lib...") | $tee -a $instalog
+
+if (cd $mytmpdir \
+    && echodo $myCC -I$ipp$binpath/include -c $tstprog.c \
+    && echodo $myCC -o $tstprog $tstprog.o \
+	-L$ipp$binpath/lib -lopcodes -lbfd -liberty)
+then
+   echo "    ... it works"
+   echo
+else
+   echo "    ... it does NOT work"
+   echo
+   bug_report
+fi | $tee -a $instalog
+test -f $errfile && exit 1
+
+# Let's test glibc-related options separately.
+if $do_linux
+then
+  echo -n "*** Testing"
+  $nixaout echo " $negcc -melinux and"
+  $nixaout echo "    $negxx -melinux  and"
+  sp=""
+  $nixaout sp="   "
+  echo "$sp $nlgcc -mlinux  and"
+  echo "    $nlgxx -mlinux..."
+  echo
+
+  if (echodo cd $mytmpdir \
+      && $nixaout echodo $negcc -melinux $ctestf -o mytst \
+      && $nixaout echodo $negxx -melinux $cxxtestf -o mytst2 \
+      && echodo $nlgcc -mlinux $linux_test_compile_flags $ctestf -o mytst3 \
+      && echodo $nlgxx -mlinux $linux_test_compile_flags $cxxtestf -o mytst4) 2>&1
+  then
+    echo
+    echo "*** ... all seem to work."
+    echo
+  else
+    echo
+    echo "*** do NOT work!"
+    bug_report
+  fi
+fi | $tee -a $instalog
+test -f $errfile && exit 1
+
+if $do_linuxv32
+then
+  echo "*** Testing $nlgcc -mlinux -march=v32 and"
+  echo "    $nlgxx -mlinux -march=v32..."
+  echo
+
+  if (echodo cd $mytmpdir \
+      && echodo $nlgcc -mlinux -march=v32 $linux_test_compile_flags $ctestf -o mytst3 \
+      && echodo $nlgxx -mlinux -march=v32 $linux_test_compile_flags $cxxtestf -o mytst4) 2>&1
+  then
+    echo
+    echo "*** ... all seem to work."
+    echo
+  else
+    echo
+    echo "*** do NOT work!"
+    bug_report
+  fi | $tee -a $instalog
+
+  test -f $errfile && exit 1
+fi
+
+if ! $nixelf false
+then
+  rm -f $mytmpdir/mytst* 2> /dev/null
+  (echo "*** Testing $ngcc and"
+   echo "    $ngxx (both linking system calls using simulator library) ..."
+   echo) | $tee -a $instalog
+
+  if (echodo cd $mytmpdir \
+      && echodo $ngcc -sim $mytmpdir/test.c -o mytst \
+      && echodo $ngxx -sim $cxxtestf -o mytst2) 2>&1
+  then
+    echo
+    echo "*** ... both seem to work."
+    echo
+  else
+    echo
+    echo "*** do NOT work!"
+    bug_report
+  fi | $tee -a $instalog
+fi
+test -f $errfile && exit 1
+
+# Note that we do not test $faname-burn anymore, since it's just a
+# courtesy-copy of bin-$faname, and everybody should really be using
+# objcopy instead.
+rm -f $mytmpdir/mytst*.bin 2> /dev/null
+
+# Don't test if we have an installation prefix; bin-$faname
+# will not find objcopy, and tweaking the situation is likely to be
+# misleading.
+if test X$ipp = X && ! $nixelf false
+then
+  if (echodo cd $mytmpdir \
+      && echodo $ipp$binpath/bin-$faname -w1 -b0 -o mytst.bin mytst \
+      && echodo $ipp$binpath/bin-$faname -w1 -b0 -o mytst2.bin mytst2  \
+      && tr '\000-\037\200-\377' '\n' < mytst.bin \
+	  | fgrep '%cHello, world%c' >/dev/null \
+      && tr '\000-\037\200-\377' '\n' < mytst2.bin \
+	  | fgrep '%cHello, world%c' >/dev/null) 2>&1
+  then
+    echo
+    echo "*** ... bin-$faname works"
+  else
+    rm -f $ipp$binpath/bin-$faname 2>/dev/null
+  fi
+else
+  echo  "*** (having installation prefix, not testing bin-$faname)"
+fi | $tee -a $instalog
+
+if test -x $ipp$binpath/bin-$faname || $nixelf false
+then :
+else
+  echo
+  echo "*** The bin-$faname tool does not work."
+  echo "    If you're in a hurry, tweak this script and use"
+  echo "    \"objcopy-$faname -O binary\" instead."
+  echo "    (There's probably a problem with objcopy-$faname, as"
+  echo "    bin-$archname is a simple shell-script that uses it internally.)"
+  bug_report
+fi | $tee -a $instalog
+
+test -f $errfile && exit 1
+
+if test "X$manpath" != "X/dev/null" && ! $skip_man
+then
+  echo
+  echo "*** $program: Now installing manual pages"
+  bsm=$srcpath/binutils
+  gcm=$mantmp/man1
+  for f in $gcm/ar $gcm/nm $gcm/objcopy \
+	  $gcm/objdump $gcm/ranlib $gcm/size \
+	  $gcm/strings $gcm/strip $gcm/as \
+	  $gcm/ld $gcm/cpp $gcm/gcc $gcm/g++ $gcm/gcov
+  do
+    bn=`basename $f`
+    cp="cp -p `dirname $f`/$faname-$bn.1 $ipp$manpath"
+    ln1="ln -s $faname-$bn.1 $ipp$manpath/$bn-$faname.1"
+    ln2="$nixelf ln -s $faname-$bn.1 $ipp$manpath/$faname-axis-elf-$bn.1"
+    ln3="$nixaout ln -s $faname-$bn.1 $ipp$manpath/$faname-axis-aout-$bn.1"
+    ln4="$nixlin ln -s $faname-$bn.1 $ipp$manpath/$faname-axis-linux-gnu-$bn.1"
+    ln5="$nixlinv32 ln -s $faname-$bn.1 $ipp$manpath/${faname}v32-axis-linux-gnu-$bn.1"
+    ln6="$nixelfv32 ln -s $faname-$bn.1 $ipp$manpath/${faname}v32-axis-elf-$bn.1"
+    case $f in
+      */gcc | */g++)
+	 # Special treatment; this one is installed in $gcm as
+	 # the three different cris-$toolchain.1.  Keep one: some may be absent.
+         cp=
+         test -z "$cp" && test -f `dirname $f`/$faname-axis-elf-$bn.1 \
+	    && cp="cp -p `dirname $f`/$faname-axis-elf-$bn.1 $ipp$manpath/$faname-$bn.1"
+         test -z "$cp" && test -f `dirname $f`/$faname-axis-aout-$bn.1 \
+	    && cp="cp -p `dirname $f`/$faname-axis-aout-$bn.1 $ipp$manpath/$faname-$bn.1"
+         test -z "$cp" && test -f `dirname $f`/$faname-axis-linux-gnu-$bn.1 \
+	    && cp="cp -p `dirname $f`/$faname-axis-linux-gnu-$bn.1 $ipp$manpath/$faname-$bn.1"
+         test -z "$cp" && test -f `dirname $f`/${faname}v32-axis-linux-gnu-$bn.1 \
+	    && cp="cp -p `dirname $f`/${faname}v32-axis-linux-gnu-$bn.1 $ipp$manpath/$faname-$bn.1"
+	 ;;
+      */gcov)
+	 # Special treatment: There's a gcov.1 in $gcm, no
+	 # cris-gcov.1.  Create symlinks as below, but no
+	 # cris-gcov or gcov-cris links, since the executable
+	 # was never accessible as that name. 
+	 cp="cp -p `dirname $f`/$bn.1 $ipp$manpath/$faname-axis-elf-$bn.1"
+         ln1="$nixaout ln -s $faname-axis-elf-$bn.1 $ipp$manpath/$faname-axis-aout-$bn.1"
+         ln2="$nixlin ln -s $faname-axis-elf-$bn.1 $ipp$manpath/$faname-axis-linux-gnu-$bn.1"
+         ln3="$nixlinv32 ln -s $faname-axis-elf-$bn.1 $ipp$manpath/${faname}v32-axis-linux-gnu-$bn.1"
+	 ln4=:
+	 ln5=:
+	 ln6=:
+	 ;;
+      */cpp)
+	 # Special treatment: There's a cpp.1 in $gcm, no
+	 # cris-cpp.1.  Create symlinks as below.
+	 cp="cp -p `dirname $f`/$bn.1 $ipp$manpath/$faname-$bn.1"
+	 ;;
+      *)
+	 # Default case: copy e.g. cris-ar.1 and do symlinks for:
+	 # ar-cris.1 -> cris-ar.1
+	 # cris-axis-elf-ar.1 -> cris-ar.1
+	 # cris-axis-aout-ar.1 -> cris-ar.1
+	 # cris-axis-linux-gnu-ar.1 -> cris-ar.1
+	 ;;
+    esac
+    if ($cp && $ln1 && $ln2 && $ln3 && $ln4 && $ln5 && $ln6) 2>&1
+    then true
+    else
+      echo "*** Could not install manual pages: failed on manual for $bn"
+      bug_report
+      exit 1
+    fi
+  done
+  echo "*** Manual pages installed"
+fi | $tee -a $instalog
+
+test -f $errfile && exit 1
+
+infodir=$mytmpdir/info-dir
+rm -f $infodir 2>/dev/null
+# Make sure it exists when we later cat from it, since it will not be
+# created unless changes are needed.  It is better to see an updated
+# date on "dir" than to avoid changing it.
+touch $infodir
+if test "X$infopath" != "X/dev/null" && ! $skip_info
+then
+  echo
+  echo "*** Now installing info pages"
+  gci=$infotmp
+  if test -s $ipp$infopath/dir
+  then :
+  else
+    if cat >>$infodir <<EOF
+-*- Text -*-
+This is the file .../info/dir, which contains the topmost node of the
+Info hierarchy.  The first time you invoke Info you start off
+looking at that node, which is (dir)Top.
+
+File: dir	Node: Top	This is the top of the INFO tree
+  This (the Directory node) gives a menu of major topics.
+  Typing "d" returns here, "q" exits, "?" lists all INFO commands, "h"
+  gives a primer for first-timers, "mTexinfo<Return>" visits Texinfo topic,
+  etc.
+  Or click mouse button 2 on a menu item or cross reference to select it.
+  --- PLEASE ADD DOCUMENTATION TO THIS TREE. (See INFO topic first.) ---
+
+* Menu: The list of major topics begins on the next line.
+
+
+EOF
+    then true
+    else
+      echo "*** $program: Could not install info pages, failed on \"dir\": $?"
+      bug_report
+      exit 1
+    fi
+  fi
+
+  # We could jump through hoops to find makeinfo or abort on missing
+  # makeinfo much earlier.  But it just doesn't seem worth it.
+  glibcinfo=
+  if $do_linux || $do_linuxv32
+  then
+    glibcinfo=$gci/libc.info
+    if test -f $glibcinfo
+    then true
+    else
+      echo
+      echo "*** $program: Warning: Glibc info files not created."
+      echo "    Supposedly you don't have makeinfo 4.0 or later installed,"
+      echo "    so glibc did not create them.  This isn't fatal, you will"
+      echo "    just not have glibc documentation installed."
+      echo
+      glibcinfo=
+    fi
+  fi
+
+  # Change name to contain suffix "-$faname" right before ".info".
+  # Add dir entries unless we find one that should be suitable
+  # (in which case it is not updated).
+  for f in $gci/cpp.info $gci/gcc.info $gci/binutils.info \
+       $gci/as.info $gci/ld.info $glibcinfo
+  do
+    bn=`basename $f .info`
+    for g in $f*
+    do
+      newname=`basename $g | sed -e "s/\\.info/-$faname.info/g;"`
+      if sed -e "s/$bn\\.info/$bn-$faname.info/g;" \
+	     -e '/^START-INFO-DIR-ENTRY$/,/^END-INFO-DIR-ENTRY$/ s/'"($bn)/($bn-$faname)/g" \
+	 < $g > $ipp$infopath/$newname
+      then true
+      else
+	echo "*** $program: Could not install info pages, failed on $g: $?"
+	bug_report
+	exit 1
+      fi
+    done
+
+    if (test -s $ipp$infopath/dir \
+	&& fgrep " ($bn-$faname). " $ipp$infopath/dir >/dev/null) \
+       || awk < $ipp$infopath/$newname \
+	      '/^START-INFO-DIR-ENTRY$/,/^END-INFO-DIR-ENTRY$/' \
+	      >>$infodir
+    then true
+    else
+      echo "*** $program: Could not install info pages, failed on $f: $?"
+      bug_report
+      exit 1
+    fi
+  done
+  if $ro_infodir
+  then
+    if mv $infodir $ipp$infopath/dir2
+    then true
+    else
+      echo "*** $program: Could not install info 'dir2'-file"
+      bug_report
+      exit 1
+    fi
+  else
+    if cat $infodir >>$ipp$infopath/dir
+    then true
+    else
+      echo "*** $program: Could not add to info 'dir'-file"
+      bug_report
+      exit 1
+    fi
+  fi
+  echo "*** $program: Info pages installed"
+  echo
+fi | $tee -a $instalog
+
+test -f $errfile && exit 1
+
+# All must be ok since we got here.
+
+(echo
+ echo "*** $program: The installation of compiler tools for"
+ echo "     $tuples"
+ echo "    went well") \
+ | $tee -a $instalog
+
+(echo
+ echo "    Programs were installed in:    $binpath"
+ test "X$manpath" != "X/dev/null" && \
+ echo "    Manual pages in:               $manpath"
+ test "X$infopath" != "X/dev/null" && \
+ echo "    Info pages in:                 $infopath"
+ test X$ipp != X && \
+ echo "    ** Paths above prepended with: $ipp **"
+ echo)  | $tee -a $instalog
+
+if test $manpath != /dev/null && $new_man
+then
+  echo "*** Now do not forget to update your \$MANPATH environment variable with:"
+  echo "    "`dirname $manpath`
+  echo "    A suitable line to add in your .profile or shell resource file"
+  echo "    (.bashrc .cshrc .zshrc .tcshrc etc) after other settings, may be:"
+  echo "    MANPATH="`dirname $manpath`":\$MANPATH"
+  echo
+fi | $tee -a $instalog
+
+if test $infopath != /dev/null && $ro_infodir
+then
+  echo "*** Do not forget to merge $infopath/dir2 with $infopath/dir"
+  echo
+fi | $tee -a $instalog
+
+(echo "*** Do not forget to update your \$PATH environment variable with:"
+ echo "    $binpath/bin"
+ echo "    A suitable line to add in your .profile or shell resource file"
+ echo "    (.bashrc .cshrc .zshrc .tcshrc etc) after other settings, may be:"
+ echo "    PATH=$binpath/bin:\$PATH"
+ echo
+ echo "*** The installation finished successfully, the time is:" `date` ) \
+ | $tee -a $instalog
+
+echo
+yes_or_noP "Do you want to remove the log and the temporary files" y
+echo
+test "X$yes_or_no" = "XNO" && exit 0
+
+# Remove any directory and such that was created but *NOT* on the path to the
+# files that were installed.
+cleanup $ipp$binpath/gcc-$faname $ipp$libpathelf/include/stdio.h \
+ $ipp$libpathaout/elinux/include/. $ipp$libpathaout/elinux/crt0.o \
+ $ipp$manpath/gcc-$faname.1 $ipp$infopath/dir \
+ $ipp$libpathlinux/crt1.o $ipp$incpathlinux/stdio.h \
+ $ipp$binpath/$faname-axis-linux-gnu/bin/gcc \
+ $ipp$binpath/${faname}v32-axis-linux-gnu/bin/gcc \
+ $ipp$binpath/$faname-axis-elf/bin/gcc \
+ $ipp$binpath/${faname}v32-axis-elf/bin/gcc $ipp$libpathelfv32/include/stdio.h \
+ $ipp$binpath/$faname-axis-aout/bin/gcc
+exit 0

@@ -1,0 +1,939 @@
+2007-03-07  Hans-Peter Nilsson  <hp@axis.com>
+
+	* NEWS: Update for glibc changes in R64.
+
+2007-03-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (path_answer): Disallow TAB and newline
+	characters too.
+	* NEWS.v32: Remove.
+	* NEWS: Merge-in NEWS.v32.  Update for R64.
+
+	* Merge crisv32-branch.
+
+2007-02-14  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools: Exit gracefully if pwd, $0 or any of the
+	argument paths contain a space.
+ 	(argv0): New variable.
+	(croak, nospace): New functions.
+	(range_answer, range_answerP, class_answer, class_answerP): Remove
+	unused variables and functions.
+	* README: Mention "no spaces allowed" criteria.
+
+2007-02-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools: In $PATH reminder message, use $binpath/bin,
+	not $binpath.
+
+2005-10-27  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-dist.spec (serial): Bump for 1.63.
+	* install-cris-tools (ICT_VERSION): Ditto.
+	* NEWS: Update for 1.63.
+	* install-cris-tools: Set LC_ALL=C before any command.
+
+2005-06-16  Hans-Peter Nilsson  <hp@axis.com>
+
+	* NEWS: Update for 1.62.
+	* install-cris-tools (ICT_VERSION): Bump for 1.62.
+	* cris-dist.spec (serial): Ditto.
+	(Serial): Remove tag, replace with comment.  Fix typo in following
+	text.
+	(Requires, Provides): Define these tags.
+	(_enable_debug_packages): Undefine this macro.
+	(rpmstrip, __strip, rpmdepreq, __find_provides, __find_requires)
+	(_use_internal_dependency_generator): Define these macros.
+	(rpmstrip, rpmdepreq): Provide commands.
+
+2005-04-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* NEWS: Fix typo in last change.
+
+2005-03-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-dist.spec (version): Define in terms of serial
+	(serial): Bump for 1.61.
+	* install-cris-tools (ICT_VERSION): Ditto.
+	* NEWS: Update for 1.61.
+
+2004-10-14  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (ICT_VERSION): Bump for 1.60.
+	Save binutils libiberty.a around GCC build and installation.
+	Change all remaining tee to $tee for uniformity.
+	<Testing gcc-cris -mlinux/-melinux>: Pipe proper if-level to
+	$tee.
+	* cris-dist.spec (version, serial): Ditto.
+	* NEWS: Update for 1.60.
+
+2004-09-27  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (ICT_VERSION): Bump for 1.59.
+	* cris-dist.spec (version, serial): Ditto.
+	* NEWS: Update for 1.59.
+
+2004-09-24  Hans-Peter Nilsson  <hp@axis.com>
+
+	* NEWS: Fix typo s/1.57/1.58/.
+
+2004-09-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (ICT_VERSION): Bump for 1.58.
+	* cris-dist.spec (version, serial): Ditto.
+	* NEWS: Update for 1.58.
+
+2004-09-15  Hans-Peter Nilsson  <hp@axis.com>
+
+	* NEWS: Note rpcsvc presence.
+
+2004-09-09  Hans-Peter Nilsson  <hp@axis.com>
+
+	* NEWS: Update for 1.57.
+
+2004-09-08  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (ICT_VERSION): Bump for 1.57
+	* cris-dist.spec (version, serial): Bump for 1.57.
+
+	* README: Apparently, we need about 900MeB temporaries.
+
+2004-03-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (ICT_VERSION): Bump for 1.56
+	* cris-dist.spec (version, serial): Bump for 1.56.
+	* NEWS: Update for 1.56.
+
+2003-12-16  Hans-Peter Nilsson  <hp@axis.com>
+
+	* NEWS: Update for 1.55.
+
+2003-12-09  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-dist.spec (version, serial): Bump for 1.55.
+	* install-cris-tools (ICT_VERSION): Bump for 1.55.
+
+2003-12-02  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (myCC): Append, not overwrite, to $instalog.
+
+2003-10-30  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (myCC): Add missing $ to instalog reference.
+
+2003-10-16  Hans-Peter Nilsson  <hp@axis.com>
+
+	* NEWS: Update for 1.54.
+
+	* cris-dist.spec (version, serial): Bump for 1.54.
+	* install-cris-tools (ICT_VERSION): Bump to 1.54.
+	(not): Remove.  Rearrange all callers.
+	(IFS): Set.
+	(myecho, echodo): Use quoting construct.
+
+2003-10-03  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools: Fix comment; not SUN systems, Solaris
+	systems.  Add note about compiler warnings.
+	(checking glibc prerequisites): Identify already-configured
+	glibc.
+
+2003-10-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools: Don't look for GNU make twice.  Don't use
+	xargs when checking it.
+	(myCC): Don't use xargs.
+
+2003-05-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-dist.spec (version, serial): Bump for 1.53.
+	* install-cris-tools (ICT_VERSION): Ditto.
+	<installing cris-axis-linux-gnu-c++>: Correct installation point.
+	* NEWS: Update.
+
+2003-03-11  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (ICT_VERSION): Bump to R52.
+	* cris-dist.spec (version, serial): Ditto.
+	* NEWS: Update.
+
+2003-03-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (ICT_VERSION): Bump.
+	* cris-dist.spec (version, serial): Ditto.
+	* NEWS: Update.
+
+	* install-cris-tools <gcc-cris heredoc> (GCC_CRIS_PATH): Avoid
+	using dirname.
+
+2002-12-21  Hans-Peter Nilsson  <hp@axis.com>
+
+	* NEWS (Bad): Add blurb about larger linux-headers.
+
+2002-12-20  Hans-Peter Nilsson  <hp@axis.com>
+
+	* NEWS: Update.
+	* install-cris-tools <echoing equivalent session>: Adjust
+	equivalent arguments to reality.
+	<summary of installation paths>: Drop libpath.
+	<installing manuals, */gcc | */g++>: Add missing ".1".
+	* README: Rearrange, reword and update for change in system
+	resource needs, gcc-3.2.1 and changed arguments to
+	install-cris-tools.
+	* cris-dist.spec (libdir_): Remove.
+	(prefixdir_): Renamed from bindir_.
+	(install): Adjust arguments to install-cris-tools.  Kludge around
+	missing buildroot support.
+
+2002-12-19  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools: Rework for gcc-3.2.1 with tool-chain split
+	into cris-axis-elf, cris-axis-aout and cris-axis-linux-gnu; lost
+	installroot; libpath folded into binpath; needing to build gcc
+	twice for cris-axis-linux-gnu etc.
+	(ICT_VERSION): Update for 1.50.
+	* cris-dist.spec (version, serial): Ditto.  Add FIXME for
+	BuildRequires.
+
+2002-11-25  Hans-Peter Nilsson  <hp@axis.com>
+
+	* NEWS: Fix typo last change.
+
+2002-11-24  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (ICT_VERSION): Update for 1.24
+	* NEWS: Ditto.
+	* cris-dist.spec (version, serial): Ditto.
+
+2002-11-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* NEWS: Fix typo in gcc-cris -v example.
+
+2002-11-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* NEWS: Remove asm-clobbers-detection overlap note.
+
+2002-11-11  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (ICT_VERSION): Update for 1.23.
+	(installprog): If $1 does not exist, append .exe.
+	* cris-dist.spec (version, serial): Ditto.
+	* NEWS: Ditto.
+
+2002-09-09  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (ICT_VERSION): Update for 1.22
+	* cris-dist.spec (version, serial): Update.
+	* NEWS: Update.
+
+2002-08-15  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-dist.spec (version, serial): Update for 1.21.
+	* install-cris-tools (ICT_VERSION): 1.21.
+	* NEWS: Update.
+
+2002-07-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-dist.spec (version, serial): Update for 1.20.
+	* install-cris-tools (ICT_VERSION): 1.20.
+	* NEWS: Update.
+
+2002-07-02  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (ICT_VERSION): 1.19.
+	* cris-dist.spec (version, serial): Update for 1.19.
+	* NEWS: Update.
+
+2002-06-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* README: Update binutils latest-import note.
+	* install-cris-tools (ICT_VERSION): 1.18.
+	* NEWS: Update.
+	* cris-dist.spec (version, serial): Update for 1.18
+	(description): Binutils is 2.12.1.
+
+2002-04-04  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (ICT_VERSION): Oops, version is actually 1.17.
+
+2002-04-03  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (ICT_VERSION): 1.18.
+
+2002-04-02  Hans-Peter Nilsson  <hp@axis.com>
+
+	* NEWS: Update.
+
+	* install-cris-tools: Tweak comments mentioning elinux.
+ 	<final cleanup>: Tweak path to elinux/include.
+
+	* cris-dist.spec (version, serial): Update.
+	(pkg2, pkg3): Switch definitions.
+	(pkg3, Source3, %setup3): Comment out.
+
+	* install-cris-tools: Don't require or install elinux-headers.
+
+2002-03-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools: Tweak header text to make it clear that CRIS
+	is the architecture.  Tweak some messages for better wording.
+	(ICT_VERSION): 1.17a.
+	(yes_no_noP): Move misplaced header comment from bug_report.
+	(abort_install): New function.
+	(bug_report): Use abort_install.
+	<finding out make version>: Log it.
+	<checking for glibc install>: Fail visibly if any one source file
+	present necessary for glibc build, but there's a reason it can't
+	be built.
+	<installing manpages and info files>: Tweak for moved location for
+	binutils mans and infos.
+
+2001-12-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-dist.spec (%preun): Use install-info --remove, not
+	--delete for interoperability.
+
+2001-11-30  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-dist.spec (version, serial): Update.
+
+	* NEWS: Update.
+
+	* install-cris-tools (ICT_VERSION): Update for release.
+	<configuring glibc>: Don't --disable-debug.
+
+2001-10-24  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-dist.spec (version, serial, Release, pkg1): Update.
+
+	* NEWS: Update.
+
+	* install-cris-tools <building glibc>: Pass
+	user-defined-trusted-dirs=/usr/lib.
+	(ICT_VERSION): 1.15.
+
+2001-08-10  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-dist.spec (%preun): Fix typo.
+
+2001-08-09  Hans-Peter Nilsson  <hp@axis.com>
+
+	* NEWS: Fix typo.
+
+	* cris-dist.spec (version, serial, Release, pkg1): Update.
+
+	* install-cris-tools (ICT_VERSION): Update for release.
+
+	* NEWS: Update.
+
+2001-07-02  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-dist.spec (Release): Bump to 2.
+	(pkg1): Add ".1" to glibc tarball name.
+
+2001-06-11  Hans-Peter Nilsson  <hp@axis.com>
+
+	* NEWS (Fixed bugs): Add blurb about -rdynamic.
+
+2001-06-07  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (ICT_VERSION): Update for release.
+
+2001-06-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* NEWS (Fixed bugs): Add blurb about libraries with no specified
+	dirpart in elinux.
+
+2001-05-31  Hans-Peter Nilsson  <hp@axis.com>
+
+	* NEWS (Fixed bugs): Add blurb about setjmp in glibc
+
+	* install-cris-tools <installing glibc>: Set inst_infodir.
+
+2001-05-29  Hans-Peter Nilsson  <hp@axis.com>
+
+	* NEWS: Update for cris-dist-1.13/R34.
+
+2001-05-15  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-dist.spec (make_, makeinfo_): New variables.
+	<GNU make version test>: Use %{make_}.
+	<GNU makeinfo version test>: New.
+	* install-cris-tools <Testing GNU make version>: Test $MAKE, not
+	make.
+	<Checking whether to install glibc info files>: Check if info
+	files are present.
+
+2001-05-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools <Testing glibc build feasibility>: Fix typo.
+	<Creating temporary directories>: Create $dummydir.  Tweak log
+	message.
+	<Testing for and reporting $myCC>: Drop initial test-for-gcc
+	output in /dev/null.  Tweak output formatting.
+
+2001-05-10  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools <testing for existing installation in
+	$binpath>: Test using both "test -r" and "test -h" to catch
+	symlinks to nonexistent files.
+	<Symlinking into $binpath>: Remove any existing file by name of
+	symlink.  Improve error message.
+
+	(pwdify): Strip a trailing "/".
+
+2001-05-09  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools: Store glibc info files temporarily in
+	$infotmp, not $dummydir.
+ 	(ICT_VERSION): Bump.
+	<Testing GNU make version before testing glibc build feasibility>:
+	New.
+	<Testing for and reporting $myCC>: Expand to log version info if
+	gcc.
+
+	* cris-dist.spec (version, serial): Bump.
+	(Requires): Don't "require" make >= 3.79.
+	(%prep): Test for GNU make >= 3.79.
+
+2001-05-03  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-dist.spec (setup3): New.
+
+2001-05-02  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (ICT_VERSION): Release 1.12.
+
+	* NEWS: Solaris static build problems solved.
+
+2001-05-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* README: Update compilation times and disk usage.  Prune
+	hideously obsolete entries.  Mention that GNU make is needed.
+
+	* NEWS: Mention correction for __builtin_expect.  Tweak header.
+	Mention corrected __Stext definition.
+
+2001-04-30  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools <configuring gcc & Co.>: Disable NLS.
+	Correct test for whether to install glibc info files. 
+
+	* TODO: binutils dependencies fixed.
+
+	* README: Update for binutils import.
+	* NEWS: Update for upcoming release.
+
+2001-04-29  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools: Don't install glibc for elinux.
+	Tweak diagnostic messages.
+ 	(ICT_VERSION): Update for testing.
+	(skip_glibc_headers): Rename to skip_glibc_build.
+	(skip_glibc_make): Rename to skip_glibc_install.
+	<Welcome-message>: Tweak to avoid associating CRIS with just the
+	name of the tools.  Explain purpose of log better.  Other minor
+	readbility tweaks.
+	(glibcobj2): Delete.
+	(libtmp): New variable for temporary directory.
+	(instrt): Delete.
+	(linux_test_compile_flags): New.
+	<making directories>: Create $libtmp.  Tweak log.
+	<finding make-program>: Tweak user text to require GNU make.
+	<touching generated binutils files>: Update list.
+	<configuring binutils>: Request NLS disabled.
+	<installing binutils programs>: Add omitted addr2line.
+	<configuring gcc & Co.>: Enable posix threads (pthreads).
+	<configuring glibc>: Update to "-mlinux"-only 2.2.3:ish port.
+	<building glibc>: Ditto; say we're building glibc, not insstalling
+	headers.
+	<building other libraries>: Add " other" to reduce confusion.
+	<installing other libraries>: Merge libsyslinux.a and
+	newlib-for-linux libc.a; get rid of libsyslinux.a.
+	<installing glibc>: Tweak for new version.
+	<installing libstdc++ for linux>: Tweak.  Don't do it for elinux.
+	<testing -mlinux>: Use linux_test_compile_flags.
+	<installing info pages>: Install glibc info pages if doing glibc.
+
+	* cris-dist.spec: Tweak comment about hacking to remove glibc if
+	in desperate need.
+	(version): Update to 1.12
+	(serial): Update to 33.
+	(License): Correct to mention LGPL for libraries.
+	(pkg3): New; linux-headers.
+	(Source3): New.
+	(Requires): Require make >= 3.79
+	(description): Tweak to include glibc. 
+
+2001-01-25  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-dist.spec (serial): Make named value.
+	(description): State version numbers.
+	(install): Change method so to list subdirectories as installation
+	items, but not for mandir and infodir.
+
+2001-01-11  Hans-Peter Nilsson  <hp@axis.com>
+
+	* README: Remove outdated system list.
+	Mention cris-dist.spec.
+	* cris-dist.spec (version, serial): Update.
+	* install-cris-tools: Tweak header comment.
+ 	(ICT_VERSION): 1.11.
+	* NEWS: Update.
+
+2000-12-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-dist.spec: New.
+
+2000-12-21  Hans-Peter Nilsson  <hp@axis.com>
+
+	Release 1.10.
+	* NEWS: Tweak.
+
+2000-12-20  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools <adding suffix to installed info files>:
+	Patch name in the in-file dir-entry too.
+	<install-info mockup>: Don't bother patching the entry for the
+	dir-file.  Use the generated file.
+	<Generating C and C++ test programs>: Move up to just after
+	configuring binutils.
+	<Checking for strip>: Move to after configuring binutils and
+	generating test programs, correct and update.
+
+2000-12-19  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools <testing bin-$file_archname>: Change
+	$archname to $file_archname.  Do not test it in presence of an
+	installation prefix.
+
+2000-12-07  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools <touching generated files>: Use "test -f" as
+	"test -e" is non-portable.
+
+2000-12-05  Hans-Peter Nilsson  <hp@axis.com>
+
+	* NEWS: Add note about -mlinux being link-incompatible with code
+	compiled without it.  Mention dollar-sign prefix to registers.
+	Clarify that binutils is part of official sources, not just
+	submitted.  Add note about startup code and how to set the image
+	start address.
+
+2000-11-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* NEWS: Add blurb about ABI change.  Update info to reflect
+	default-ELF.  Add blurb about InstallRoot-like parameter for
+	install-cris-tools.  Complete blurb about preprocessor options.
+	Add blurb about binutils being part of official sources.  Add
+	blurb about gcc.cris being submitted to be part of official
+	sources.
+
+	* README: Change contact address to compiler-contact@axis.com.
+	Update info according to latest binutils import.
+
+	* TODO: Remove (fixed) item about static builds.
+	Remove (fixed) item about strip-cris.
+
+	* install-cris-tools: Refer to objcopy, not objdump for a
+	binary-copying-program.
+	<testing binary tools>: Do not test $file_archname-burn.
+	Refer to objcopy -O binary if test fails.
+
+2000-10-09  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools <compiler binaries installation>: Add missing
+	backslash.
+
+	* README: Update figures for PPro 128M 200MHz, GNU/Linux-2.0.30.
+
+2000-09-27  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (compiler_binaries): Split over several
+	lines.  Add c++.
+	<compiler binaries installation>: Handle c++ as special case.
+
+2000-09-14  Hans-Peter Nilsson  <hp@axis.com>
+
+	* NEWS: Add item about template bugfix.
+
+	* install-cris-tools (Creating path to elinux installation
+	subdir): Also create linux installation subdir.
+
+2000-09-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools: Add new 6:th argument, install-root ($ipp in
+	code). 	Make sure no files without this prefix are *used* during
+	build.  Make sure all installed files have this prefix.  Do not
+	include this item in interactive query; fail if not accessible.
+	Display it in the directories list when asking for confirmation.
+	(contact): Change to compiler-contact@axis.com.
+	(compiler_binaries): Add addr2line.
+	(skip_glibc_configure): Move before skip_gcc_install.
+	(skip_glibc_headers, skip_lib_make): New.
+	Change some shell constructs using unnecessary "echo".
+	(path_answerP): Do not check accessibility if $ipp (install-root).
+	$archname: Split to $file_archname (lowercase) and $archname
+	(upper case).
+	(Interactive query for binaries dir): Do not check for a previous
+	installation if $ipp.
+	(Interactive query for manpage dir): Similar.
+	(Variable setting post-query): Add set of variables that differ
+	between having install-root and not.
+	(Finding out if glibc present): Move to before "start of main stage".
+	Change applicable "elinux" references to just "glibc".
+	(Finding out CC): Replace with version reading CC and CFLAGS
+	(unless CC is set) into myCC from binutils Makefile, after
+	binutils configuration.
+	(Building gcc and libraries and installing): Split up into
+	building gcc (and intrinsic libraries), building, and
+	installation.
+	(Building glibc): Split up into configuration, headers
+	installation, build and re-building of libstdc++ & Co.  Configure
+	and install headers before building other libraries.
+	(Installation of non-glibc libraries):
+	(Testing installation, glibc): Also test -mlinux.
+	(Display installation): If install-root, add line saying that
+	directories were prepended with $ipp.
+
+	* TODO: Adjust items for multilib and install-root.
+
+	* README: Adjust for new install-root option.
+	Adjust available figures for multilibbed newlib and glibc, mark
+	others with FIXME
+
+	* NEWS: Blurb about effect from new (multilibbed) options.
+	Mention -mlinux.
+
+2000-07-20  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (bug report): Prefer pointer to log in email.
+
+2000-07-14  Hans-Peter Nilsson  <hp@axis.com>
+
+	* NEWS: Add blurb about ELF.
+	* TODO: Add note about missing support for elinux.
+	* install-cris-tools (ICT_VERSION): 1.9a.
+ 	(compiler_binaries): Add readelf.
+	(moving binutils): Add readelf.
+	(manual move of some gcc parts): Add crtbegin.o, crtbegin2.o and
+	crtend.o.
+
+Tue Jul 11 15:22:50 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (installing info): Make sure the file to
+	append to "dir" exists.
+
+Tue Jun 13 14:42:06 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* NEWS: Update.
+
+	* install-cris-tools (ICT_VERSION): 1.9
+	(touch files in preparation): Don't touch gcc files; gcc_update
+	will handle it.  Don't touch non-existing files.
+	(error configuring binutils): Fix typo "ecit 1".
+	(testing installation): Fix typo "test $have_elinux=yes".
+	Tweak comments and messages.
+
+	* TODO: Add item about static compilation.
+
+Fri May 26 23:59:12 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (Creating libraries): Move to after clearing
+	binaries and libraries.
+	(Error making gcc and libraries): Exit 1.
+	(Error moving gcc and libraries): Ditto.
+	(Message after moving gcc and libraries): Check error-file.
+	(Fail copying kernel headers): Exit 1, not 0.
+	Tweak error messages.
+
+Thu May 18 14:59:39 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (Installing compiler and libraries): Remove
+	excess "tee -a $instalog".
+
+Wed May 17 11:02:09 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (After moving compiler etc): exit if
+	failure.
+
+Mon May 15 23:23:25 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (Final installation report): Say
+	"Libraries/subprograms" on "Libraries" line.
+
+Sat May 13 21:56:23 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (mytmpdir): Use instead of tmppath.
+	Do not change tmppath (append session subdir) from the user
+	specified.
+
+	* README: Last change installed, forgot to commit; did not make
+	the release.
+
+Sat May 13 19:52:09 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* README: Tweak description at beginning.
+	Provide triplet and related details for tested systems.
+	Mention requirement of POSIX make for others.
+
+	* install-cris-tools: Don't print completion message if building
+	compiler and libraries failed.
+
+Fri May 12 19:13:29 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools ($MAKE determination): Find out a preferred
+	make (GNU) or ask user.
+	Move "equivalent session" message until after CC and MAKE settings
+	and include them in the message.
+	Remove make check and $the_make setting for elinux.
+	Change all uses of "make" and "$the_make" to "$MAKE".
+	(cleanup call): Include elinux/lib and elinux/include in paths not
+	to remove.
+
+	* README: Add blurb about differences to publicly available
+	sources.
+	Correct the described order of arguments and tweak wording about
+	/dev/null arguments.
+
+Wed May 10 23:54:55 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* README: Tweak: Say 40min for glibc, say 100Mbyte for temporaries.
+
+Sun May  7 17:08:59 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (touch files in preparation): Touch generated
+	files in newlib/libc/machine/cris.
+	(error message when building gcc and libraries): Say "and/or
+	libraries".
+
+	* NEWS: Tweak wording.
+	* TODO: Remove "list installed programs last", since telling the
+	paths where things are installed (now done) should be better than
+	a large "ls".
+
+Fri May  5 01:20:10 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (Final installation report): Add missing ":"
+	to man-path.
+
+Wed May  3 16:41:18 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (Final installation report): Print installed
+	libraries dir on separate line.  Line up all dirs.
+
+Tue May  2 00:52:10 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* README: Update time/space figures.
+
+	* install-cris-tools (errfile test before manpage installation):
+	Fix typo: "&&" not "&6".
+
+Mon May  1 15:33:43 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* install-cris-tools (installing binutils and symlinks): Add
+	missing $bindir to $archname-gcc and -g++ links.
+	(cleanup): Add back deleted file-removal.
+
+	* TODO: Update.
+
+	* NEWS: Update for R29/r1.8
+
+	* install-cris-tools: Large update for toplevel gcc-and-libraries
+	tree.  Large formatting changes.  Dereference glibc, in case it's
+	a symlink.  Log stdout/stderr when configuring and building glibc.
+	Add copyright blurb.
+	(ICT_VERSION): 1.8
+
+Mon Mar 13 22:35:58 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* install-cris-tools (Touching generated files): Update for new
+	binutils files.
+
+	* TODO: New items.
+
+Sat Dec 18 14:50:38 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* README: Add blurb about problematic NFS configurations and the
+	URL to the sig11 FAQ in the same blow.
+
+	* NEWS: Update for R28/r1-7.
+
+	* install-cris-tools (has_permission): Test for (not) being a
+	symlink, not just for (not) being a directory.
+	(ICT_VERSION): 1.7
+	(path_answerP): Tweak error message.
+
+Tue Dec 14 20:55:16 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* NEWS: Update for R27/r1-6.
+
+	* install-cris-tools (ICT_VERSION): 1.6
+
+Thu Nov 11 18:14:10 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* install-cris-tools (Moving binutils): Use wildcard to match both
+	old and new suffixes in (e.g.) as.new and as-new
+
+Thu Oct 21 03:30:20 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* install-cris-tools (PATH setting for glibc compilation): export
+	PATH and set it separately before compilation.
+
+Wed Oct 20 03:27:35 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* install-cris-tools (info pages installation): Add spaces between
+	multiple subshell parenthesis.
+
+	* NEWS: Update for R26/r1-5.
+
+Tue Oct 19 15:45:49 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* README: Add data point for Sparc ELC.
+
+	* install-cris-tools: Check for a GNUish system before proceesing
+	to compile glibc.
+	Use "env" to modify environment.
+	Copy glibc only after testing for Gnuish system and GNU make.
+
+	* NEWS: Add in CHANGES.
+	* CHANGES: Deleted.
+
+	* TODO: Remove fixed items.
+
+Fri Oct 15 21:34:40 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* install-cris-tools (info installation): Use sed to append
+	'-$archname' on info files and change contents accordingly.
+	Use fgrep to check for existing directory entries, and only add
+	those that do not already appear.
+	(cleaning info directory): Only remove *-$archname.info*
+
+Tue Oct 12 19:17:46 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* install-cris-tools: Copy glibc to tmpdir if srcdir is not on
+	same fs as tmpdir (ln hard-link fails, needed for glibc build).
+	Remove rudimental fragments for binary distribution.
+	Support upgrading; remove previous installation after asking.
+
+	* install-cris-tools (ICT_VERSION): 1.5
+
+Mon Jun 28 22:23:45 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* install-cris-tools (ICT_VERSION): 1.4
+
+	* NEWS, CHANGES: Updated.
+
+Mon May 31 17:25:38 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* install-cris-tools: Add support to install glibc and necessary
+	elinux kernel headers.
+	Slight formatting changes.
+	ICT_VERSION: 1.3
+
+Mon Feb 22 15:17:16 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* install-cris-tools (ICT_VERSION): 1.2
+	(compiler_binaries): Add missing objcopy, strings and missing
+	link/copy of the gcc driver.
+	Tweaked some status messages.
+
+	* Some changes/news in README, CHANGES, NEWS, TODO.
+
+Thu Jan 14 17:39:35 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* install-cris-tools: Don't optimize if "cc".
+	Added "2> /dev/null" at "strip" check.  Use ":" if strip not found.
+	Added "X.." wrapper for yes-or-no test about removing tempdir.
+	* (ICT_VERSION): 1.1
+	
+Thu Jan 14 16:39:35 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* CHANGES: Say it does not work on hppa1.1-hp-hpux11.00 with
+	vendor compiler (giving up).
+
+Tue Jan 12 15:14:11 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* install-cris-tools: Filter the resulting file through tr before
+	grepping when checking bin-tools (portability for non-GNU fgreps,
+	same as in libtool).
+
+	* Use "rm -f" rather than just "rm".
+
+Mon Jan 11 13:17:26 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* install-cris-tools: Use $the_cc for binutils configuration, not
+	(just) the make.
+
+Fri Jan  8 14:20:49 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* install-cris-tools (ICT_VERSION): 1.1c
+
+	* CHANGES: New file.
+	* NEWS: New file.
+	* TODO: New file.
+
+	* README: Brag about ignucius (2xPII) speed in installation time notes.
+
+	* install-cris-tools: Remove '!' and '\n' from "hello, world" in
+	cc-test.
+
+	* install-cris-tools: Removed extra double-quotes around
+	CC=... message.
+	* Corrected and cleaned up handling of optimization options to
+	compiler.  Do not ask to for which of gcc and cc, when cc is gcc,
+	just silently add -O2.
+
+Tue Jan  5 18:01:21 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* install-cris-tools (compiler_binaries): Added missing "ld".
+
+	* install-cris-tools: Changed formatting of initial messages.
+
+Fri Nov 13 23:29:28 1998  Hans-Peter Nilsson  <hp@axis.se>
+
+	* install-cris-tools: Move "simple tools" from before binutils to
+	after.
+
+Mon Nov  9 12:20:11 1998  Hans-Peter Nilsson  <hp@axis.se>
+
+	* install-cris-tools: Wait one second between touches.
+	Fixed a missing "X$foo" wrap in a test argument.
+	Say "preparing for configuring" when touching generated files.
+
+Fri Nov  6 18:02:30 1998  Hans-Peter Nilsson  <hp@axis.se>
+
+	* install-cris-tools: A few more touches.
+
+Fri Nov  6 16:03:43 1998  Hans-Peter Nilsson  <hp@axis.se>
+
+	* install-cris-tools: Touch generated files so checking out via
+	CVS works.
+
+Fri Nov  6 14:10:14 1998  Hans-Peter Nilsson  <hp@axis.se>
+
+	* install-cris-tools (ICT_VERSION): Remove version-comment.
+	(cleanup): Quote asterisks.
+	(path_answerP): Special-case /dev/null as valid answer.
+	All callers: Correct cases where write-permissions are
+	re-checked.
+	(compiler-version-getting): Get gccver from gcc/version.c
+	(after cc-testing): Show date here, after before main section.
+	Remove version-suffix from subdirs (modules fixed).
+	Remove (perhaps) existing tools before linking or moving.
+	Move out link-fixes for historic misnomers out of the loop.
+
+Wed Sep 16 13:10:28 1998  Hans-Peter Nilsson  <hp@axis.se>
+
+	* install-cris-tools: Install gcc-$archname as $libpath/gcc too.
+
+Mon Sep  7 16:12:27 1998  Hans-Peter Nilsson  <hp@axis.se>
+
+        * install-cris-tools (compiler_binaries): Added nm and size.
+        * install-cris-tools: Added C++ headers of some ol' libstdc++
+
+Mon Sep  7 12:41:20 1998  Hans-Peter Nilsson  <hp@axis.se>
+
+        * install-cris-tools (ICT_VERSION): Bumped to 1.1b
+        * install-cris-tools: Corrected test of bin-$archname.
+        * (First entry, post-1.0)

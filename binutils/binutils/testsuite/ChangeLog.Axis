@@ -1,0 +1,9 @@
+2002-02-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* All: Import of FSF-binutils-2002-02-01-snapshot.
+
+2000-10-07  Hans-Peter Nilsson  <hp@axis.com>
+
+	* binutils-all/readelf.exp: Add temporary hack to xfail CRIS for
+	readelf -wi.
+

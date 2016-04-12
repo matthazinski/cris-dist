@@ -1,0 +1,6 @@
+#define UTS_VERSION "#1 Fri Nov 30 18:03:22 CET 2001"
+#define LINUX_COMPILE_TIME "18:03:22"
+#define LINUX_COMPILE_BY "hp"
+#define LINUX_COMPILE_HOST "ignucius"
+#define LINUX_COMPILE_DOMAIN "axis.se"
+#define LINUX_COMPILER "gcc version 2.96 20000427 (experimental)"

@@ -1,0 +1,1142 @@
+2007-03-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	* aout.h (STARTFILE_SPEC): Change -sim to -sim1.
+	* cris.c: De-ISOC90-ify function definitions to avoid warnings.
+	* cris.h (MEM_NOTRAP_P, MEM_READONLY_P): Define.
+	(cris_dummy): Declare.
+	(CRIS_ARCH_CPP_DEFAULT, CRIS_DEFAULT_ASM_ARCH_OPTION)
+	(CRIS_DEFAULT_TUNE): Define v10 variants outside TARGET_CPU_DEFAULT
+	test.  Undef before defining TARGET_CPU_DEFAULT == 32 variant.
+	(LIB_SPEC): Change -sim to -sim1.  Let -sim be like -sim3 (but
+	without the absolute data and bss addresses).
+	(STARTFILE_SPEC): Ditto.  Always include crti.o.
+
+	* Import this patch:
+	2005-02-08  Hans-Peter Nilsson  <hp@axis.com>
+	PR target/19806
+	* config/cris/cris.c (in_code): New variable.
+	(cris_output_addr_const): Now a static function, a wrapper for
+	output_addr_const.
+	(cris_asm_output_symbol_ref): New function, broken out SYMBOL_REF
+	case from old cris_output_addr_const.
+	(cris_asm_output_label_ref): Similar for LABEL_REF.
+	(cris_output_addr_const_extra): Similar for UNSPEC.
+	* config/cris/cris.h (OUTPUT_ADDR_CONST_EXTRA)
+	(ASM_OUTPUT_SYMBOL_REF, ASM_OUTPUT_LABEL_REF): Define.
+	* config/cris/cris-protos.h (cris_output_addr_const): Remove
+	declaration.
+	(cris_asm_output_symbol_ref, cris_output_addr_const_extra)
+	(cris_asm_output_label_ref): Declare.
+
+	* Import remaining parts of the following patch, update for v32 as
+	follows:
+	* cris.c (cris_dummy): New variable.
+	(cris_general_operand_or_pic_source): Rename from
+	cris_general_operand_or_pic_symbol.
+	(cris_cfun_uses_pic_table): Remove unused function.
+	(cris_got_really_used): New function.  Use instead of inline code
+	or incorrect uses of current_function_uses_pic_offset_table.
+	(ASSERT_PLC_UNSPEC): Remove macro.  All users removed.
+	(cris_valid_pic_const): New parameter any_operand to diistinct
+	between "just moves and calls" and "any operand".
+	(cris_expand_pic_call_address): Don't use replace_equiv_address.
+	* config/cris/cris/cris.md (CRIS_UNSPEC_PLT_PCREL)
+	(CRIS_UNSPEC_PCREL): New define_constants.
+	(CRIS_UNSPEC_PLT, CRIS_UNSPEC_GOTREF): Remove split-up constants.
+	("*expanded_call_side", "*expanded_call_value_side"): Require
+	reload_completed.
+	* linux.h (CRIS_SUBTARGET_DEFAULT_ARCH): New macro to include
+	TARGET_MASK_AVOID_GOTPLT for v32.
+	(CRIS_SUBTARGET_DEFAULT): Include it.
+	Then apply the patch to both v10 and v32 PIC variants:
+	2005-07-08  Hans-Peter Nilsson  <hp@axis.com>
+	Rewrite PIC support to more closely model actual instructions.
+	* config/cris/cris-protos.h (cris_gotless_symbol, cris_got_symbol)
+	(cris_symbol): Remove prototypes for removed functions.
+	(cris_pic_symbol_type_of, cris_valid_pic_const)
+	(cris_expand_pic_call_address): Prototypes for new functions.
+	* config/cris/cris.c (cris_pic_sympart_only): Remove unused
+	variable.
+	(cris_print_operand) <case 'v', 'P'>: Remove cases for unused
+	modifiers.
+	<case ':'>: Add case for new punctuation character.
+	<case 'd'>: Temporarily set flag_pic = 2 instead of incorrectly
+	emitting (extra) PIC modifier.
+	<case UNSPEC>: Do not assert for PLT.
+	(cris_initial_frame_pointer_offset, cris_simple_epilogue)
+	(cris_expand_prologue, cris_expand_epilogue): Check
+	for pic_offset_table_rtx usage instead of taking
+	current_function_uses_pic_offset_table as the final word.
+	(cris_rtx_costs, cris_address_cost, cris_side_effect_mode_ok):
+	Remove flag_pic difference.
+	(cris_valid_pic_const, cris_pic_symbol_type_of): New functions,
+	the moral equivalents of...
+	(cris_symbol, cris_gotless_symbol, cris_got_symbol): Remove
+	functions.
+	(cris_legitimate_pic_operand): Just call cris_valid_pic_const.
+	(cris_handle_option): Mark ARG as unused.
+	(cris_expand_pic_call_address): New worker function for "call",
+	"call_value".
+	(cris_asm_output_symbol_ref, cris_asm_output_label_ref): Do not
+	output PIC constructs here.
+	(cris_output_addr_const_extra): Changes for emitting PIC modifiers
+	as symbol-specific modifers, not whole or part of operands.
+	* config/cris/cris/cris.h (EXTRA_CONSTRAINT): Remove 'U' case.
+	(EXTRA_CONSTRAINT_S): Changed semantics: allow only CONST-wrapped
+	constants and flag_pic.
+	(CONSTANT_INDEX_P): Adjust for new functions.
+	(enum cris_pic_symbol_type): New helper type.
+	(PRINT_OPERAND_PUNCT_VALID_P): Add ':'.
+	* config/cris/cris/cris.md (CRIS_UNSPEC_GOTREL)
+	(CRIS_UNSPEC_GOTREAD, CRIS_UNSPEC_PLTGOTREAD): New
+	define_constants.
+	("movsi"): Emit actual instructions for GOT and relative access.
+	("*movsi_got_load"): New pattern to set up the register holding
+	the GOT pointer.
+	("*movsi_internal"): Operand 1 is not a plain general_operand.
+	Adjust FIXME for 'S'.
+	<output for 'S' alternative>: Sanity-check UNSPEC types for PIC.
+	Use "movs" for -fpic cases.
+	("addsi3"): Add alternative for 'S'; use adds.w when possible.
+	("uminsi3","*expanded_call_value"): Remove 'S' alternative.
+	("call", "call_value"): Just call cris_expand_pic_call_address for
+	PIC addresses.
+	("*expanded_call_no_gotplt", "*expanded_call_value_no_gotplt"):
+	Remove special pattern.
+	("*expanded_call_side", "*expanded_call_value_side"): New
+	patterns.
+	(gotplt-to-plt, gotplt-to-plt-side-call)
+	(gotplt-to-plt-side-call-value, gotplt-to-plt-side): New
+	peephole2:s.
+	* config/cris/cris/predicates.md
+	("cris_general_operand_or_gotless_symbol"): Remove unused
+	predicate.
+	("cris_general_operand_or_symbol"): Adjust for new functions.
+
+2005-11-02  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (CRIS_DEFAULT_ASM_ARCH_OPTION): New macro.
+	(CRIS_ASM_SUBTARGET_SPEC): Use it.
+
+2005-10-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge between head-before-040918-merge and
+	head-before-051028-merge.
+
+	* cris.h (TARGET_VERSION): R63-v32.
+
+2005-10-24  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_got_symbol): Always return 0 for TARGET_V32 and a
+	naked SYMBOL_REF.
+	(cris_output_addr_const): Rename parameter x to orig, have local
+	copy named x.  When calling cris_gotless_symbol or
+	cris_got_symbol, pass orig.  For sub-expressions, don't call self,
+	call output_addr_const.
+	* cris.md ("movsi"): When checking PIC symbols, first check for
+	cris_gotless_symbol, then a naked SYMBOL_REF.
+	("call"): Check for !cris_gotless_symbol instead of
+	cris_got_symbol for TARGET_V32 and what to wrap in unspec-plt.
+	("cris_frame_deallocated_barrier"): Add missing :BLK on source
+	operand.
+
+2004-11-02  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.md ("*movdi_v32_compatible"): Mark cc as clobbered for
+	unsplit cases.
+
+2004-10-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_mem_in): New function.
+	(cris_adjust_cost): Tweak comments.  Account for cache
+	read-after-write stall cycles.
+	<case HAZARD_MOVEM_LOAD>: Add missing case to account for
+	memory address hazard.
+
+	* cris.md: Add missing descriptions for define_constants.
+
+2004-09-24  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_asm_output_mi_thunk): Correct incorrect merge.
+	(cris_expand_epilogue): Add parameter for_sibcall.  Adjust all
+	callers.  Handle epilogue expansion for sibcalls.  Return early
+	for non-v32.  Don't emit barrier if no stack is deallocated.
+	* cris.md (CRIS_UNSPEC_SIBCALL): New constant.
+	("*expanded_sibcall_nonv32"): Renamed from "*expanded_sibcall".
+	("sibcall_epilogue"): Call cris_expand_epilogue for v32.
+	("*expanded_sibcall_v32", "*expanded_sibcall_value_v32"): New
+	patterns.
+	("sibcall", "sibcall_value"): Allow v32.
+	("*expanded_sibcall_value_nonv32"): Renamed from
+	"*expanded_sibcall_value".
+	* cris-protos.h (cris_expand_epilogue): Update prototype.
+
+2004-09-22  Hans-Peter Nilsson  <hp@axis.com>
+
+	* t-linux (TARGET_LIBGCC2_CFLAGS): Add -fgcse.
+
+2004-09-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.md ("*addsbw_v32"): Remove "unmatched" prefixes.
+
+	* Merge between head-before-040909-merge and
+	head-before-040918-merge.
+
+	* Merge between head-before-031216-merge and
+	head-before-040909-merge.
+
+2004-09-07  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_adjust_cost) <case HAZARD_FAKED_INSN>: New.
+	(cris_expand_epilogue): Emit cris_frame_deallocated_barrier.
+	* cris.md (CRIS_UNSPEC_FRAME_DEALLOC): New constant.
+	("hazard"): New member faked_insn.
+	("cris_frame_deallocated_barrier"): New pseudo-insn.
+
+2003-12-21  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_VERSION): R55-v32a.
+
+2003-12-20  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-protos.h (cris_setup_incoming_varargs): Prototype.
+	* cris.c (struct machine_function): New member stdarg_regs.
+	(cris_calculate_frame_layout) [!TARGET_V32]: Fix case where
+	!regs_ever_live[CRIS_SRP_REGNUM] but
+	cfun->machine->needs_return_address_on_stack.
+	(cris_setup_incoming_varargs): New function with old guts of
+	SETUP_INCOMING_VARARGS.  Step over last named argument for
+	stdarg.  Set cfun->machine->stdarg_regs.
+	(cris_expand_prologue): For current_function_pretend_args_size,
+	only store regs according to cfun->machine->stdarg_regs.
+	Initialize frame_size to 0 and increment all changes instead of
+	setting it.
+	* cris.h (FUNCTION_INCOMING_ARG): Check for last named parameter
+	for stdarg, pass it too in a register.
+	(SETUP_INCOMING_VARARGS): Remove obsoleted and incorrect head
+	comment.  Move guts to new function cris_setup_incoming_varargs.
+
+2003-12-16  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge from HEAD.
+
+2003-12-11  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_adjust_cost): Say a movem costs three cycles (two
+	stall cycles) for a ret.
+	* cris.md: Explain absence of before-after function-call
+	scheduling for movem.
+
+2003-12-10  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.md, cris.c: Revert last checkin.
+
+2003-12-08  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.md ("hazard"): New member "call".
+	("*expanded_call_v32", "*expanded_call_value_v32"): Set
+	non-source-reg hazards to "call".
+	* cris.c (cris_uses_call_saved_reg_n_u): New function.
+	(cris_adjust_cost): Handle HAZARD_CALL.  Treat HAZARD_CALL_SRC and
+	HAZARD_CALL_VALUE_SRC on dep_insn as HAZARD_CALL.
+	* cris.h (FINAL_PRESCAN_LABEL): Add fixme.
+
+	* cris.c (struct machine_function): New member
+	has_return_address_on_stack.
+	Change all users of needs_return_address_on_stack to use
+	has_return_address_on_stack, except:
+	(cris_calculate_frame_layout): Set
+	cfun->machine->has_return_address_on_stack, reset before
+	recalculating.
+	(cris_simple_epilogue): Call cris_calculate_frame_layout.
+	Use cfun->machine->has_return_address_on_stack.
+
+2003-12-07  Hans-Peter Nilsson  <hp@axis.com>
+
+	Don't use movem if only one register needs saving.
+	* cris.c: Remove stale and misleading fixmes.
+ 	(cris_initial_frame_pointer_offset): Adjust for not using movem
+	always.
+	(cris_expand_prologue, cris_expand_epilogue): Ditto.
+
+2003-11-25  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_adjust_cost): Handle HAZARD_JUMP_MOVEM.
+	* cris.md ("*cris_jump_movem_v32"): Renamed from
+	"*cris_ret_movem_v32".  Conditionalize on TARGET_V32.  Set hazard
+	"jump_movem".
+	(define_attr "hazard"): New member jump_movem.
+
+2003-11-24  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-protos.h: Adjust prototype for gen_crisv32_movem_load.
+	* cris.c (cris_movem_load_rest_p): New function with guts of old
+	cris_load_multiple_op.
+	(cris_load_multiple_op): Just call cris_movem_load_rest_p.
+	(cris_ret_movem_op): New predicate.
+	(cris_print_operand) <case 'O', case 'o'>: Tweak to handle
+	jump+movem pattern.
+	(cris_expand_epilogue): Emit jump+movem pattern when possible.
+	(gen_crisv32_movem_load): Add parameter denoting number of initial
+	unfilled rtvec entries to allocate besides those for the base
+	movem pattern.  All callers changed.
+	* cris.h (PREDICATE_CODES): New member cris_ret_movem_op.
+	* cris.md ("*cris_ret_movem_v32"): New pattern.
+	("autoincify_move_to_mem", "autoincify_move_from_mem")
+	("autoincify_ext_mem"): Do not specify constraints.
+
+	* cris.md ("*addsi3_v32_compatible") <alt 9>: Use "addo", not
+	"addo.w".
+
+2003-11-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-protos.h (cris_epilogue_eh_uses): New prototype.
+	* cris.c: Include integrate.h and ggc.h.
+	(struct machine_function): New members srp_save_register and
+	frame_layout_calculated.
+	(cris_calculate_frame_layout, cris_mark_machine_status)
+	(cris_epilogue_eh_uses): New functions.
+	(cris_reg_saved_in_regsave_area): Assert that frame layout is
+	calculated.  Return nonzero also for cfun->machine->srp_save_register.
+	(cris_delay_slots_for_epilogue): Fix typo saying TARGET_V32 had
+	delay slots.
+	(cris_return_addr_rtx): Use initial-value unless
+	current_function_calls_eh_return.
+	(cris_initial_frame_pointer_offset): Expand comment on
+	current_function_calls_eh_return.
+	(cris_initial_elimination_offset): Call cris_calculate_frame_layout.
+	(cris_simple_epilogue): Look at
+	cfun->machine->needs_return_address_on_stack for TARGET_V32 too.
+	(cris_override_options): Don't set init_machine_status here.
+	(cris_init_expanders): Do it here.  Also set mark_machine_status.
+	(cris_expand_return): Just abort if !TARGET_V32 &&
+	regs_ever_live[CRIS_SRP_REGNUM].
+	(cris_expand_prologue): Call cris_calculate_frame_layout.  If
+	present, use cfun->machine->srp_save_register to save SRP.
+	(cris_expand_epilogue): Change correspondingly.  Clobber
+	local-variables area.
+	* cris.h (INIT_EXPANDERS): Move definition to proper position.
+	(STACK_POINTER_REGNUM): Define as CRIS_SP_REGNUM.
+	(EH_USES, EPILOGUE_USES): Define.
+	* cris.md (CRIS_SP_REGNUM): New constant.
+  	("slottable"): New value has_call_slot.
+	(define_delay (eq_attr "slottable" "has_call_slot")): New
+	delay-slot definition.
+	("cris_call_v32"): Use "has_call_slot" for attribute "slottable".
+	("cris_call_value_v32"): Ditto.
+	("eh_return"): New pattern.
+	("cris_return_v32"): Use an operand for the return address; use
+	"jump" for the insn.  All gen_cris_return_v32 callers changed.
+
+2003-11-15  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_reg_saved_in_regsave_area): New function.
+	(cris_target_asm_function_prologue)
+	(cris_target_asm_function_epilogue): Use it.
+	(cris_initial_frame_pointer_offset): Ditto.  Adjust for using
+	movem for for non-contiguous saved general registers too.
+	(cris_expand_prologue, cris_expand_epilogue): Ditto.
+	(cris_simple_epilogue): Use cris_reg_saved_in_regsave_area.
+	Correct calculation of whether R0 is used when
+	current_function_uses_pic_offset_table.
+
+2003-11-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_adjust_cost) Handle HAZARD_MOVEM_LOAD.
+
+2003-11-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_adjust_cost) <case HAZARD_MOVEM_STORE>: Check mem
+	source reg too, like HAZARD_NORMAL.
+
+2003-11-11  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_adjust_cost) <case HAZARD_MOVEM_STORE>: New.
+	Expand on MOVEM hazards.
+	(cris_simple_epilogue): Fix typo, return without value.
+
+	* cris.md ("cris_return_v32"): Set hazard "ret".
+
+2003-11-11  Hans-Peter Nilsson  <hp@axis.com>
+
+	Prologue and epilogue as RTL for TARGET_V32.  Expose PIC
+	operands.  Describe RET.  Break pre-V32 PIC (probably).
+	* cris.h (CRIS_SRP_REGNUM): Don't define.
+	(EXTRA_CONSTRAINT_S): Also accept unspec CRIS_UNSPEC_GOT.
+	(GO_IF_LEGITIMATE_ADDRESS): Make reg + cris_got_symbol a valid
+	address for non-V32 even when flag_pic.
+	(CONST_COSTS): Add FIXME for flag_pic symbols.
+	(PIC_OFFSET_TABLE_REGNUM): Use CRIS_GOT_REGNUM.
+	(PREDICATE_CODES): Add cris_load_multiple_op and
+	cris_store_multiple_op with PARALLEL.  Add UNSPEC for
+	cris_general_operand_or_pic_symbol.
+	* cris.md (define_constants): New, for register numbers and
+	unspecs.  Define CRIS_SRP_REGNUM here.
+	(define_attr "hazard"): New members movem_load, movem_store and
+	ret.
+	("movsi"): Accept unspecs early.  Expand PIC expressions in
+	parts.
+	("*movsi_internal"): Tweak according to exposed PIC operands.
+	("load_multiple", "store_multiple", "prologue", "epilogue"): New
+	expanders for TARGET_V32.
+	("*cris_load_multiple", "*cris_store_multiple"): New patterns.
+	("*addsi3_non_v32", "*addsi3_v32_compatible"): Tweak for exposed
+	PIC operands.
+	("return"): Make expander.  Don't match for TARGET_V32.
+	("*cris_return_nonv32", "cris_return_v32"): New patterns.
+	("call", "call_value"): Mark PLT calls as using the GOT register.
+	Use CRIS_UNSPEC_PLT.
+	("cris_call"): Renamed from "*expanded_call".
+	("cris_call_no_gotplt"): Ditto "*expanded_call_no_gotplt".
+	("*cris_call_v32_compatible"): Ditto "*expanded_call_v32_compatible".
+	("cris_call_v32"): Ditto "*expanded_call_v32".
+	("cris_call_value"): Ditto "*expanded_call_value".
+	("cris_call_value_no_gotplt"): Ditto
+	"*expanded_call_value_no_gotplt".
+	("*cris_call_value_v32_compatible"): Ditto
+	"*expanded_call_value_v32_compatible".
+	("cris_call_value_v32"): Ditto "*expanded_call_value_v32".
+	* cris.c (cris_output_addr_const): Prototype here.  Added
+	parameter strip_got_spec; don't print PIC reloc specifier if
+	nonzero.  All callers changed to default pass 0.  Handle unspec
+	CRIS_UNSPEC_GOTREF.  Tweak output for exposed PIC operands.
+	(cris_general_operand_or_pic_symbol): Accept unspec
+	CRIS_UNSPEC_GOT.
+	(cris_load_multiple_op, cris_store_multiple_op): New predicates.
+	(cris_target_asm_function_prologue): Return early for TARGET_V32.
+	(cris_target_asm_function_epilogue): Ditto.
+	(cris_eligible_for_epilogue_delay): False for TARGET_V32.
+	(cris_adjust_cost): Return 2 for HAZARD_RET and SRP set.
+	(cris_print_operand) <case 'o', 'O', 'Z', 'd', 'u'>: New
+	modifiers.
+	(cris_simple_epilogue): Return false for TARGET_V32 is more than a
+	simple "ret" insn is needed.
+	(cris_symbol): Return 0 for unspec UNSPEC_GOT.  Return 1 for
+	unspec CRIS_UNSPEC_GOTREF.
+	(cris_gotless_symbol): Return 0 for unspec CRIS_UNSPEC_GOT and
+	CRIS_UNSPEC_GOTREF.
+	(cris_got_symbol): Return 0 for unspec CRIS_UNSPEC_GOT.  Return 1
+	for unspec CRIS_UNSPEC_GOTREF.
+	(cris_override_options): Error for -fpic/-fPIC and
+	-march=common_v10_v32.
+	(cris_expand_return, cris_expand_prologue, cris_expand_epilogue)
+	(gen_crisv32_movem_load, gen_crisv32_movem_store)
+	(cris_get_sr_alias_set): New functions.
+	* cris-protos.h (cris_output_addr_const): Remove prototype.
+	(gen_crisv32_movem_load, gen_crisv32_movem_store)
+	(cris_get_sr_alias_set, cris_expand_return, cris_expand_prologue)
+	cris_expand_epilogue) : Prototypes.
+
+2003-11-03  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_delay_slots_for_epilogue): Don't lose early when
+	SRP is on te stack for TARGET_V32.  Use -1 as marker in *save_last
+	for vacant delay-slot in epilogue.
+	(cris_target_asm_function_epilogue): Rearrange slightly to expose
+	delay-slot in V32 case for return-address on stack.  Correct to
+	use -1 as marker for vacant delay-slot.
+
+2003-11-02  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.md ("autoincify_ext_mem"): New peephole2.
+
+2003-11-02  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.md ("autoincify_move_to_mem"): Renamed from
+	autoincify-move-to-mem.  Avoid overlap between source and
+	indirect registers.
+	("autoincify_move_from_mem"): New peephole2.
+
+2003-11-02  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.md ("autoincify-move-to-mem"): New peephole2.
+
+2003-11-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_mem_reg_set_in): Fix prototype.  Correct to
+	rtx_function type.  Return early for INSN_LIST.
+	(cris_adjust_cost): Return two for memory source hazard.
+
+2003-11-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_adjust_cost): Return two for mul12 hazard.
+
+2003-11-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_adjust_cost): Return two for casesi_src hazard.
+	Call extract_insn_cached before accessing operands.
+
+2003-10-31  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_mem_reg_set_in): Fix prototype.
+	(cris_adjust_cost): Return two for jump_src hazard.
+
+2003-10-31  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_mem_reg_set_in): New function.
+	(cris_adjust_cost): Return two for call_value_src hazard.
+	Add #if 0:d code for HAZARD_MUL12 and changed HAZARD_NORMAL.
+	* cris.md ("hazard"): New value "none".
+	("*expanded_call_v32", "*expanded_call_value_v32"): Set
+	non-source-reg hazards to "none".
+
+2003-10-31  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.md ("*casesi_jump_v32"): Set attribute hazard.
+	("umulhisi3", "umulqihi3", "mulsi3", "mulqihi3")
+	("mulhisi3", "mulsidi3", "umulsidi3", "smulsi3_highpart")
+	("umulsi3_highpart", "*indirect_jump_v32")
+	("*expanded_call_v32", "*expanded_call_value_v32"): Similar.
+	("hazard"): New value "mul12".
+
+	* cris.c (cris_reg_set_in): New function.
+	(cris_adjust_cost): Return two for call_src hazard.  Have code for
+	other hazards #if 0:d out.
+	(cris_normal_notice_update_cc): Fix typo; make definition static.
+	(cris_conditional_register_usage): Make reg_alloc_order_v32 static
+	const.
+	(Xvecexp): Add missing declaration for m.
+
+2003-10-31  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_adjust_cost): Abort if incoming cost is != 1.
+	Expand on dependency comments.  Add #if 0:d code for jump source
+	depencency using the hazard attribute.
+	* cris.md ("hazard"): New attribute.
+	("*indirect_jump_v32", "*expanded_call_v32")
+	("*expanded_call_value_v32"): Set attribute hazard. 
+
+2003-10-31  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_adjust_cost): New function.
+	(TARGET_SCHED_ADJUST_COST): Define.
+
+2003-10-30  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.md ("dummy"): Function unit, with ready-delays 1..4.
+	* cris.c (cris_override_options): Unset flag_schedule_insns.
+
+	* cris.c (cris_target_asm_function_prologue): Handle dwarf2 with
+	movem for TARGET_V32.
+	(cris_simple_epilogue, cris_target_asm_function_epilogue): Adjust
+	similarly.
+
+2003-10-22  Hans-Peter Nilsson  <hp@axis.com>
+
+	Merge from HEAD.
+	* ChangeLog: Move all v32-specific changes to ChangeLog.v32.
+
+2003-06-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.md ("*movsi_internal"): Add "i" to alternatives with "g" in
+	operand 1.
+	("casesi"+35, +36, +37, +45): Change operand with "0" constraint
+	in these peepholes to match_dup 0.  Renumber remaining operands.
+	* cris.h (CRIS_DEFAULT_TUNE, CRIS_ARCH_CPP_DEFAULT): New macros,
+	depending on TARGET_CPU_DEFAULT.
+	(CRIS_CPP_SUBTARGET_SPEC): Use CRIS_ARCH_CPP_DEFAULT.
+	(CRIS_CC1_SUBTARGET_SPEC): Use CRIS_DEFAULT_TUNE.
+	(TARGET_SIDE_EFFECT_PREFIXES): Inactivate for CRIS_CPU_V32.
+	* cris.c (cris_override_options): Don't explicitly turn off
+	TARGET_MASK_SIDE_EFFECT_PREFIXES for CRIS_CPU_V32.
+
+2003-06-26  Hans-Peter Nilsson  <hp@axis.com>
+
+	Changes for test.m with memory operand now having usable overflow
+	semantics.
+	* cris.md ("tstsi"): Now a define_insn again.  Use cmpq for
+	register operand.
+	("*tstsi_cmp", "*tstsi_non_cmp"): Remove.
+	("*tsthi_cmp", "*tstqi_cmp"): Allow memory operands similar to
+	"*tsthi_non_cmp", "*tstqi_non_cmp" respectively.
+	("*tsthi_non_cmp", "*tstqi_non_cmp"): Remove noov32 marks from
+	memory operand alternatives.
+
+2003-06-25  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge from HEAD.
+
+	* cris.md ("*tstsi_non_cmp", "*tsthi_non_cmp", "*tstqi_non_cmp"):
+	Adjust for removal of "test" with register operand.
+
+2003-04-20  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_general_operand_or_pic_symbol): Renamed from
+	cris_general_operand_or_gotless_symbol.  All users changed.  For
+	TARGET_V32, return true for both cris_gotless_symbol and
+	cris_got_symbol.
+	(cris_nonmemory_operand_or_callable_symbol): New function.
+	(cris_target_asm_function_prologue)
+	<current_function_uses_pic_offset_table>: Handle TARGET_V32.
+	(cris_print_operand) <case 'v'>: Accept cris_gotless_symbol for
+	TARGET_V32.
+	(cris_legitimate_pic_operand): No constant is a valid operand for
+	TARGET_V32.
+	(cris_gotless_symbol) <case SYMBOL_REF>: Don't set
+	current_function_uses_pic_offset_table for local symbols.
+	(cris_got_symbol) <case SYMBOL_REF>: Ditto.
+	(cris_asm_output_mi_thunk): Handle TARGET_V32 and pic.
+	(cris_output_addr_const): Ditto.
+	* cris.h (ASM_SPEC): Emit error when both -march=* and -mcpu=*
+	given.  Map -march=v10 and -mcpu=v10 to --march=v10.
+	(EXTRA_CONSTRAINT) <'U'>: Update comment.
+	(EXTRA_CONSTRAINT_U): Change to match a
+	cris_nonmemory_operand_or_callable_symbol only.
+	(SIMPLE_ADDRESS_P): Correct parentheses.
+	(PREDICATE_CODES): Add cris_nonmemory_operand_or_callable_symbol.
+	* cris.md ("movsi"): For TARGET_V32, don't mark LABEL_REF uses
+	with current_function_uses_pic_offset_table.
+	("*movsi_internal") <case 9>: Handle TARGET_V32 and pic.
+	<case 8>: Use lapc for TARGET_V32.
+	("call", "call_value"): Handle TARGET_V32 and pic.
+	("*expanded_call_v32", "*expanded_call_value_v32"): Add
+	alternative using constraint U.
+	* linux.h (CRIS_CPP_SUBTARGET_SPEC, CRIS_CC1_SUBTARGET_SPEC)
+	[TARGET_CPU_DEFAULT == 32]: Special definitions.
+	(CRIS_ASM_SUBTARGET_SPEC): Ditto.  Provide default
+	--march=... option according to TARGET_CPU_DEFAULT == 32 or
+	default 10.
+	(CRIS_DEFAULT_CPU_VERSION): Don't define.
+
+2003-04-15  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (TARGET_CPU_DEFAULT): Default-define to CRIS_CPU_BASE.
+	(CRIS_DEFAULT_CPU_VERSION): Set to TARGET_CPU_DEFAULT.
+	(PREFERRED_RELOAD_CLASS): Don't override MOF_REGS or
+	SPECIAL_REGS.
+	(EXTRA_CONSTRAINT) <'S', 'U'>: Allow match for TARGET_V32.
+
+2003-04-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (PREFERRED_RELOAD_CLASS): Always return GENERAL_REGS
+	except for ACR_REGS.
+	(REGISTER_MOVE_COST): Make moves within SPECIAL_REGS+MOF_REGS and
+	to or from ALL_REGS cost 7, and other moves to or from
+	SPECIAL_REGS+MOF_REGS cost 3.
+	* cris.md ("*btst", "dstep_shift", "dstep_mul",
+	"*expanded_andsi_v32_compatible", "xorsi3", "one_cmplsi2",
+	"ashrsi3", "*expanded_ashrhi", "*ashrhi_lowpart",
+	"*expanded_ashrqi", "*ashrqi_lowpart", "lshrsi3",
+	"*expanded_lshrhi", "*lshrhi_lowpart", "*expanded_lshrqi",
+	"*lshrqi_lowpart", "ashlsi3", "ashlhi3", "*ashlhi_lowpart",
+	"*ashlqi_lowpart", "abssi2"): Specify attribute "cc".
+	("*movsi_internal", "movhi", "movqi", "movsf"): Remove modifiers
+	for special register alternatives. 
+	("*expanded_andhi_v32_compatible",
+	"*andhi_lowpart_v32_compatible", "*andqi3_v32_compatible",
+	"*andqi_lowpart_v32_compatible", "*iorsi3_v32_compatible",
+	"*iorhi3_v32_compatible", "*iorqi3_v32_compatible", "ashlqi3"):
+	Correct attribute "cc".
+	(second peephole, third peephole, fourth peephole): Specify
+	CC_NO_OVERFLOW for TARGET_V32 in output code.
+
+2003-04-08  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.md ("*movsi_internal", "movhi", "movqi", "movsf"):
+	"Disparage severely" all special register alternatives from
+	register preferencing.
+
+2003-04-07  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.md ("umulhisi3", "umulqihi3", "mulsi3", "mulqihi3",
+	"mulhisi3", "mulsidi3", "umulsidi3"): Add % to constraint for
+	operand 1.
+	("smulsi3_highpart", "umulsi3_highpart"): Rewrite to use four
+	operands to overcome reload braindamage.  Specify attribute
+	"slottable".
+	("movsf"): Have alternatives for special registers.
+
+2003-04-05  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (REG_ALLOC_ORDER_V32): Move MOF to be preferred after
+	saved general registers.
+
+2003-04-04  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (REGISTER_MOVE_COST): Define.
+
+2003-04-03  Hans-Peter Nilsson  <hp@axis.com>
+
+	Describe MOF and SRP as usable registers.
+	* cris.c (cris_conditional_register_usage): Enable use of MOF if
+	TARGET_HAS_MUL_INSNS.
+	(cris_print_operand): In register number sanity check, handle MOF
+	and SRP.
+	* cris.h (CRIS_MOF_REGNUM): Define.
+	(REG_ALLOC_ORDER_V32): Correct to follow comments.
+	(HARD_REGNO_MODE_OK): Work around find_reg problem.
+	(enum reg_class): New classes MOF_REGS and SPECIAL_REGS.
+	Make GENERAL_REGS a separate class.
+	(REG_CLASS_NAMES, REG_CLASS_CONTENTS, REGNO_REG_CLASS): Adjust.
+	(GENERAL_REGS): Don't define.
+	(REGNO_REG_CLASS, REG_CLASS_FROM_LETTER): Adjust.
+	(SECONDARY_RELOAD_CLASS): Define.
+	(FORBIDDEN_INC_DEC_CLASS): Exclude ACR_REGS, MOF_REGS,
+	GENERAL_REGS and SPECIAL_REGS.
+	(HARD_REGNO_RENAME_OK): True only if FROM and TO have the same
+	REGNO_REG_CLASS.
+	(TRAMPOLINE_TEMPLATE): Precede by "clearf x" for TARGET_V32 ||
+	TARGET_V10_V32_COMPATIBLE.
+	(TRAMPOLINE_SIZE, INITIALIZE_TRAMPOLINE): Adjust accordingly.
+	(DBX_REGISTER_NUMBER): Adjust for CRIS_CANONICAL_MOF_REGNUM.
+	* cris.md ("*movdi_v32_compatible"): Force split for all except
+	"m" alternatives.
+	("*movdi_v32_compatible"+1): New split.
+	("*movsi_internal"): Add "x" alternatives.  Specify attr "cc".
+	("movhi", "movqi"): Add "x" alternatives.
+	("reload_inhi", "reload_outhi", "reload_inqi", "reload_outqi"):
+	New expanders.
+	("umulhisi3", "umulqihi3", "mulsi3", "mulqihi3", "movqi",
+	"mulsidi3", "movqi"): Add clobber for scratch for MOF.
+	("iorqi3"): Remove constraint letters from define_expand.
+	("casesi"+30): Exclude case where destination register is not a
+	general register.
+	(copy-then-indir-to-same-reg): Exclude cases where source and
+	destination registers don't have the same preferred register
+	class.
+	(copy-then-extend-indir-to-same-reg): Ditto.
+
+2003-04-02  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.md ("*boundb_v32"): Remove "unmatched12_" prefix from
+	output template.
+	("*boundw_v32"): Correct output insn: "bound", not "addu".
+	("*addqi3_v32_compatible"): Remove "unmatched1_" prefix from
+	fourth alternative.
+
+2003-03-31  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.md ("*extopqihi_v32"): Remove "unmatched4_" prefix from
+	first alternative.
+	("*boundw_v32"): Remove "unmatched15_" prefix from output
+	template.
+	("*extopqihi_v32"): Remove "unmatched5_" prefix from output
+	template.  Unify output template.
+
+2003-03-30  Hans-Peter Nilsson  <hp@axis.com>
+
+	Fix ipps breakage, where three-operand patterns tripped on.
+	* cris.md ("*extopqihi_non_v32"): Renamed from "*extopqihi".
+	Exclude for TARGET_V32 and compatible.
+	("*extopqisi_non_v32"): Renamed from "*extopqisi".  Exclude for
+	TARGET_V32 and compatible.
+	("*extopqihi_v32", "*boundb_v32", "*boundw_v32"): New patterns
+	with "unmatchedN_" prefix on output templates.
+	("*addubw_v32", "*adduw_v32", "*extopqisi_v32", "*subxw_v32",
+	"*addub_v32"): New patterns.
+	("*extophisi_non_v32"): Renamed from "*extophisi".  Exclude for
+	TARGET_V32 and compatible.
+	("*addxqihi_swap_non_v32"): Renamed from "*extopqihi_swap".
+	Exclude for TARGET_V32 and compatible.
+	("*addsbw_v32"): Move after "*addxqihi_swap_non_v32".  Have
+	unmatchedN_ alternative for sign-extended register.
+	("*extopqisi_swap_non_v32"): Renamed from "*extopqisi_swap".
+	Exclude for TARGET_V32 and compatible.
+	("*addsb_v32"): Move after "*extopqisi_swap_non_v32".  Have
+	alternative for sign-extended register.
+	("*extophisi_swap_non_v32"): Renamed from "*extophisi_swap".
+	Exclude for TARGET_V32 and compatible.
+	("*addsw_v32"): Move after "*extophisi_swap_non_v32".  Have
+	alternative for sign-extended register.
+	("casesi"+1, "casesi"+2, "casesi"+3, "casesi"+4, "casesi"+5,
+	"casesi"+6, "casesi"+7, "casesi"+8): Disable for TARGET_V32 ||
+	TARGET_V10_V32_COMPATIBLE (too).
+	* cris.c (cris_additive_operand_extend_operator): Revert last
+	change.
+	(cris_plus_or_bound_operator): Ditto.
+	(cris_operand_extend_operator): Ditto.
+
+2003-03-29  Hans-Peter Nilsson  <hp@axis.com>
+
+	Disarm define_splits pessimizing for V32.
+	* cris.md ("*addsw_v32"): Remove "unmatched4_" prefix from first
+	alternative.
+	("casesi"+5, "casesi"+6, "casesi"+7, "casesi"+8): Disable
+	for TARGET_V32, "manually", through the condition.
+	* cris.c (cris_operand_extend_operator): Exclude PLUS for
+	TARGET_V32.
+	(cris_additive_operand_extend_operator, cris_extend_operator,
+	cris_plus_or_bound_operator): Ditto.
+
+2003-03-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	Have V32-specific casesi.  Fix ghostscript build failure.
+	* cris.md ("*movsi_internal") <case 9>: Emit lapc for TARGET_V32
+	for symbol_ref and label_ref if not PIC.  CC_STATUS_INIT.
+	("*addsbw_v32", "*addsb_v32", "*addsw_v32"): Use "m" constraint
+	for memory operand.
+	("*casesi_jump_v32_compatible"): Renamed from
+	"*casesi_v32_compatible".  Restrict to only
+	TARGET_V10_V32_COMPATIBLE.
+	("*casesi_jump_v32"): New.
+	("casesi_non_v32"): Old guts from "casesi".
+	("casesi_v32"): New define_expand.
+	("casesi"): Now a define_expand wrapper, just calling
+	gen_casesi_v32 or gen_casesi_non_v32.
+	* cris.h (ASM_OUTPUT_ADDR_DIFF_ELT): Handle TARGET_V32
+	differently.
+	(ASM_OUTPUT_CASE_END): Break out to...
+	* cris.c (cris_asm_output_case_end): ... new function.
+	* cris-protos.h (cris_asm_output_case_end): Prototype.
+
+2003-03-27  Hans-Peter Nilsson  <hp@axis.com>
+
+	Have ACR-specific patterns.
+	* cris.md ("*adddi3_v32_compatible"): Restrict to only
+	TARGET_V10_V32_COMPATIBLE.
+	("*adddi3_v32"): New pattern.
+	("*addsi3_v32_compatible"): Add three-operand alternatives for
+	addi and addo.  Specify attribute "cc".
+	("*addhi3_v32_compatible"): Ditto.
+	("*addqi3_v32_compatible"): Ditto.  Prepend "unmatchedN_" with
+	unique N to patterns not generated by GCC libs and testsuite.
+	("*addsbw_v32", "*addsw_v32"): New patterns, similar "unmatchedN_"
+	prefixes.
+	("*addsb_v32"): New pattern.
+	("*addi"): Add three-operand alternative for addi and addo.
+	("*expanded_call_v32", "*expanded_call_value_v32"): Use "bsr" for
+	a symbolic target address.
+
+2003-03-26  Hans-Peter Nilsson  <hp@axis.com>
+
+	Use ACR as a register.
+	* cris.h (enum reg_class): New classes ACR_REGS and NONACR_REGS.
+	(REG_CLASS_NAMES, REG_CLASS_CONTENTS): Adjust accordingly.
+	(REGNO_REG_CLASS): Return ACR_REGS for CRIS_ACR_REGNUM.
+	(REG_CLASS_FROM_LETTER): a for ACR_REGS, b for NONACR_REGS.
+	(HARD_REGNO_RENAME_OK, FORBIDDEN_INC_DEC_CLASS): Define.
+	* cris.md ("*movdi_v32_compatible"): <alt 3, 6>: (Re?)revert last
+	change.
+	* cris.c (cris_conditional_register_usage): Enable use of
+	CRIS_ACR_REGNUM.
+
+2003-03-26  Hans-Peter Nilsson  <hp@axis.com>
+
+	Drop -mcmp.  Add "back" compares with reversed operands.  Prepare
+	for ACR, MOF and SRP usage.
+	* cris.c (cris_conditional_register_usage): #if 0:d code in
+	preparation for ACR, MOF and SRP usage.
+	(cris_print_base): Abort on ACR postincrement.
+	(cris_notice_update_cc): If TARGET_CCINIT, still handle attribute
+	CC_REV.
+	<case CC_REV>: New.
+	(cris_cc0_user_requires_cmp): Replace early return on TARGET_CMP
+	with TARGET_V32.
+	* cris.h (CRIS_ACR_REGNUM): New macro.
+	(TARGET_MASK_CMP, TARGET_CMP): Remove.
+	(TARGET_SWITCHES): Don't handle -mcmp.
+	(FIRST_PSEUDO_REGISTER): Increase by 1 for MOF.
+	(FIXED_REGISTERS): Add fixed MOF.
+	(CALL_USED_REGISTERS): Add call-used MOF.
+	(REG_ALLOC_ORDER): Prefer MOF last.
+	(REG_ALLOC_ORDER_V32): New macro.
+	(EXTRA_CONSTRAINT_Q): Don't handle CRIS_PC_REGNUM.
+	(BASE_OR_AUTOINCR_P): Refuse CRIS_ACR_REGNUM for postincrement.
+	(SIMPLE_ADDRESS_P): Ditto.
+	(REGISTER_NAMES): Replace "pc" with "acr".  Add "mof".
+	(ADDITIONAL_REGISTER_NAMES): Add "pc", 15.
+	* cris.md (define_attr "cc"): New member "rev".
+	("*cmp_swapextqi"): Specify attribute "cc".
+	("*cmp_swapexthi"): Ditto.
+	("cmpsi"): Remove force-split alternatives.  Add back reversed
+	alternatives.  Specify attribute "cc".
+	("cmphi", "cmpqi"): Ditto.
+	("*movdi_v32_compatible") <alt 3, 6>: Revert last change.
+	("cmpsi"-1): Remove define_split.
+
+2003-03-25  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.md ("*movdi_v32_compatible") <alt 3, 6>: Don't use
+	post-increment.
+	("*addhi3_v32_compatible"): Specify attribute "cc".
+	("*addqi3_v32_compatible", "*subhi3_v32_compatible",
+	"*subqi3_v32_compatible", "*expanded_andhi_v32_compatible",
+	"*andhi_lowpart_v32_compatible", "*andqi3_v32_compatible",
+	"*andqi_lowpart_v32_compatible", "*iorsi3_v32_compatible",
+	"*iorhi3_v32_compatible", "*iorqi3_v32_compatible"): Ditto.
+	("*indirect_jump_v32_compatible"): Make TARGET_V10_V32_COMPATIBLE
+	specific.
+	("*indirect_jump_v32"): New pattern.
+
+2003-03-25  Hans-Peter Nilsson  <hp@axis.com>
+
+	Handle condition codes for V32.
+	* cris.md (define_attr "cc"): New member "noov32".
+	("tstsi"): Make define_expand.
+	("*tstsi_cmp", "*tstsi_non_cmp"): New patterns.
+	("*tsthi_cmp", "*tsthi_non_cmp"): Rewritten from "*tsthi_non_v32"
+	and "*tsthi_v32_compatible".
+	("*tstqi_cmp", "*tstqi_non_cmp"): Rewritten from "*tstqi_non_v32"
+	and "*tstqi_v32_compatible".
+	("cmpsi"-1): New define_split.
+	("cmpsi") <alt 4, 5, 8>: Force split.
+	("cmphi") <alt 3, 5>: Ditto.
+	("cmpqi"): <alt 3, 4, 5>: Ditto (compared to "*cmpqi_non_v32").
+	No longer a define_expand.
+	("*cmpqi_non_v32", "*cmpqi_v32_compatible"): Remove.
+	("*btst") <alt 2>: Change from test.d %0 to cmpq 0,%0.
+
+	* cris.h (TARGET_MASK_CMP, TARGET_CMP): New macros.
+	(TARGET_SWITCHES): Support -mcmp.
+	* cris.c (cris_target_asm_function_epilogue): Add case for
+	TARGET_V32 for return_address_on_stack for complete ABI support.
+	Don't emit "Jump [$sp+]" after current_function_calls_eh_return
+	code for pre-v32 code.
+	(cris_normal_notice_update_cc): Handle V32 insns not setting V and
+	C flags.  New function; broken out code from...
+	(cris_notice_update_cc): Here.
+	<case CC_NOOV32>: New.
+	(cris_cc0_user_requires_cmp): New function.
+	(cris_override_options): Don't imply TARGET_CCINIT for
+	-march=v32, but imply (new) TARGET_CMP.
+	(cris_asm_output_mi_thunk): Correct assembly code for
+	TARGET_V10_V32_COMPATIBLE.
+	* cris-protos.h (cris_cc0_user_requires_cmp,
+	cris_normal_notice_update_cc): New prototypes.
+
+2003-03-22  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.c (cris_target_asm_function_epilogue,
+	cris_asm_output_mi_thunk): For TARGET_V32 and
+	TARGET_V10_V32_COMPATIBLE, don't use push and pop.
+	* cris.h (ASM_OUTPUT_REG_PUSH, ASM_OUTPUT_REG_POP): Ditto.
+	* cris.md ("return"): Ditto.
+
+2003-03-22  Hans-Peter Nilsson  <hp@axis.com>
+
+	Split out TARGET_V32 from TARGET_V10_V32_COMPATIBLE.  Instead
+	use TARGET_V32 || TARGET_V10_V32_COMPATIBLE everywhere except as
+	specified and implied below.
+	* cris.c: (cris_bdap_operand): Correct TARGET_V10_V32_COMPATIBLE
+	early-bailout test by negating it.
+	(cris_eligible_for_epilogue_delay): Bail out only for
+	TARGET_V10_V32_COMPATIBLE.
+	(cris_target_asm_function_epilogue): Handle simple TARGET_V32
+	vs. TARGET_V10_V32_COMPATIBLE cases differently.
+	(cris_simple_epilogue): If TARGET_V32, bail out early only if
+	flag_exceptions.
+	(cris_override_options): Move handling of -march=v32 to generic
+	-march=v*-handling code.
+	(cris_asm_output_mi_thunk): Emit TARGET_V32 code as for
+ 	non-TARGET_V10_V32_COMPATIBLE but with nop after the jump.  Be
+	sorry only for TARGET_V10_V32_COMPATIBLE.
+	(cris_print_operand): Emit "setf" for TARGET_V10_V32_COMPATIBLE
+	only.
+
+	* cris.h: (CRIS_CPU_V32, TARGET_V32): New macros.
+	* cris.md: ("*addsi3_v32_compatible"): Add set_attr "slottable".
+	("return"): Handle TARGET_V32.
+	("call", "call_value"): Force call address to reg only for
+	TARGET_V10_V32_COMPATIBLE.
+	("*expanded_call_v32", "*expanded_call_value_v32"): New patterns.
+
+2003-03-19  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (ENDFILE_SPEC): Correct order; crtn after crtend.
+
+	* cris.c (cris_asm_output_mi_thunk): Correct from "jsr" to "jump"
+	for TARGET_V10_V32_COMPATIBLE, non-aggregate-return case.
+
+2003-03-14  Hans-Peter Nilsson  <hp@axis.com>
+
+	* mulsi3.asm (___Mul): Add code for __arch_common_v10_v32.
+	* cris.md (movdi): Don't copy_to_mode_reg for operands[1] if
+	already a reg or no_new_pseudos.
+	* cris.h (STARTFILE_SPEC): Correct braces to avoid crt0.o with
+	-sim3.
+
+2003-03-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (CPP_SPEC): Fix bracing.
+	* cris.md ("*cmpqi_non_v32"): Remove extraneous spacing in
+	predicate.
+	("*movdi_insn_non_v32"): Parenthesize conditions.
+	("*movdi_v32_compatible"): Remove trailing end-of-line from output
+	template.
+	* cris.c (cris_bdap_operand): Parenthesize early-failure
+	conditional.
+	(cris_target_asm_function_epilogue): Remove extraneous
+	merge-introduced close-brace.
+	(cris_override_options): Use error, not fatal, reporting errors.
+
+	Import of 3.2.1.
+	Import this change from main GCC CVS:
+ 	2003-03-11  Hans-Peter Nilsson  <hp@axis.com>
+	* config/cris/cris.md: Remove lingering EGCS reference.
+	("*extopqihi_side_biap"): For HI operation, match
+	cris_additive_operand_extend_operator, not
+	cris_operand_extend_operator.  Adjust condition.
+	("*extopqihi_side", "*extopqihi"): Ditto.
+	("*extopqisi_side_biap"): Correct operand numbers in condition.
+	("*extophisi_side_biap", "*extopqisi_swap_side_biap"): Ditto.
+	("*extophisi_swap_side_biap", "*extopqisi_swap"): Ditto.
+	("*extophisi_swap"): Ditto.
+	("*extopqihi_swap_side_biap"): For HI operation, match a simple
+	PLUS, not cris_operand_extend_operator.  Adjust condition and
+	output template.
+	("*extopqihi_swap_side", "*extopqihi_swap"): Ditto.
+	* config/cris/cris.h (PREDICATE_CODES): Add
+	cris_additive_operand_extend_operator.
+	* config/cris/cris.c (cris_additive_operand_extend_operator):
+	New predicate.
+
+2003-03-04  Hans-Peter Nilsson  <hp@axis.com>
+
+	* t-cris (MULTILIB_MATCHES): Handle -mcpu=common_v10_v32.
+	* cris.md ("*tstdi_v32_compatible"): Don't use test.d for register
+	operand.
+	("tstsi", "cmpsi"): Ditto.
+	("tsthi", "tstqi", "cmpqi"): Split up in two patterns to achieve same.
+	("*extopqisi_swap", "*extophisi_swap", "*extopqihi", "*extopqisi",
+	"*extophisi", "*extopqihi_swap"): For patterns not otherwise
+	excluded, make sure to match only if !TARGET_V10_V32_COMPATIBLE
+	when memory operand is possible.
+	("uminsi3"): Force register operand if TARGET_V10_V32_COMPATIBLE.
+	("*uminsi3_v32_compatible"): Don't match a memory operand.
+	* cris.h (CPP_SPEC): Correct for -mcpu=common_v10_v32.
+	(ASM_SPEC): Ditto.  Correct for -mcpu=v32.
+	(STARTFILE_SPEC) <!melinux !mlinux !sim3>: No crti.o.
+	(ENDFILE_SPEC) <!melinux !mlinux !sim3>: No crtn.o.
+	(TRAMPOLINE_TEMPLATE): Correct for TARGET_V10_V32_COMPATIBLE.
+	(TRAMPOLINE_SIZE, INITIALIZE_TRAMPOLINE): Ditto.
+	(TARGET_VERSION): Add -v32 suffix.
+
+	* cris.c (cris_function_prologue): Don't use movem if
+	flag_exceptions and v32-compatible.
+	(cris_function_epilogue): Correspondingly.
+	(cris_bdap_operand): Return false if !TARGET_V10_V32_COMPATIBLE.
+	(cris_asm_output_mi_thunk): Add missing setf for
+	TARGET_V10_V32_COMPATIBLE.
+
+2002-04-29  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.md ("addhi3"): Make define_expand, with insns ..._non_v32
+	having old body and excluding TARGET_V10_V32_COMPATIBLE in
+	condition, and ..._v32_compatible without three-address
+	constraint allowing only TARGET_V10_V32_COMPATIBLE in condition.
+	("addqi3", "subhi3", "subqi3", "andqi3", "iorsi3", "iorhi3",
+	"iorqi3", "uminsi3"): Ditto.
+	("*expanded_andhi_non_v32"): Renamed from *expanded_andhi,
+	excluding TARGET_V10_V32_COMPATIBLE in pattern.
+	("*expanded_andhi_v32_compatible"): Copy of old *expanded_andhi,
+	without three-address offsettable constraints.
+	("*andhi_lowpart", "*andhi_lowpart_non_v32",
+	"*andhi_lowpart_v32_compatible"): Similar.
+
+2002-04-24  Hans-Peter Nilsson  <hp@axis.com>
+
+	* t-cris (EXTRA_MULTILIB_PARTS): Remove crtbegin2.c
+	* cris.md ("tstdi"): Make define_expand, forcing registers for
+	TARGET_V10_V32_COMPATIBLE.
+	("*tstdi_non_v32"): New, containing old body.
+	("*tstdi_v32_compatible"): New, accepting only register operands.
+	("cmpdi"): Make define_expand, forcing register for a non-register
+	operand[0] and memory operand[1] if TARGET_V10_V32_COMPATIBLE.
+	("*cmpdi_non_v32"): New, containing old body.
+	("*cmpdi_v32_compatible"): New, not accepting memory operand for
+	operand[1].
+	("cmpsi"): Drop alternatives with swapped operands.
+	("cmphi", "cmpqi"): Ditto.
+	("movdi"): Correct postincrement constraint.
+	("adddi3"): Make define_expand, forcing operand[2] to register for
+	TARGET_V10_V32_COMPATIBLE.
+	("*adddi3_non_v32"): New, containing old body.
+	("*adddi3_v32_compatible"): New, not accepting memory operand for
+	operand[2].
+	("addsi3"): Make define_expand.
+	("*addsi3_non_v32"): New, containing old body.
+	("*addsi3_v32_compatible"): New, not accepting offsettable
+	operands or three-address operands.
+	("subdi3"): Make define_expand, forcing operand[2] to register for
+	memory and TARGET_V10_V32_COMPATIBLE.
+	("*subdi3_non_v32"): New, containing old body.
+	("*subdi3_v32_compatible"): New, not accepting memory operand for
+	operand[2].
+	("subsi3"): Make define_expand.
+	("*subsi3_non_v32"): New, containing old body.
+	("*subsi3_v32_compatible"): New, not accepting offsettable
+	operands or three-address operands.
+	("*expanded_andsi_non_v32"): Rename from "*expanded_andsi",
+	excluding TARGET_V10_V32_COMPATIBLE.
+	("*expanded_andsi_v32_compatible"): New, not accepting offsettable
+	operands or three-address operands.
+	("call_value"): Correct operands[1] assignment for
+	TARGET_V10_V32_COMPATIBLE.
+	* cris.h: Tweak comments.
+ 	(TRAMPOLINE_TEMPLATE): Correct for TARGET_V10_V32_COMPATIBLE.
+	* cris.c (cris_function_epilogue): For -march=common_v10_v32, return
+	via R13, not R9.  Emit error when R13 is clobbered by a return
+	value.
+	(cris_print_operand) <case 'L'>: Strip a POST_INC inside the MEM.
+	(cris_asm_output_mi_thunk): Jump via register R9, not symbol, for
+	TARGET_V10_V32_COMPATIBLE.  Emit error for varargs.  Emit small
+	ordinary frame and use R0 when returning aggregate.
+
+2002-04-20  Hans-Peter Nilsson  <hp@axis.com>
+
+	* crtbegin2.c: Remove.
+	* t-cris: Remove rules for crtbegin2.c.
+	* cris.h (STARTFILE_SPEC): Lose crtbegin2.o.  Include crti.o for
+	all non-a.out.
+	(ENDFILE_SPEC): Include crtn.o for all non-a.out.  Fix typo.
+
+	* cris.md ("*cmp_swapextqi"): Set condition to !TARGET_CCINIT.
+	("*cmp_swapexthi"): Ditto.
+	("*btst"): Add here too.
+	("movdi"): New, condition TARGET_V10_V32_COMPATIBLE.
+	("*casesi_adds_w"): Unless TARGET_V10_V32_COMPATIBLE.  Add unused
+	clobber.
+	("*casesi_v32_compatible"): New.
+	("mstep_shift"): Unless TARGET_V10_V32_COMPATIBLE.
+	("mstep_mul"): Ditto.
+	("indirect_jump"): Change to define_expand.  Force operand to
+	register if TARGET_V10_V32_COMPATIBLE.
+	("*indirect_jump_v0_v10"): Previous indirect_jump, unless
+	TARGET_V10_V32_COMPATIBLE.
+	("*indirect_jump_v32_compatible"): New; only register operand.
+	("return"): Add comment that this is taken care of for
+	TARGET_V10_V32_COMPATIBLE.
+	("call"): Force address to register for
+	TARGET_V10_V32_COMPATIBLE.
+	("*expanded_call"): Unless TARGET_V10_V32_COMPATIBLE.
+	("*expanded_call_no_gotplt"): Ditto.
+	("*expanded_call_v32_compatible"): New.
+	("call_value"): Force address to register for
+	TARGET_V10_V32_COMPATIBLE.
+	("*expanded_call_value"): Unless TARGET_V10_V32_COMPATIBLE.
+	("*expanded_call_value_no_gotplt"): Ditto.
+	("*expanded_call_value_v32_compatible"): New.
+	("casesi"): Add "(clobber (scratch:SI))" last.
+	<peepholes with side-effects but not using
+	cris_side_effect_mode_ok>: Conditionalize on
+	TARGET_SIDE_EFFECT_PREFIXES.
+	* crtbegin2.c: Have compatible code.
+	* t-cris (MULTILIB_OPTIONS): Change to -march=common_v10_v32 for
+	v10v32, -march=v10 for v10 and -march=v32 for v32.
+	* cris.c (cris_compat_nop_after_label): New variable.
+	(cris_eligible_for_epilogue_delay): No delay slots for
+	TARGET_V10_V32_COMPATIBLE.
+	(cris_function_prologue): Adjust for TARGET_V10_V32_COMPATIBLE.
+	(cris_function_epilogue, cris_print_operand,
+	cris_simple_epilogue): Ditto.
+	(cris_override_options): Handle -march=v32 and
+	-march=common_v10_v32.
+	(cris_asm_output_mi_thunk): Adjust for TARGET_V10_V32_COMPATIBLE.
+	(cris_encode_section_info): Remove bogus TARGET_ELF code.
+	* cris.h (cris_compat_nop_after_label): Declare.
+	(CPP_SPEC): Handle -march=common_v10_v32.
+	(ASM_SPEC): Pass on -march=v32 and --march=common_v10_v32 to
+	assembler.
+	(LINK_SPEC): Let -sim3 be -sim2 but using use newlib
+	Linux-specific libs.
+	(STARTFILE_SPEC, ENDFILE_SPEC): Similar.
+	(TARGET_MASK_V10_V32_COMPATIBLE, TARGET_V10_V32_COMPATIBLE): New.
+	(EXTRA_CONSTRAINT): Don't match EXTRA_CONSTRAINT_R,
+	EXTRA_CONSTRAINT_S, EXTRA_CONSTRAINT_T or EXTRA_CONSTRAINT_U for
+	TARGET_V10_V32_COMPATIBLE.
+	(TRAMPOLINE_TEMPLATE, TRAMPOLINE_SIZE, INITIALIZE_TRAMPOLINE,
+	GO_IF_LEGITIMATE_ADDRESS): Adjust for TARGET_V10_V32_COMPATIBLE.
+	(ASM_OUTPUT_INTERNAL_LABEL): Emit "setf" and clear if
+	cris_compat_nop_after_label set.
+	(FINAL_PRESCAN_INSN, FINAL_PRESCAN_LABEL): Define.
+

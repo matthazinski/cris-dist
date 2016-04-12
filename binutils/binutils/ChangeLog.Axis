@@ -1,0 +1,46 @@
+2002-06-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* All: Import of FSF-binutils-2_12_1.
+
+2002-02-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* All: Import of FSF-binutils-2002-02-01-snapshot.
+
+2001-04-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Makefile.in (All POD2MAN invocations): Hide behind @MAINT@.
+
+2000-12-07  Hans-Peter Nilsson  <hp@axis.com>
+
+	* aclocal.m4: Remove quotes for "$missing_dir/missing flex".
+	* configure: Regenerate.
+
+2000-07-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Makefile.am: Update dependencies.
+	* Makefile.in, arlex.c, arparse.c: Regenerate.
+	* config.texi: Set VERSION to 1.9.10-CRIS.
+	* readelf.c: Add support for CRIS.
+
+	* ChangeLog.Axis: Move local changes from ChangeLog to
+	ChangeLog.Axis.
+
+Fri May 12 20:19:41 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* configure (ac_cv_prog_lex_root): Vicously hack this
+	generated file to gracefully handle absence of lexer.
+
+Thu Nov 11 18:04:34 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* Makefile.in: Change suffix from .new to -new
+
+Wed Aug 25 21:56:45 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* objcopy.c (filter_symbols): Check for BSF_WEAK as well as
+	BSF_GLOBAL.  Bugfix imported from 2.7.
+	* nm.c (filter_symbols): Likewise.
+
+Wed May 19 00:55:51 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* arsup.c (strdup declaration): Wrap in #ifndef strdup.
+

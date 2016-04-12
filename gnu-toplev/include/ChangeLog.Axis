@@ -1,0 +1,5 @@
+2005-06-16  Hans-Peter Nilsson  <hp@axis.com>
+
+	* obstack.h: Import version from FSF CVS to make compilable with
+	GCC 4.0. 
+

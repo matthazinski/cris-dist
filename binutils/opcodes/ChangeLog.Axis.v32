@@ -1,0 +1,191 @@
+2005-10-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge between head-before-040918-merge and
+	head-before-051028-merge.
+
+2004-09-22  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-opc.c (cris_support_regs): Remove aliases.
+
+	* ChangeLog.Axis: Move all v32 entries to...
+	* ChangeLog.Axis.v32: New file.
+
+2003-12-04  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-opc.c (cris_opcodes) <addo, bdap>: Use SIZE_FIELD_SIGNED where
+	previously SIZE_FIELD.
+  	<adds, addu, bound, cmps, cmpu, movs, movu, subs, subu>: Mark with
+	FIXME.
+
+2003-11-14  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-opc.c (cris_spec_regs): Add v32-entries for p2 and p3.
+
+2003-07-07  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-opc.c (cris_spec_regs): Correct position for srs.
+
+2003-06-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-opc.c (cris_opcodes) <fidxd, fidxi, ftagd ftagi>: Update
+	opcodes.
+	<halt, rfn>: New opcodes.
+	<test m D>: Mark as v0..v10 only.
+	<test m y>: Change from format "m s".
+
+2003-03-20  Hans-Peter Nilsson  <hp@axis.com>
+
+	Make it possible to disassemble common_v10_v32 code and
+	"ordinary" v10 code differently.
+	* cris-dis.c (enum cris_disass_family): New.
+	(struct cris_disasm_data): Change member boolean crisv32 to enum
+	cris_disass_family distype.  All users changed.
+	(format_reg, format_sup_reg, unsigned bytes_to_skip,
+	print_with_operands, spec_reg_info,
+	cris_parse_disassembler_options): Change boolean parameter crisv32
+	to enum cris_disass_family distype.
+	(print_insn_crisv10_v32_with_register_prefix,
+	print_insn_crisv10_v32_without_register_prefix): New functions.
+	(cris_get_disassembler): Reorganize and arrange to return
+	print_insn_crisv10_v32_with_register_prefix and
+	print_insn_crisv10_v32_without_register_prefix.
+	* cris-opc.c (cris_opcodes): Document that B isn't recognized for
+	v32.  Make "push" and "pop" entries v0..v10 only. 
+
+2003-02-24  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-opc.c (cris_opcodes) <"bound" "m Y,R">: Change
+	applicable_version field to cris_ver_version_all; 0.
+
+2003-02-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	Don't accept memory operand for "bound" with v32.
+	* cris-dis.c (cris_constraint) <case 'Y'>: New case.
+	(bytes_to_skip): Handle 'Y'.
+	(print_with_operands) <case 'Y'>: New case.
+	* cris-opc.c: New format Y for mode-size immediate operand.
+	(cris_opcodes) <"bound" "m s,R">: For v0_v10 only.
+	<"bound" "m Y,R">: New entry for v32.
+
+2003-02-05  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-dis.c (bytes_to_skip): Adjust for immediate operands for
+	special registers always being 32-bit on CRISv32.
+	(print_with_operands): Ditto.
+	* cris-opc.c (cris_spec_regs): Mention that this table isn't used
+	for CRISv32 and the size of immediate operands.
+
+2002-08-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-dis.c (get_opcode_entry): Fix typos: Disallow
+	cris_ver_v3_10 for v32.  Allow cris_ver_v3p for v32.
+
+	* cris-opc.c (cris_spec_regs): Prefer wz over p4.
+
+2002-04-17  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-opc.c (cris_opcodes): addc can take a constant operand.
+
+	* cris-dis.c (print_flags): Add parameter struct cris_disasm_data
+	*disdata to output correct flag names for v32.  All callers changed.
+
+2002-03-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-opc.c: Tweak coments.
+ 	(cris_spec_regs): Add "spc".
+	(cris_support_regs): Add "gcfg", "g_ccs", "g_srs", "g_nrp",
+	"g_exs", "g_r0" and "g_r1".
+	(cris_opcodes): In format comment, document 'd', 'Q', 'U' and 'u'.
+	Remove 'a' and 't'.
+	"addo": Remove PC-relative register operands.  Replace for
+	PC-relative operands with "lapc", "lapcq".
+  	Re-merge branch insns to be same for CRISv32 and pre-v32.
+  	Remove "bas"-type PC-relative with register operand.
+	"addoq": Place before "addo", use Q format for immediate operand.
+	"fidx": Replace with "fidxd", "fidxi".
+	"ftag": Replace with "ftagd", "ftagi".
+	"jump": Swap order of N and P format insns.
+	"mcp": Change input operand to P, output operand to r.
+
+	* cris-dis.c: Tweak comments.
+ 	(spec_reg_info): New parameter crisv32, use to return applicable
+	register names.  All callers changed.
+	(format_reg): New parameter disdata.  All callers changed.  Return
+	"acr" for CRISv32 and R15.
+	(format_sup_reg): New function.
+	(cris_constraint) <case 'U'>: New.
+	(bytes_to_skip): New parameter crisv32.  All callers changed.
+	Skip size is 4 bytes for constraint 'n'.
+	(print_with_operands) <case 'n'>: Don't abort; emit dword address
+	number PC-relative to start of the insn.
+	<case '[', ']'>: Don't abort; emit verbatim.
+	<case 'T'>: Don't abort; call format_sup_reg.
+	<case 'A'>: Don't abort; emit "acr" and maybe REGISTER_PREFIX_CHAR.
+	<case 'a', 't'>: Remove.
+	<case 'd', 'u', 'Q'>: New.
+	<case 'b', case 'o'>: Tweak offset according to disdata->crisv32.
+
+2002-02-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-opc.c (cris_spec_regs): usp is p14 for v32.
+	(cris_support_regs): Terminate with NULL entry.
+	(cris_opcodes): Fix spacing and tweak head comment.  Change
+	pc-relative addo to use "n" not "N".  Add relaxing addo.  Add
+	FIXME for non-relaxed addoq.  Correct size for 32-bit ba and bas,
+	basc, bsr, jas, jasc.  Correct entries for "jump"; is not
+	compatible for constant argument.
+
+2002-02-22  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-opc.c (cris_opcodes): Update addc, ssb.  Add rfg.  Reunify
+	ax, clearf, di, ei, sa, scc, scs, seq, setf, sge, sgt, shi, shs,
+	sle, slo, sls, slt, smi, sne, spl, svc, svs.
+
+2002-02-21  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-opc.c (cris_support_regs): New vector.
+	(cris_opcodes): Fix spacing.
+	<jsrc cris_ver_v32p 0xBF3F>: Correct to SIZE_FIX_32.
+
+2002-02-20  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-dis.c (cris_parse_disassembler_options): New parameter
+	crisv32.  All callers changed.  Set disassemble_info member by
+	same name from new parameter.
+	(get_opcode_entry): Always allocate all insn tables.  Handle
+	disdata->crisv32.  Output "bcc ." for zero insns.
+	(print_insn_crisv32_with_register_prefix,
+	print_insn_crisv32_without_register_prefix): New functions.
+
+2002-02-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-opc.c (cris_opcodes) <"jump" "N">: Remove FIXME.
+
+2002-02-14  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-opc.c (cris_spec_regs): New v32-only entries for bz, pid,
+	srs, wz, exs, eda, dz, ebp, erp, nrp, ccs.  Add v32-only 4-byte
+	entries for p5 and p6.  Change ccr, ibr, irp to be v0..v10.
+	Change bar, dccr to be v8..v10.  Change brp to be v3..v10.
+	(cris_opcodes): New format characters 'A', 'a', 'N', 'n', 'T',
+	't'.  Mention different meaning of 'B' for crisv32; 'O' used in
+	new ADDOQ.  Adjust insns and add new ones for crisv32.
+	(cris_cond15s): New vector.
+	* cris-dis.c (TRACE_CASE): Define as (disdata->trace_case).
+	(trace_case): Remove.
+	(struct cris_disasm_data): New type.
+	(format_hex, cris_constraint): Add struct cris_disasm_data *
+	parameter.  All callers changed.
+	(get_opcode_entry): Ditto.  Use malloc, not xmalloc; return NULL
+	for failure.  Skip opcodes only applicable for crisv32.
+	(cris_parse_disassembler_options): Return boolean success
+	indicator.  Allocate struct cris_disasm_data * for
+	info->private_data.
+	(bytes_to_skip): Check for 'N' as well as 's'.
+	(print_with_operands) <case '[', ']', 'A', 'a', 'n', 'T', 't'>:
+	Placeholder cases.
+	<case 'N'>: Handle as 's'.
+	(print_insn_cris_with_register_prefix,
+	print_insn_cris_without_register_prefix): Pass
+	cris_parse_disassembler_options back to caller.
+

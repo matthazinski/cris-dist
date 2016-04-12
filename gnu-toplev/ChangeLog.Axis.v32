@@ -1,0 +1,11 @@
+2005-10-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge between head-before-040918-merge and
+	head-before-051028-merge.
+
+	* ChangeLog.Axis: Move v32 items to ChangeLog.Axis.v32
+
+2003-04-21  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config.sub (maybe_os): Recognize crisv32 and crisv32-axis.
+

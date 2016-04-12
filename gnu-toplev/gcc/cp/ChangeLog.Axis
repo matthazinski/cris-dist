@@ -1,0 +1,79 @@
+2006-06-07  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Make-lang.in ($(srcdir)/cp/parse.h, $(srcdir)/cp/parse.c):
+	Disable targets.
+
+2005-06-16  Hans-Peter Nilsson  <hp@axis.com>
+
+	Import change to make compilable with GCC 4.0.
+	* decl.c (current_binding_level): Modify to avoid ternary
+	operation result used as lvalue.
+
+2002-12-17  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Import of gcc-3.2.1; overwrite previous local changes.
+
+2001-10-09  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Import this fix:
+	2000-05-01  Mark Mitchell  <mark@codesourcery.com>
+	* cp-tree.h (same_type_ignoring_top_level_qualifiers_p): New
+	macro.
+	* call.c (standard_conversion): Use it.
+	(direct_reference_binding): Likewise.
+	(build_over_call): Likewise.
+	(is_properly_derived_from): Likewise.
+	(compare_ics): Likewise.
+	* class.c (resolves_to_fixed_type_p): Likewise.
+	* optimize.c (declare_return_variable): Likewise.
+	* pt.c (is_specialization_of): Likewise.
+	(unify): Likewise.
+	* typeck.c (comp_target_parms): Likeiwse.
+	(build_static_cast): Likewise.
+	(build_reinterpret_cast): Likewise.
+	(build_const_cast): Likewise.
+	(comp_ptr_ttypes_real): Likewise.
+	(comp_ptr_ttypes_const): Likewise.
+	* typeck2.c (process_init_constructor): Likewise.
+
+2000-05-26  Mark Mitchell  <mark@codesourcery.com>
+
+	* class.c (build_vtable_entry_ref): Correct usage of
+	get_vtbl_decl_for_binfo.
+
+2000-07-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* search.c (maybe_suppress_debug_info): Jason forgot ChangeLog
+	entry for a debug-info-related patch.
+
+2000-06-05  Jason Merrill  <jason@casey.soma.redhat.com>
+
+	Remember instantiation context in deferred instantiations.
+	* cp-tree.h (struct tinst_level): Remove.
+	(TINST_DECL, TINST_LINE, TINST_FILE): New macros.
+	* pt.c (current_tinst_level): Now a tree.
+	(print_template_context, push_tinst_level, pop_tinst_level,
+	tinst_for_decl): Adjust.
+	(reopen_tinst_level): New fn.
+	(init_pt): Register current_tinst_level as a root.
+	(add_pending_template): Put current_tinst_level in TREE_PURPOSE
+	of the pending templates list.
+	(instantiate_pending_templates): Adjust.  Call reopen_tinst_level.
+	* lex.c (extract_interface_info): Adjust.
+	* decl2.c (warn_if_unknown_interface): Adjust.
+
+2000-04-29  scott snyder  <snyder@fnal.gov>
+
+	* decl.c (finish_destructor_body): When we delete the vbases, use
+	base_dtor_identifier, not complete_dtor_identifier.
+
+2000-04-30  Mark Mitchell  <mark@codesourcery.com>
+
+	* expr.c (cplus_expand_expr): Preserve temporaries when expanding
+	STMT_EXPRs.
+	* optimize.c (struct inline_data): Add target_exprs field.
+	(declare_return_variable): When a function returns an aggregate,
+	use the variable declared in the TARGET_EXPR as the remapped
+	DECL_RESULT.
+	(expand_call_inline): Update the pending target_exprs stack.
+	(optimize_function): Initialize the stack.

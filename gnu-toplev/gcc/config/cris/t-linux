@@ -1,0 +1,4 @@
+# Adding -fgcse (now disabled by default) to avoid performance
+# regression from within these specific functions.
+TARGET_LIBGCC2_CFLAGS += -fPIC -fgcse
+CRTSTUFF_T_CFLAGS_S = $(TARGET_LIBGCC2_CFLAGS)

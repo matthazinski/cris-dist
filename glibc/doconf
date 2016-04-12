@@ -1,0 +1,24 @@
+#! /bin/sh
+#
+# Should reflect the normal setup for Linux/CRIS at Axis Communications.
+#
+
+# Note that --without-cvs affects auto-regenerating files with
+# timestamps out of date.  You normally don't want to do "--with-cvs",
+# even when hacking and using CVS.
+# We assume at least kernel 2.4.5, the earliest CRIS version known to
+# have fcntl64.  (In fact that has been the assumption since lockf64.)
+env "BUILD_CC=${BUILD_CC-cc}"						\
+    "CC=${TARGET_CC-gcc-cris -O2 -mlinux} ${CC_opts}"			\
+    "AR=${AR_FOR_TARGET-ar-cris}"					\
+    "RANLIB=${RANLIB_FOR_TARGET-ranlib-cris}"				\
+    `dirname $0`/configure						\
+     --host=cris-axis-linux-gnu						\
+     --prefix=								\
+     --enable-add-ons=yes						\
+     --enable-kernel=2.4.5						\
+     --with-headers=/usr/local/cris/lib/gcc-lib/cris/2.96/linux/include	\
+     --without-cvs							\
+     --enable-all-warnings						\
+     --disable-profile							\
+     ${1+"$@"}

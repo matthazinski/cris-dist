@@ -1,0 +1,300 @@
+2005-10-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	Import from FSF CVS:
+	PR ld/1567
+	* elf32-cris.c (cris_elf_howto_table) <R_CRIS_32>: Set
+	complain_on_overflow field to complain_overflow_dont.
+
+2004-09-08  Hans-Peter Nilsson  <hp@axis.com>
+
+	Import from FSF CVS:
+	* elf32-cris.c (elf_cris_adjust_gotplt_to_got): Reset
+	h->gotplt_refcount to 0, not -1.
+
+2004-09-07  Hans-Peter Nilsson  <hp@axis.com>
+
+	Import from FSF CVS:
+	* elf32-cris.c (cris_elf_relocate_section) <case R_CRIS_16_GOTPLT,
+	case R_CRIS_32_GOTPLT>: For internal error message, handle NULL
+	symname.
+	(cris_elf_check_relocs) <case R_CRIS_32_PLT_PCREL>: Don't try to
+	handle symbol visibility here.
+
+2003-10-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* elf32-cris.c (cris_elf_relocate_section) <case R_CRIS_16_GOTPLT,
+	R_CRIS_16_GOTPLT>: Also error if there's no PLT for a symbol
+	not defined by the executable, or defined in a DSO.
+	<eliding run-time relocation of .got>: Initialize GOT entry for a
+	function symbol or ELF_LINK_HASH_NEEDS_PLT statically in an
+	executable.
+	(cris_elf_gc_sweep_hook): Improve fallthrough marking.
+	(elf_cris_try_fold_plt_to_got): Improve head comment.  Do not fold
+	a PLT reloc to GOT for an executable.
+	(elf_cris_adjust_dynamic_symbol): Only fold a .got.plt entry with
+	.got for a DSO and explain why. 
+	(elf_cris_discard_excess_program_dynamics): Also lose GOT-relocs
+	and unreferenced symbols for which a PLT is defined.  Adjust
+	dynamic-symbol pruning correspondingly, to make sure we don't lose
+	a dynamic symbol also defined by a DSO.
+
+2003-06-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* elf32-cris.c (cris_elf_relocate_section) <case
+	R_CRIS_32_GOTREL>: When building a program, don't complain about a
+	symbol from a normal object or an undefined weak symbol.
+
+2002-11-04  Alan Modra  <amodra@bigpond.net.au>
+	    Hans-Peter Nilsson  <hp@axis.com>
+
+	* elflink.h (struct elf_final_link_info): Add shndxbuf_size.
+	(elf_bfd_final_link): Don't bother zeroing symtab_hdr fields.
+	Set up a larger symshndxbuf, and write it out.  Free it on
+	exit rather than freeing symbuf twice.  Correct section index
+	on output section symbol loop.
+	(elf_link_output_sym): Accumulate symbol extension section
+	indices, reallocating symshndxbuf rather than writing it out.
+	(elf_link_flush_output_syms): Don't flush symshndxbuf.
+	* elf.c (assign_section_numbers): Init i_shdrp to all zero.
+	Use bfd_zalloc to clear i_shdrp[0] too.
+
+2002-11-07  Hans-Peter Nilsson  <hp@axis.com>
+
+	* elf32-cris.c (cris_elf_relocate_section) <case R_CRIS_16_GOT,
+	case R_CRIS_32_GOT>: Correct test for filling in constant .got
+	contents, enabling for a non-DSO, for symbols defined in the
+	program with --export-dynamic.
+
+2002-08-15  Hans-Peter Nilsson  <hp@axis.com>
+
+	* elf32-cris.c (elf_cris_discard_excess_program_dynamics): Add
+	missing check for whether the symbol is referenced by DSO before
+	unexporting it as an unneeded dynamic symbol.
+
+2002-07-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* elf32-cris.c (cris_elf_relocate_section): Drop unnecessary test
+	for forced-local and nonsensical dynamic reference in assertion
+	when initializing GOT with static contents.  Just assert that
+	there are either no dynamic sections, the symbol is defined in
+	the regular objects or that the symbol is undef weak.  Tweak
+	comment.
+	<case R_CRIS_32_GOTREL>: In test for local symbol, accept also
+	symbol with non-default visibility.
+	<case R_CRIS_32_GOTREL, case R_CRIS_32_PLT_GOTREL>: Ditto.
+	<case R_CRIS_8_PCREL, case R_CRIS_16_PCREL, case R_CRIS_32_PCREL>:
+	Ditto.
+	(elf_cris_finish_dynamic_symbol): Emit .got reloc for a program
+	only if the symbol isn't defined in the program and isn't undef
+	weak.
+	(cris_elf_gc_sweep_hook): Only decrease h->plt.refcount for
+	symbol with non-default visibility.
+	(elf_cris_adjust_dynamic_symbol): Simplify condition for getting
+	rid of PLT entry: only do it if the symbol isn't defined in a DSO.
+	When doing so, clear ELF_LINK_HASH_NEEDS_PLT.  Tweak comments.
+	(cris_elf_check_relocs): At tests for local symbol before
+	increasing h->plt.refcount, also check for non-default
+	visibility.  Ditto when checking for local symbol to eliminate
+	pc-relative runtime relocs.
+	(elf_cris_discard_excess_program_dynamics): Don't consider
+	ELF_LINK_HASH_REF_DYNAMIC when omitting .got runtime relocs.
+
+2002-06-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* All: Import of FSF-binutils-2_12_1.
+
+2002-04-05  Hans-Peter Nilsson  <hp@axis.com>
+
+	* elf32-cris.c (cris_elf_howto_table) <R_CRIS_16_PCREL,
+	R_CRIS_32_PCREL>: Fix typo in name.
+	(cris_elf_check_relocs): Always create .rela.got here when
+	R_CRIS_16_GOTPLT or R_CRIS_32_GOTPLT is seen.
+	(elf_cris_adjust_gotplt_to_got): Don't create .rela.got here;
+	assume it's created.
+
+2002-03-26  Hans-Peter Nilsson  <hp@axis.com>
+
+	* elflink.h (elf_gc_sections): Check that all input BFD:s are ELF.
+
+2002-03-19  Hans-Peter Nilsson  <hp@axis.com>
+
+	* elflink.h (NAME(bfd_elf,record_link_assignment)): Don't set
+	STT_NOTYPE symbols to STT_OBJECT.
+
+2002-02-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* All: Import of FSF-binutils-2002-02-01-snapshot.
+
+2002-01-21  Hans-Peter Nilsson  <hp@axis.com>
+
+	* elf32-cris.c (cris_elf_relocate_section) <case R_CRIS_32_GOTREL>:
+	Check for and emit error if sgot is NULL at this point.
+
+2001-09-29  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Import never-applied not-TRT patch from
+	<URL:http://sources.redhat.com/ml/binutils/2001-06/msg00413.html>:
+	2001-06-17  Geoffrey Keating  <geoffk@redhat.com>
+	* elflink.h (elf_link_input_bfd): Set the value of the section
+	symbol of a discarded linkonce section to 0.
+
+2001-06-11  Hans-Peter Nilsson  <hp@axis.com>
+
+	* elf32-cris.c (elf_cris_discard_excess_program_dynamics): Don't
+	dynamic-unexport symbol if all symbols are dynamically exported.
+
+2001-05-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* elf32-cris.c (cris_elf_relocate_section): Handle forced-local
+	symbols in assertion when initializing GOT with static contents.
+
+2001-05-10  Hans-Peter Nilsson  <hp@axis.com>
+
+	* elf32-cris.c (elf_cris_size_dynamic_sections): Check for NULL
+	output_section before calling _bfd_strip_section_from_output.
+
+2001-04-30  Hans-Peter Nilsson  <hp@axis.com>
+
+	* configure (POTFILES handling): Manually hack CY_GNU_GETTEXT
+	expansion to refer to BLD-POTFILES.in SRC-POTFILES.in rather than
+	POTFILES.in.
+
+2001-04-16  Hans-Peter Nilsson  <hp@axis.com>
+
+	* elf32-cris.c: Tweak comments related to dynamic linking.
+	(cris_elf_relocate_section): When not creating shared object, fill
+	in the .got table for any symbol not in the dynamic symbol table.
+	(elf_cris_finish_dynamic_symbol): When not creating shared object,
+	only emit a .got.rela reloc if the symbol is in the dynamic symbol
+	table.
+	(cris_elf_check_relocs): Use variable r_type in all places rather
+	than the original expression.  Add default case in switch for
+	reloc types.
+	(elf_cris_size_dynamic_sections): Iterate over
+	elf_cris_discard_excess_program_dynamics when not creating shared
+	library.
+ 	(elf_cris_discard_excess_dso_dynamics): Renamed from
+	elf_cris_discard_copies.  Correct typo, s/Rel/Rela/.
+	(elf_cris_discard_excess_program_dynamics): New.
+
+2001-04-08  Hans-Peter Nilsson  <hp@axis.com>
+
+	* elflink.h (elf_fix_symbol_flags): For non-default visibilities,
+	only hide symbols marked STV_INTERNAL or STV_HIDDEN.
+
+2000-09-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* elf32-cris.c (cris_elf_object_p): New.
+	(elf_backend_object_p): Define to cris_elf_object_p.
+	(cris_elf_final_write_processing): New.
+	(elf_backend_final_write_processing): Define to
+	cris_elf_final_write_processing.
+	(cris_elf_print_private_bfd_data): New.
+	(bfd_elf32_bfd_print_private_bfd_data): Define to
+	cris_elf_print_private_bfd_data.
+
+2000-07-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* targets.c: Declare bfd_elf32_cris_vec.
+	(bfd_target_vector): Add bfd_elf32_cris_vec.
+	* reloc.c (bfd_reloc_code_type): Add BFD_RELOC_CRIS_BDISP8,
+	BFD_RELOC_CRIS_UNSIGNED_5, BFD_RELOC_CRIS_SIGNED_6,
+	BFD_RELOC_CRIS_UNSIGNED_6 and BFD_RELOC_CRIS_UNSIGNED_4.
+	* libbfd.h: Regenerate.
+	* configure.in (bfd_elf32_cris_vec): Add.
+	* configure: Regenerate.
+	* config.bfd (cris-*-*): Provide targ_selvecs=bfd_elf32_cris_vec.
+	* archures.c (enum bfd_architecture): Tweak CRIS comment.
+	* bfd-in2.h: Regenerate.
+	* aout-cris.c: Adjust for --enable-all-targets:
+	(MY): Tweak.
+	(NAME): Define.
+	(MY_get_section_contents): Provide default.
+	Prepare for i18n support by wrapping message strings in _().
+	Effectively rename cris_vec to cris_aout_vec, all users changed.
+	* Makefile.am: Add ELF support.
+	* Makefile.in: Regenerate.
+	Update dependencies for a.out.
+	* elf32-cris.c: New.
+	* elf.c (prep_headers): Add case for bfd_arch_cris.
+
+	* ChangeLog.Axis: Move local entries from ChangeLog to
+	ChangeLog.Axis.
+
+Fri Jun  9 19:18:36 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* aoutx.h (NAME(aout,find_nearest_line)) [N_FUN]: Ignore empty
+	function names.
+	[done]: Gracefully handle empty function names by allocating space
+	regardless of length.
+
+Fri Mar 10 17:10:39 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* aoutx.h: GNUify spacing for diffs from 2.9.1.
+	* libaout.h: Ditto.
+
+Wed Mar  8 16:29:36 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* Makefile.in (aout-cris.lo): Change ".o" to ".lo".
+
+	* aoutx.h (NAME(aout,reloc_type_lookup)): Remove unnecessary
+	comment.
+
+	* config.bfd (targ_cpu): Change cris-axis-none to cris-*-*.
+
+Tue Mar  7 17:27:58 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cpu-cris.c: GNUified.
+
+	* aout-cris.c: Finalize GNUification, formatting, header.
+	(USE_CANONICALIZED_RELOCS): Remove unused macro.
+	(USE_EXTENDED_RELOC): Ditto.
+	(RELOC_EXT_BITS_EXTERN_CRIS): Remove.
+	(RELOC_EXT_BITS_TYPE_CRIS, RELOC_EXT_BITS_TYPE_SH_CRIS): Ditto.
+	(RELOC_EXT_BITS_EXTERN_LITTLE): Only define and use these macros.
+	All callers changed.
+	(RELOC_EXT_BITS_TYPE_LITTLE, RELOC_EXT_BITS_TYPE_SH_LITTLE): Ditto.
+	(MY(put_ext_reloc)): Remove duplicated default.
+
+Wed Mar  1 00:36:22 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* aout-cris.c: Start GNUification: Adjust file header, some
+	spacing and PARAMS usage.
+
+Thu Jan 13 19:39:41 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* configure.in (cris_vec): Remove stab-syms.o
+
+Tue Nov  9 21:58:51 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* aout-cris.c (MY swap_ext_reloc_out): Set r_index to N_ABS,
+	not 0, for an absolute symbol.  From 2.7 aoutx.h.
+
+Wed Oct 20 00:53:07 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* aoutx.h (NAME(aout,squirt_out_relocs)): Don't do anything if
+	section->orelocation is NULL.  From 2.7.
+
+Wed Aug 25 19:31:06 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* aout-cris.c (MY write_object_contents): Write out the relocs
+	even if there aren't any symbols.  From 2.7 libaout.h.
+
+Mon Apr 12 14:38:06 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* aout-cris.c (MY swap_ext_reloc_out): Set r_extern for BSF_WEAK
+	too.
+
+Mon Jan  4 11:53:53 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cpu-cris.c: Undo last change; breaks linking at
+	multiple-of-2-but-not-4 boundaries.
+
+Mon Nov 23 13:07:49 1998  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cpu-cris.c: Change (back) section alignment to 4 bytes.
+
+Mon Oct  5 13:54:41 1998  Hans-Peter Nilsson  <hp@axis.se>
+
+	* aoutx.h (find_nearest_line): buf needs 3 extra chars, not 2.
+

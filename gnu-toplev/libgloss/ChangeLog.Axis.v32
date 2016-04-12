@@ -1,0 +1,65 @@
+2007-03-05  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris/_exit.c: New file.
+	* cris/Makefile.in (BSP_OBJS): Add _exit.o.
+	(BSP_CRT0): Add crti.o and crtn.o.
+
+2005-10-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge between head-before-040918-merge and
+	head-before-051028-merge.
+
+2003-12-16  Hans-Peter Nilsson  <hp@axis.com>
+
+	Merge from HEAD.
+	* ChangeLog.Axis: Move all v32-specific changes to
+	ChangeLog.Axis.v32.
+
+2003-06-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris/close.c, cris/exit.c: Don't mark with link_warning.
+	* cris/fcntl.c, cris/fstat.c, cris/getpid.c, cris/kill.c: Ditto.
+	* cris/lseek.c, cris/open.c, cris/read.c, cris/sbrk.c: Ditto.
+	* cris/write.c: Ditto.
+
+2003-05-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* configure.in: Support crisv32-*-* like cris-*-*.
+	* configure: Regenerate.
+
+2003-03-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris/fcntl.c: Don't mark with link_warning.
+
+2003-03-17  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris/getpid.c, cris/kill.c: Don't mark with link_warning.
+	* cris/fstat.c: Ditto.
+
+2003-03-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge from trunk to crisv32-branch.
+
+2002-05-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris/close.c, cris/exit.c, cris/lseek.c, cris/open.c,
+	cris/read.c, cris/sbrk.c, cris/write.c: Remove generated linker
+	warnings.
+
+2002-04-20  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris/Makefile.in (install-lin): Don't special-case multilib
+	linux.  Special-case multilib aout.
+	* cris/crt0.c, cris/int2.c, cris/int3.c, cris/int32.c,
+	cris/int33.c, cris/int34.c, cris/int35.c, cris/int36.c,
+	cris/int37.c, cris/int38.c, cris/int39.c, cris/intdefault.c,
+	cris/scrt0.c, cris/sim-close.c, cris/sim-gettod.c,
+	cris/sim-lseek.c, cris/sim-open.c, cris/sim-read.c,
+	cris/sim-remove.c, cris/sim-rename.c, cris/sim-sbrk.c,
+	cris/sim-times.c, cris/sim-write.c: Wrap contents inside #if
+	!defined (__arch_common_v10_v32) && !defined (__arch_v32).
+	* cris/crti.c: Tweak to fit common_v10_v32 and v32.
+	* cris/crtn.c: Ditto.
+	* cris/lcrt0.c: Add simulator magic, put _start in .startup.
+	(_start): Make asm compatible.  Wrap elinux syscall machinery in
+	#ifdef __AOUT__.

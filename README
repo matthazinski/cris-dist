@@ -1,0 +1,99 @@
+This is a collection of all the compilation tools necessary to
+compile ISO C and C++ programs, except hardware drivers and
+initialization routines, for the CRIS architecture (ETRAX
+chips), and to make pure binary files of the linked output.
+
+To configure, compile and install:
+./install-cris-tools [install-dir [man-dir [info-dir [temp-dir] ["/" [tooltuples]]]]
+
+The install script will ask a couple of questions regarding
+installation directories, test for file access permissions, and test
+for presence of a previous installation.  You have to have write
+permissions in these directories, of course.  You may specify
+/dev/null for man-dir or info-dir if you do not want documentation.
+No space characters are allowed in any of the argument paths,
+the path to install-cris-tools and the current directory; "cwd",
+"pwd".
+
+Different compiler parts (including header files) will be installed in
+various sub-directories under install-dir.  The compiler tools will be
+installed in install-dir/bin, with some compatibility scripts and
+links in install-dir.  Temporary files such as object files will be
+located in temp-dir; it defaults to "./tmpdir".
+
+The "/" argument is a placeholder for a future
+installation-prefix (used with packaging, not an end-user
+feature), which currently does not work due to not being
+supported in this version of gcc.  It must currently be
+specified as "" (an empty argument) or "/".
+
+The "tooltuples" argument allow for installation of a subset of
+the possible compiler-tools variants, represented by their GNU
+target tuple: cris-axis-linux-gnu crisv32-axis-elf etc.  Use
+commas and/or space to make a list.  The default is all:
+cris-axis-elf, cris-axis-linux-gnu, crisv32-axis-elf and
+crisv32-axis-linux-gnu
+
+If you're opposed to executing unknown shell scripts, you're welcome
+to look in the install-cris-tools shell script and execute the steps
+manually.  Beware, this is error-prone and tedious.  The shell script
+is provided as a convenience: it checks details that must not be
+forgotten and produces a log to include in an email in case things go
+wrong.
+
+There is also a cris-dist.spec, corresponding to what is used in RPM:s
+distributed at <ftp://ftp.axis.se/pub/axis/tools/cris/compiler-kit/>.
+
+If you encounter problems, or have questions regarding these tools, email
+<compiler-contact@axis.com>.  But before that, please look at the
+error-message in the log for locally induced failures, such as "disk
+full".
+ Please also note that some NFS configurations (between SUN/Solaris and
+Linux) have problems, showing behavior similar to fluky hardware.  For
+information about diagnosing fluky hardware, see
+<URL:http://www.bitwizard.nl/sig11/>.
+
+
+Relation between this and the closest publicly available sources:
+
+- cris-dist-N.M/binutils directory: Latest import is from FSF
+  binutils 2.12.1.  See <URL:http://sources.redhat.com/binutils/>.
+  Testsuites for architectures other than CRIS may be omitted.
+  Axis-specific changes are entered into ChangeLog files named
+  ChangeLog.Axis.
+
+- cris-dist-N.M/gnu-toplev/newlib and cris-dist-N.M/gnu-toplev/libgloss
+  directories: Latest import is the CVS version of 2000-04-27 23:30
+  CET (see <URL:http://sourceware.cygnus.com/newlib/>): date tag
+  "-D 2000-04-27 23:30 CET".  Changes are logged in files named
+  ChangeLog.Axis.  The "cris" directories are new.
+
+- The rest of cris-dist-N.M/gnu-toplev comes from FSF gcc 3.2.1.
+  Changes are logged in files named ChangeLog.Axis.  Many large
+  directories and files not necessary for installation are not
+  included (for example, most testsuites, unsupported languages and
+  their libraries).
+
+
+Some compilation and installation figures for the tuples
+"cris-axis-elf, cris-axis-linux-gnu":
+ 3 hours  2xPII 512M 350MHz, GNU/Linux-2.2.17, local 10K RPM disks.
+ 1 hour   AMD Athlon 384M 1GHz, GNU/Linux 2.2.17, local 7200 RPM disks.
+ 20 min   AMD Opteron 254 2.8GHz with (i686) GNU/Linux 2.6.8, NFS source, local 7200 RPM disks.
+
+For a full installation, of
+"crisv32-axis-linux-gnu, cris-axis-linux-gnu, crisv32-axis-elf, cris-axis-elf":
+ 27 min   AMD Opteron 254 2.8 GHz with (i686) GNU/Linux 2.6.8, NFS source, to local 7200 RPM disks.
+ 40 min   AMD Opteron 150 2.4 GHz with (x86_64) GNU/Linux 2.6.8, NFS source, to local 7200 RPM disks.
+
+Disk needs, approximately, for a supposedly typically configured x86
+or x86_64 GNU/Linux system, with installation of glibc:
+  260M Compiler libraries, tool binaries, header files.
+    6M Info and manual-pages
+ 1300M Temporaries
+
+Note that GNU make is required.  Additionally, if glibc is included, a
+GNU host system such as GNU/Linux is required.
+
+/Best regards
+Axis Communications

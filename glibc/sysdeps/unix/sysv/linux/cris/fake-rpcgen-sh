@@ -1,0 +1,27 @@
+#! /bin/sh
+# Cross-compilation replacement for rpcgen; just copying
+# pre-generated files.
+#
+# $1: pregened-files-path
+# $2: "-h" or "-c"
+# $3: rpcgen-input-file
+# $4: "-o"
+# $5: output-file
+#
+# It is assumed that rpcgen-input-file is on the form dir/filename.x
+# where filename indicates a .c or .h file, depending on $1.
+
+die()
+{
+  echo "$0: $1"
+  exit 1
+}
+
+test "$2" != "-h" && test "$2" != "-c" && die "unexpected first option: $2"
+test "$4" != "-o" && die "unexpected option in place of -o: $4"
+test -d "$1" || die "$1 is not a directory"
+
+suffix=.h
+test "$2" = "-c" && suffix=.c
+
+cp $1/`basename $3`$suffix $5

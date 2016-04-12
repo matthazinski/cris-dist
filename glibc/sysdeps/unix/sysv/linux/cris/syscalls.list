@@ -1,0 +1,24 @@
+# File name	Caller	Syscall name	# args	Strong name	Weak names
+
+vfork		-	vfork		0	__vfork		vfork
+chown		-	chown32		i:sii	__chown		chown
+fchown		-	fchown32	i:iii	__fchown	fchown
+fcntl		-	fcntl64		i:iiF	__libc_fcntl	__fcntl fcntl
+lchown		-	lchown32	i:sii	__lchown	lchown
+getuid		-	getuid32	i:	__getuid	getuid
+getgid		-	getgid32	i:	__getgid	getgid
+setuid		-	setuid32	i:i	__setuid	setuid
+setgid		-	setgid32	i:i	__setgid	setgid
+getegid		-	getegid32	i:	__getegid	getegid
+geteuid		-	geteuid32	i:	__geteuid	geteuid
+getresuid	-	getresuid32	i:ppp	__getresuid	getresuid
+getresgid	-	getresgid32	i:ppp	__getresgid	getresgid
+setresuid	EXTRA	setresuid32	i:iii	__setresuid	setresuid
+setresgid	EXTRA	setresgid32	i:iii	__setresgid	setresgid
+setfsgid	EXTRA	setfsgid32	i:i	__setfsgid	setfsgid
+setfsuid	EXTRA	setfsuid32	i:i	__setfsuid	setfsuid
+setregid	-	setregid32	i:ii	__setregid	setregid
+setreuid	-	setreuid32	i:ii	__setreuid	setreuid
+getgroups	-	getgroups32	i:ip	__getgroups	getgroups
+setgroups	-	setgroups32	i:ip	__setgroups	setgroups
+getrlimit	-	ugetrlimit	i:ip	__getrlimit	getrlimit

@@ -1,0 +1,368 @@
+2005-10-25  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config/tc-cris.h (TC_FIX_ADJUSTABLE): Define.
+
+2005-06-16  Hans-Peter Nilsson  <hp@axis.com>
+
+	Import changes for compiling with GCC 4.0.
+	* tc.h: Move struct relax_type and relax_typeS...
+	* as.h (struct relax_type, relax_typeS): ...to here.
+
+2004-02-29  Hans-Peter Nilsson  <hp@axis.com>
+
+	* doc/c-cris.texi (CRIS-Opts): Document --no-mul-bug-abort,
+	--mul-bug-abort and the default behavior.
+	* config/tc-cris.c (cris_insn_kind): New member CRIS_INSN_MUL.
+	(err_for_dangerous_mul_placement): New variable.
+	(STATE_MUL, OPTION_MULBUG_ABORT_ON, OPTION_MULBUG_ABORT_OFF): New
+	macros.
+	(md_cris_relax_table): Have placeholder for STATE_MUL.
+	(md_longopts): New options --mul-bug-abort and --no-mul-bug-abort.
+	(cris_relax_frag) <case ENCODE_RELAX (STATE_MUL, STATE_BYTE)>: New
+	case doing nothing.
+	(md_estimate_size_before_relax) <case ENCODE_RELAX (STATE_MUL,
+	STATE_BYTE)>: Ditto.
+	(md_convert_frag) <ENCODE_RELAX (STATE_MUL, STATE_BYTE)>: Check
+	alignment and position of this frag, emit error message if
+	suspicious.
+	(md_assemble): For a multiply insn and when checking it,
+	transform the current frag into a special frag for that purpose.
+	(md_parse_option) <case OPTION_MULBUG_ABORT_OFF, case
+	OPTION_MULBUG_ABORT_ON>: Handle new options.
+
+2003-05-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* read.c (old_buffer, old_input, old_limit): Remove variables.
+ 	(read_a_source_file): Delete label contin.
+	<handling #APP/#NO_APP>: Use an "sb" to push #APP expansion into
+	input as with macros, instead of in separate old_* variables.
+	Zero-terminate string being scrubbed.
+
+2002-11-26  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config/tc-cris.c (cris_relax_frag): Fix typo in comment.
+	(md_assemble): Don't pass on branches to constants as relaxable.
+	Tweak comment.
+
+2002-10-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config/tc-cris.c (SIMPLE_EXPR): New macro.
+	(cris_relax_frag): New function.
+	(md_estimate_size_before_relax) <case ENCODE_RELAX
+	(STATE_BASE_PLUS_DISP_PREFIX, STATE_UNDF)>: Pass on unresolved
+	expressions that will become absolute expressions to relaxation.
+	(md_convert_frag) <case ENCODE_RELAX (STATE_BASE_PLUS_DISP_PREFIX,
+	STATE_WORD)>: Expect only absolute expressions.  Use the symbol
+	value, not distance to symbol.
+	<case ENCODE_RELAX (STATE_BASE_PLUS_DISP_PREFIX, STATE_BYTE)>:
+	Ditto.  Correct placement of fixup.
+	(md_assemble): Use SIMPLE_EXPR when dissecting expressions.
+	(gen_bdap): Ditto.
+	* config/tc-cris.h (cris_relax_frag): Declare.
+	(md_relax_frag): Define.
+
+2002-06-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* All: Import of FSF-binutils-2_12_1.
+
+2002-02-09  Hans-Peter Nilsson  <hp@axis.com>
+
+	* doc/c-cris.texi: New.
+	* doc/all.texi: @set CRIS.
+	* doc/as.texinfo: Ditto.  Add CRIS gas manpage option overview.
+	Include c-cris.texi.
+	* doc/Makefile.am (CPU_DOCS): Add c-cris.texi
+	* doc/Makefile.in: Regenerate.
+	* doc/as.info*, doc/as.1: Regenerate.
+
+2002-02-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* All: Import of FSF-binutils-2002-02-01-snapshot.
+
+2001-04-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	* doc/Makefile.in ($(srcdir)/as.1): Hide behind @MAINT@.
+
+2000-12-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* doc/Makefile.in (.texi): Remove rule *again* (see below).
+
+2000-07-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Makefile.am: Add multiple-object-format support for CRIS.
+	* Makefile.in: Regenerate.
+	* as.c: Declare crisaout, criself.
+	* configure.in (cris-*-*): Change to multiple-object-format,
+	crisaout and criself.
+	* configure: Regenerate.
+	* config/tc-cris.c: Do not define and use CRIS_RELOC_DISP8,
+	CRIS_RELOC_BDISP8, CRIS_RELOC_UNSIGNED_5, CRIS_RELOC_SIGNED_6,
+	CRIS_RELOC_UNSIGNED_6, CRIS_RELOC_UNSIGNED_6,
+	CRIS_RELOC_UNSIGNED_4.  Instead use BFD_RELOC_CRIS_... macros.
+	Delete users of CRIS_RELOC_DISP8.
+	Tweak comments.
+	Wrap message strings in _() to prepare for i18n.
+	(cris_target_format): New.
+	(cris_get_expression): Correct validity test of parsed expression.
+	(md_number_to_chars): Delete.
+	(cris_number_to_imm): Add cases for BFD_RELOC_VTABLE_INHERIT and
+	BFD_RELOC_VTABLE_ENTRY.
+	(md_section_align): If a.out, align bss size to multiple of 2 and
+	others to 4.  For non-a.out, align text to 4, no other implicit
+	alignment.
+	(tc_gen_reloc): Only do kludgy bug-workaround for a.out.
+	(md_apply_fix): Move fixP->fx_done setting to top.
+	(md_cris_force_relocation): New.
+	* config/tc-cris.h (TARGET_FORMAT): Change to call cris_target_format.
+	(md_number_to_chars): Define as number_to_chars_littleendian.
+	(TC_FORCE_RELOCATION): New.
+	(tc_fix_adjustable): Adjust for BFD_RELOC_VTABLE_INHERIT and
+	BFD_RELOC_VTABLE_ENTRY.
+	(tc_frob_symbol): Define.
+	(NO_IMPLICIT_LCOMM_ALIGNMENT): Delete.
+	(TC_IMPLICIT_LCOMM_ALIGNMENT): Define.
+	* config/e-criself.c: New.
+	* config/e-crisaout.c: New.
+
+	* ChangeLog.Axis: Move local changes from ChangeLog to
+	ChangeLog.Axis.
+
+Sat May 13 00:13:46 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* doc/Makefile.in (.texi): Remove this rule troubling AIX make to
+	try and make "all" from "all.texi".
+
+Wed Mar  8 19:08:10 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* config/tc-cris.h (NO_IMPLICIT_LCOMM_ALIGNMENT): Changed from
+	NO_IMPLICIT_SECTION_ALIGNMENT.  Define only.
+
+	* read.c (s_lcomm_internal): Change NO_IMPLICIT_SECTION_ALIGNMENT
+	to NO_IMPLICIT_LCOMM_ALIGNMENT.
+	Remove comment before NO_IMPLICIT_LCOMM_ALIGNMENT test.
+	Test only for defined.
+
+	* write.c (write_object_file): Generalize comment about why we
+	move to text segment.
+
+	* expr.c (operand) [case 'f']: When testing if '0f' can start a
+	floating-point-number, make sure 'f' is in FLT_CHARS.
+	Do not #if 0 the whole test.
+
+Fri Feb 18 17:16:05 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* config/tc-cris.c: Break lines, improve some comments.
+	(cris_process_instruction) [case '+', '[', '[', '#']: Remove
+	as unused codes.
+
+Thu Feb 17 18:58:19 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* config/tc-cris.c: Fix most pressing FIXME:s.
+	GNUification and cleanup.
+	Add comment on name conventions.
+	Replace uses of NOT_PC_RELATIVE with 0.
+	(enum prefix_kind): Add PREFIX_BDAP_IMM.
+	(cris_insn_kind): New.
+	(struct cris_prefix): Remove useless members error_msgp and
+	mode_namep.
+	(struct cris_instruction): Remove useless members error, pcrel.
+	Change all users to use 0 for pcrel.
+	Change branch_inst into enum cris_insn_kind insn_type.  Change all
+	users.
+	(process_instruction): Change name to cris_process_instruction.
+	(get_expression): Change name to cris_get_expression.
+	Remove errorp parameter.
+	(gen_bdap): Remove mode_namep parameter.
+	(EXP_CHARS): Empty.
+	(md_estimate_size_before_relax): Specify all expected ENCODE_RELAX
+	cases, use BAD_CASE for default.
+	(md_assemble) [PREFIX_PUSH]: Always use .spec_reg->reg_size if
+	spec_reg is non-NULL.  Say (REG_SP << 4), not 0xE0.
+	(get_flags): Use isspace, not test on specific characters.
+
+Wed Feb 16 22:23:49 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* config/tc-cris.h (TC_HANDLES_FX_DONE): Define.
+
+	* config/tc-cris.c (struct cris_prefix): Rename members
+	mode_name_ptr and error_msg_ptr to mode_namep, error_msgp.
+	Move all non-functions (varaibles, constants stuctures) before all
+	functions.
+	Rename all variables and function parameters of pointers to
+	binutils types to end in suffix "P", all other pointers with
+	suffix "p".
+	(cris_number_to_imm): Renamed from md_number_to_imm.  GNUified.
+	[BFD_RELOC_16] Add fx_addsy test.
+	(md_parse_option): GNUified.
+	(md_section_align): Round bss section to even size.
+	(tc_gen_reloc): Tweak error messages.
+	(md_show_usage): Message tweaked, remove information about generic
+	options.  GNUified.
+	(md_apply_fix): Handle fixP->fx_subsy != NULL.
+	Set fixP->fx_done.
+	(md_pcrel_from): Explain better why we emit an error.
+
+Tue Feb 15 20:54:20 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* config/tc-cris.c: Delete all whitespace before end-of-line.
+ 	(get_autoinc_prefix_or_indir_op): Renamed from
+	get_no_or_eff_addr_prefix_oprnd.  Caller changed.
+	GNUified and added commentary.
+	(get_3op_or_dip_prefix_op): Renamed from
+	get_3_oprnd_prefix_oprnd.  Caller changed.
+	GNUified and added commentary.
+	(process_instruction): Rename variable reg_number to regno.
+	Tweaked comments and changed "* 0x100" into "<< 8".
+	(get_spec_reg): GNUified and added commentary.
+	(spec_reg_size): Delete.  Callers changed to use the structure
+	member.
+	(md_assemble): Comment tweaks.
+	(get_expression): GNUified. Commentary added.
+	(get_flags, gen_bdap, branch_disp, gen_cond, md_number_to_chars,
+	md_number_to_imm): Ditto.
+	(md_atof): Now a stub that always fails.
+
+Mon Feb 14 18:01:50 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* config/tc-cris.h: Comment tweak.
+	Add emacs stuff at end.
+
+	* config/tc-cris.c: General formatting and comment tweaks.
+	Add emacs stuff at end.
+	(process_instruction): Major reformatting, renaming of variables,
+	added comments and GNUification.
+	(get_gen_reg): GNUify.
+	(get_bw_size_modifier, get_bwd_size_modifier): Ditto.
+
+Wed Feb  9 00:43:26 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* config/tc-cris.h (md_create_short_jump): Define to
+	md_create_long_jump.
+
+	* config/tc-cris.c: Partly GNUify, mostly formatting and
+	commenting.
+	(CRIS_RELOC_8, CRIS_RELOC_16, CRIS_RELOC_32): Delete, use the
+	BFD_... names.
+	(s_bss): Delete.
+	(md_create_short_jump): Rename to cris_create_short_jump and make
+	static.
+
+	* config/tc-cris.h: Complete GNUification of this file.
+	Remove redundant declarations that are in tc.h
+	(TC_CHECK_ADJUSTED_BROKEN_WORD): Rename to
+	TC_CHECK_ADJUSTED_BROKEN_DOT_WORD.  All callers
+	(write.c:write_object_file) changed.
+	(CRIS_RELOC_8, CRIS_RELOC_16, CRIS_RELOC_32, CRIS_RELOC_DISP8,
+	CRIS_RELOC_BDISP8, CRIS_RELOC_UNSIGNED_5, CRIS_RELOC_SIGNED_6,
+	CRIS_RELOC_UNSIGNED_6,  CRIS_RELOC_UNSIGNED_4): Move to ...
+	* config/tc-cris.c: ... here.
+	(md_relax_table): Rename to md_cris_relax_table.
+	(md_longopts_size): Change type to non-const.
+	(byte, udword, dword, uword, word, bool): Remove.
+	(TRUE, FALSE, PROTOTYPES, NO_RET, NO_PARAMS, CONST): Remove.
+	Remove redundant #include "tc-cris.h".
+	GNUify slightly.
+	Straighten up prototypes with PARAMS usage.
+	Use "struct ..." not typedefs and remove _type suffix from names.
+	(md_number_to_disp, md_number_to_field, md_end): Remove.
+
+Tue Feb  8 19:17:24 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* write.c (write_object_file):
+	[ERR_ADJUSTED_SIGNED_OVERFLOW_WORD]: Transform into
+	TC_CHECK_ADJUSTED_BROKEN_WORD.
+
+	* config/tc-cris.h: Improve comments.
+	(struct reloc_info_cris, relocation_info): Remove these leftovers.
+	(ERR_ADJUSTED_SIGNED_OVERFLOW_WORD): Transform into
+	TC_CHECK_ADJUSTED_BROKEN_WORD.  Declare
+	tc_cris_check_adjusted_broken_word.	
+	* config/tc-cris.c (tc_cris_check_adjusted_broken_word): New.
+
+Wed Feb  2 22:46:05 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* config/tc-cris.c, config/tc-cris.h: Half-way through
+	gnuification.
+
+Thu Jan 13 19:42:05 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* config/tc-cris.h (tc_comment_chars): Define to
+	cris_comment_chars.
+	(cris_comment_chars): Declare.
+
+	* config/tc-cris.c: Rename comment_chars to cris_comment_chars.
+
+Fri Dec 17 23:17:01 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* config/tc-cris.c (md_assemble): Change calls to fix_new to use
+	fix_new_exp, when we have an expression.
+	Remove associated erroneous "know(prefix.expr.X_subtract_symbol
+	== 0)". 
+
+	* read.c (emit_expr): Import fix from binutils 2.8:
+	 Fri Aug 30 18:12:00 1996  Ian Lance Taylor  <ian@cygnus.com>
+	 * read.c (emit_expr): Fix conversion of byte count to BFD reloc
+	 code.
+
+Sun Nov 21 15:22:44 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* config/tc-cris.c: Change option '-O' to '-N', all users and
+	messages changed.
+	Rename O_option to warn_for_branch_expansion.
+	Remove "...; truncated" from all out-of-range errors.
+
+Fri Nov 19 06:07:29 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* config/tc-cris.c (process_instruction) [case '!']: Handle
+	(ignore) new pattern.
+	(get_spec_reg): Use struct cris_spec_reg, not struct spec_reg.
+
+	* config/tc-cris.c (get_spec_reg): Don't stop as long as
+	*char_ptr_1 is alphanumeric.
+
+Thu Nov 11 18:10:03 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* Makefile.in: Change suffix from .new to -new.
+	* configure.bat: Ditto.
+
+Mon Oct 18 17:49:01 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	Handle assembly of special register sizes based on assembled name
+	and field in cris_spec_regs[], not as implied by register number.
+
+	* config/tc-cris.c Add field struct cris_spec_reg *spec_reg to
+	struct cris_instruction_type.
+	(spec_reg_size): Change argument to be struct cris_spec_reg *, not
+	byte.
+	(md_assemble, process_instruction): Change callers.
+	(get_spec_reg): Change second argument from byte * to
+	cris_spec_reg **.
+	(process_instruction): Change caller.
+
+	* config/tc-cris.c (process_instruction): Emit warning if warning
+	field is non-NULL, or warn about umimplemented register if
+	applicable_version == cris_ver_warning.
+
+Wed May 19 00:57:35 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* config/tc-cris.h (struct reloc_info_cris): Change member r_type
+	from "enum ... : 5" to "unsigned int : 5".
+
+	* as.h (strdup declaration): Wrap in #ifndef strdup.
+	(strstr deldaration): Wrap in #ifndef strstr.
+
+Thu Apr 15 13:44:35 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* config/tc-cris.c (tc_gen_reloc): Add kludge to avoid wrong
+	offset for reloc to weak symbol defined in the same file.
+
+Mon Apr 12 14:43:05 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* config/tc-cris.h (tc_fix_adjustable): Define as true for weak
+	symbols.
+
+Wed Oct  7 17:34:09 1998  Hans-Peter Nilsson  <hp@axis.se>
+
+	* expr.c (operand): The operand "0f" is never a float to CRIS;
+	always a forward-reference.
+

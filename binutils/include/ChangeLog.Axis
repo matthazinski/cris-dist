@@ -1,0 +1,12 @@
+2002-06-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* All: Import of FSF-binutils-2_12_1.
+
+2001-06-11  Hans-Peter Nilsson  <hp@axis.com>
+
+	* bfdlink.h (struct bfd_link_info): New member export_dynamic.
+
+2000-06-15  Hans-Peter Nilsson  <hp@axis.com>
+
+	* demangle.h: Import from gcc-cris R29/R30.
+

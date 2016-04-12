@@ -1,0 +1,125 @@
+2005-10-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge between head-before-040918-merge and
+	head-before-051028-merge.
+
+2004-10-30  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cpu-cris.c (get_compatible): Fix typo in head comment.
+	(bfd_cris_arch): Improve comment.  Reformat.
+
+2004-10-27  Hans-Peter Nilsson  <hp@axis.com>
+
+	* elf32-cris.c (cris_elf_grok_prstatus, cris_elf_grok_psinfo):
+	Handle Linux/CRISv32.
+
+2004-10-15  Hans-Peter Nilsson  <hp@axis.com>
+
+	* elf32-cris.c (cris_elf_check_relocs) <case R_CRIS_8_PCREL,
+ 	case R_CRIS_16_PCREL, case R_CRIS_32_PCREL>: Emit warning when
+	generating textrel reloc.
+
+2004-09-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge between head-before-031216-merge and
+	head-before-040909-merge.
+
+2003-12-04  Hans-Peter Nilsson  <hp@axis.com>
+
+	* reloc.c (BFD_RELOC_CRIS_SIGNED_8, BFD_RELOC_CRIS_UNSIGNED_8)
+	(BFD_RELOC_CRIS_SIGNED_16, BFD_RELOC_CRIS_UNSIGNED_16): New.
+	* bfd-in2.h, libbfd.h: Regenerate.
+
+2003-10-22  Hans-Peter Nilsson  <hp@axis.com>
+
+	Merge from HEAD.
+	* ChangeLog.Axis: Move all v32-specific changes to
+	ChangeLog.Axis.v32.
+
+2003-06-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config.bfd: Handle crisv32 as cris.
+
+2003-06-25  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge from HEAD.
+
+2003-04-20  Hans-Peter Nilsson  <hp@axis.com>
+
+	* elf32-cris.c (elf_cris_adjust_dynamic_symbol): <if
+	(h->got.refcount > 0)>: Change BFD_ASSERT to check that
+	s->_raw_size is a multiple of plt_entry_size, not of 4.
+
+2003-04-05  Hans-Peter Nilsson  <hp@axis.com>
+
+	V32 DSO support.
+	* elf32-cris.c (PLT_ENTRY_SIZE_V32): New macro.
+	(elf_cris_plt0_entry): Drop last comma in initializer.
+	(elf_cris_plt0_entry_v32, elf_cris_plt_entry_v32,
+	elf_cris_pic_plt0_entry_v32, elf_cris_pic_plt_entry_v32): New
+	PLT initializers.
+	(elf_cris_finish_dynamic_symbol): Do V32-specific PLT entries.
+	(elf_cris_finish_dynamic_sections): Similar.
+	(elf_cris_adjust_dynamic_symbol): Similar.
+	(cris_elf_check_relocs) <last switch, case R_CRIS_32_PLT_PCREL>:
+	Use break, not continue.
+	<last switch, case R_CRIS_8_PCREL, R_CRIS_16_PCREL,
+	R_CRIS_32_PCREL>: Correct visibility check when looking to
+	eliminate pcrel relocs.  Add FIXME placeholder for warning or
+	error about need for -fpic/-fPIC.
+	(elf_backend_plt_header_size): Define to ((bfd_vma) -1); describe why.
+	(elf_backend_got_sym_visibility): Define to STV_HIDDEN.
+	* elf-bfd.h (struct elf_backend_data): New member got_sym_visibility.
+	* elflink.c (_bfd_elf_create_got_section): Use bed->got_sym_visibility
+	for visibility for _GLOBAL_OFFSET_TABLE_.
+	* elfxx-target.h (elf_backend_got_sym_visibility): Default-set to
+	STV_DEFAULT.
+	(elfNN_bed): Fill in got_sym_visibility with
+	elf_backend_got_sym_visibility.
+
+2003-03-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge from trunk to crisv32-branch.
+
+2002-04-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* elf32-cris.c (cris_elf_pcrel_reloc): New function.
+	(cris_elf_howto_table) <R_CRIS_8_PCREL, R_CRIS_16_PCREL,
+	R_CRIS_32_PCREL>: Use it.
+
+2002-03-14  Hans-Peter Nilsson  <hp@axis.com>
+
+	* reloc.c (bfd_reloc_code_type): Add BFD_RELOC_CRIS_LAPCQ_OFFSET.
+	* libbfd.h, bfd-in2.h: Regenerate.
+
+2002-02-21  Hans-Peter Nilsson  <hp@axis.com>
+
+	* elf32-cris.c (cris_elf_merge_private_bfd_data): Drop variables
+	old_flags, new_flags.  Don't call cris_elf_final_write_processing.
+	Set output mach according to first input file.  Don't look at the
+	actual elf header flags at all: use bfd_get_symbol_leading_char
+	to check ibfd, obfd.  Don't trap for imach != omach.  Tweak error
+	message for mach mismatch.  Don't trap for failing
+	bfd_set_arch_mach call.
+	* cpu-cris (get_compatible): Rename from compatible.  Correct
+	comments.  Don't indicate mismatching mach:s; document why.
+
+	* archures.c (bfd_mach_cris_v0_v10, bfd_mach_cris_v32,
+	bfd_mach_cris_v10_v32): Define.
+	* bfd-in2.h: Regenerate.
+	* cpu-cris.c: Add bfd_arch_info:s for bfd_mach_cris_v32 and
+	bfd_mach_cris_v10_v32.
+	(compatible): New function.
+	(bfd_cris_arch): Use bfd_mach_cris_v0_v10, not 0xff.  Use
+	function compatible, not bfd_default_compatible.
+	* elf32-cris (FATAL_DEBUG): Define.
+	(cris_elf_set_mach_from_flags, cris_elf_copy_private_bfd_data):
+	New functions.
+	(cris_elf_object_p): Call cris_elf_set_mach_from_flags.
+	(cris_elf_final_write_processing): Set flags according to mach.
+	(cris_elf_print_private_bfd_data): Display
+	EF_CRIS_VARIANT_COMMON_V10_V32 and EF_CRIS_VARIANT_V32.
+	(cris_elf_merge_private_bfd_data): Trap difference in bfd_get_mach
+	for ibfd and obfd.
+	(bfd_elf32_bfd_copy_private_bfd_data): Define.
+

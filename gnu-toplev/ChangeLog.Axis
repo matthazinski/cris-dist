@@ -1,0 +1,36 @@
+2007-02-15  Hans-Peter Nilsson  <hp@axis.com>
+
+	* configure.in (case "${target}" cris-*-linux*): New; avoid
+	configuring newlib and libgloss.
+
+2005-03-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* configure: Change all "trap 0" to "trap - 0".
+
+2002-12-17  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Import of gcc-3.2.1; overwrite previous local changes
+	except ltmain.sh.
+	* libio, libstdc++, texinfo: Remove.
+	* configure.in (with-headers): Treat --with-header=installed
+	special; that headers are already installed.
+	(with-newlib): Also skip libgloss if skipping newlib.
+
+2000-11-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ltmain.sh (-all-static): Handle -static as all-static.  Comment
+	out -static case and explain why.
+
+Sat Apr 22 21:40:40 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Makefile.in (CC_FOR_TARGET, CXX_FOR_TARGET) [! cygwin, ! winsup/]: Add -B for
+	libgloss/${target_alias} directory.
+	(install-target-libgloss): Depend on install-target-newlib.
+	(configure-target-libf2c): Depend on all-target-libgloss and
+	all-target-newlib.
+	(configure-target-libchill): Ditto.
+	(configure-target-libobjc): Ditto.
+	(configure-target-libiberty): Ditto.
+
+	* config.sub (maybe_os): Add "cris" as machine and "axis" as vendor.
+

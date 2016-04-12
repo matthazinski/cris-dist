@@ -1,0 +1,21 @@
+2002-02-20  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (EF_CRIS_VARIANT_ANY_V0_V10): Rename from
+	EF_CRIS_VARIANT_V0_10.
+	(EF_CRIS_VARIANT_COMMON_V10_V32): Rename from
+	EF_CRIS_VARIANT_V10_32.
+
+2002-02-14  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (EF_CRIS_VARIANT_MASK, EF_CRIS_VARIANT_V0_10,
+	EF_CRIS_VARIANT_V32, EF_CRIS_VARIANT_V10_32): New macros.
+
+2000-09-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (EF_CRIS_UNDERSCORE): New.
+
+2000-07-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h: New.
+	* common.h: Define EM_CRIS.
+

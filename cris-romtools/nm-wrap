@@ -1,0 +1,184 @@
+#! /usr/bin/perl -w
+# Keep the -w and remove your bugs instead.
+#
+# nm-wrap a.k.a nm - wrapper for "nm-cris", mostly for bad
+# reasons.
+#
+# Copyright (C) 2000, 2001 Axis Communications.
+#
+# The collect2 program that gcc runs (for similarly bad reasons) to get
+# exception frame-table information in place (and ctor/dtor information
+# for reasons of conformity), needs to run nm for the target.
+# Unfortunately nm will not work for executables wrapped in shell-scripts
+# produced by the "-mwrap-exec" option to the linker wrapper as used for
+# the testsuite.  We resolve that here. 
+
+require 5.004;
+use FileHandle;
+
+# "Declare" variables.
+undef $real_nm;
+undef $nm_path;
+undef $ME;
+undef $i;
+undef @files;
+undef $suffix;
+undef $wrap_found;
+undef $tmp;
+undef $hashbangshell;
+undef $errvalue;
+
+# Find directory of real self (non-symlink).  Expect the real nm to be
+# there too.
+$real_nm = "rnm-cris";
+$ME = $0;
+$hashbangshell ="#! /bin/sh\n";
+
+if (index ($ME, "/") == -1)
+{
+  chomp ($nm_path = `which $ME`);
+
+  $nm_path = "./$ME" if $? != 0;
+}
+else
+{
+  $nm_path = $ME;
+}
+
+$nm_path = my_readlink($nm_path)
+    while (-l $nm_path);
+
+$0 = substr ($nm_path, 0, rindex ($nm_path, '/')) . "/$real_nm";
+
+die ("Cannot find real $ME - expected in $0\n")
+    unless -x $0;
+
+# If the file is wrapped (shell-script with uuencoded copy) we uudecode
+# into the same directory as the existing file, on the assumption that
+# that was a good location to store a file.  We add this suffix, which we
+# strip from output.
+$suffix = ".@-$$.nmtmp";
+
+# Assume files are specified last on the line, and
+# preceded only by dash-options (no option-arguments).
+for ($i = $#ARGV; $i >= 0; $i--)
+{
+  unshift @files, $i
+      if substr($ARGV[$i], 0, 1) ne "-";
+}
+
+$wrap_found = 0;
+
+# Check each file.
+for ($i = 0; $i <= $#files; $i++)
+{
+  my $fileh = FileHandle->new();
+  open ($fileh, "<$ARGV[$files[$i]]")
+      || die ("$ME: Could not open $ARGV[$files[$i]]: $!\n");
+
+  defined(read ($fileh, $tmp, length $hashbangshell))
+      || die ("$ME: Short file $files[$i]?: $!\n");
+
+  if ($tmp eq $hashbangshell)
+  {
+    # If it's a shell script, check the next line for an URL marker.
+    # If it's there, it points to the real file.
+    # FIXME: Would it be of value to let the new file "point" further or
+    # itself be uuencode-wrapped?
+    # FIXME: The URL might be relative, and not to the current position.
+    # Let's assume this crazyness is indeed only invoked by collect2, in
+    # which case it is the same position looked upon as generated.
+    if (<$fileh> =~ /^.*<URL:file:(.*)>/)
+    {
+      # FIXME: Somewhat of a kludge (isn't whole this scheme a kludge?):
+      # copy the file pointed to, and handle the copy as the output of a
+      # uuencoded file.
+      system ("cp", "$1", "$ARGV[$files[$i]]$suffix");
+    }
+    else
+    {
+      # If there's no URL marker, assume that it is the uuencoded thing.
+      # We can actually uudecode without further ado, since the uuencoded
+      # file is a here doc and uudecode is written to handle leading and
+      # trailing garbage (the shell script).
+      system ("uudecode", "-o", "$ARGV[$files[$i]]$suffix", "$ARGV[$files[$i]]");
+    }
+
+    $errvalue = $?/256;
+
+    if ($errvalue != 0)
+    {
+      foreach $tmp (0 .. ($i-1))
+      {
+	unlink "$ARGV[$files[$tmp]]$suffix"
+            if substr ($ARGV[$files[$tmp]], -(length $suffix)) eq $suffix;
+      }
+
+      exit ($errvalue >= 1 ? $?/256 : 1);
+    }
+
+    $ARGV[$files[$i]] .= $suffix;
+    $wrap_found = 1;
+  }
+}
+
+# If there were no wrapped executables, just exec the normal nm.
+if ($wrap_found == 0)
+{
+  exec $0, @ARGV;
+}
+else
+{
+  my $tmp;
+  my $tmpargs = join (" ", $0, @ARGV);
+  my $tmpout = `$tmpargs`;
+
+  $errvalue = $?/256;
+
+  foreach $tmp (0 .. $#files)
+  {
+    unlink "$ARGV[$files[$tmp]]"
+	if substr ($ARGV[$files[$tmp]], -(length $suffix)) eq $suffix;
+  }
+
+  if ($errvalue == 0)
+  {
+    # It would be a pretty weird symbol to clash with the suffix.
+    # Anyway, executables as shell-scripts aren't supposed to be used in
+    # production, only when running the testsuite and by people who are
+    # supposed to be able to deal with such problems.
+    $tmpout =~ s/\Q$suffix\E//g;
+
+    print $tmpout;
+
+    exit 0;
+  }
+
+  exit ($errvalue >= 1 ? $?/256 : 1);
+}
+
+# We shouldn't get here unless something really bad happened at the exec
+# above.  Handle that.
+exit ($?/256 >= 1 ? $?/256 : 1);
+
+# Return a *usable* path when a symlink is read.
+sub my_readlink
+{
+  my ($symlink_loc) = @_;
+  my $followed_link = readlink ($symlink_loc);
+
+  # If it doesn't *start* with a "/", then it's relative.
+  if (index ($followed_link, "/") != 0)
+  {
+    # If symlink_loc *contains* a "/", then prepend everything before the
+    # last slash to what we read from the symlink.
+    if (index ($symlink_loc, "/") != -1)
+    {
+      $followed_link
+	  = substr ($symlink_loc, 0, rindex ($symlink_loc, '/'))
+	      . "/$followed_link";
+    }
+  }
+
+  $followed_link;
+}

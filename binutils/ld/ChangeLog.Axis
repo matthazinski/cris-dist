@@ -1,0 +1,160 @@
+2003-06-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* configure.tgt (crisv32-*-*): Handle like cris-*-* (ELF).
+
+2002-06-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* emulparams/crislinux.sh (ALIGNMENT): Revert last change.
+	* emulparams/criself.sh (ALIGNMENT): Ditto.
+
+2002-05-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* emulparams/crislinux.sh (ALIGNMENT): Comment out setting.
+	* emulparams/criself.sh (ALIGNMENT): Ditto.
+
+2002-05-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* All: Import of FSF-binutils-2_12_1.
+
+2002-04-17  Hans-Peter Nilsson  <hp@axis.com>
+
+	* emulparams/criself.sh (INIT_START): Remove emitted "push srp".
+	(FINI_START): Ditto.
+	(INIT_END): Remove emitted "jump [sp+]".
+	(FINI_END): Ditto.
+
+2002-02-05  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ldlang.c (lang_reset_memory_regions): Rename from
+	reset_memory_regions.  Change all callers.  Make public.
+	* ldlang.h (lang_reset_memory_regions): Prototype.
+	* emultempl/elf32.em (gld${EMULATION_NAME}_finish): Call
+	lang_reset_memory_regions before lang_size_sections.
+
+2002-02-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* All: Import of FSF-binutils-2002-02-01-snapshot.
+
+2001-06-11  Hans-Peter Nilsson  <hp@axis.com>
+
+	* lexsup.c (parse_args) <case OPTION_EXPORT_DYNAMIC, case 'E'>:
+	Set new link_info member export_dynamic.
+	* ldmain.c (main): Initialize new link_info member export_dynamic.
+
+2001-05-15  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ldlang.c (lang_check): Emit fatal error if relocatable link
+	between different object flavours.
+
+2001-04-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Makefile.in ($(srcdir)/ld.1): Hide behind @MAINT@.
+
+2000-11-29  Hans-Peter Nilsson  <hp@axis.com>
+
+	* emulparams/crislinux.sh (ENTRY): Change back to _start.
+	(TEXT_START_SYMBOLS): Remove conditional setting of __start.
+
+2000-11-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* scripttempl/crisaout.sc: Change all RELOCATING not related to
+	merging non-a.out sections into CONSTRUCTING.
+
+2000-11-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ldmain.c (warning_find_reloc): Oops; don't use bfd_set_reloc;
+ 	set relocation field manually.
+
+2000-11-05  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ldmain.c (warning_find_reloc): Unset relocs before return.
+
+2000-10-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* scripttempl/crisaout.sc (.text, .data): Pad, with ALIGN (32),
+	for consecutive sections.
+
+2000-10-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	* scripttempl/crisaout.sc (ENTRY): Change to __start.
+	(.text): Add default setting for __start.
+	Remove CONSTRUCTORS handling.
+	(/DISCARD/): Add .gnu.warning.*.
+
+2000-09-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* emulparams/criself.sh (ENTRY): Change to __start.
+	* emulparams/crislinux.sh (ENTRY): Ditto.
+	Provide __Stext.
+
+2000-07-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Makefile.am: Change from a single emulation (cris) to three
+	emulations (criself, crisaout, crislinux).
+	* Makefile.in: Regenerate.
+	(GENDEPENDS): Depend on Makefile.
+	* configure.tgt: Have crisaout the default, let criself, crislinux
+	be extra built-in scripts.
+	* emulparams/crisaout.sh: New.
+ 	* emulparams/criself.sh: New.
+ 	* emulparams/crislinux.sh: New.
+ 	* scripttempl/crisaout.sc: New.
+	* scripttempl/cris.sc: Remove.
+	* emulparams/cris.sh: Remove.
+	* testsuite/ld-scripts/crossref.exp: Remove leading underscore
+	from expected output, harmonize with official version.
+
+	* scripttempl/elf.sc (.init): Only do ${INIT_START} and
+	${INIT_END} if relocating.
+	(.fini): Likewise ${FINI_START} and ${FINI_END}.
+
+	* ldint.texinfo (TEMPLATE_NAME): Fix typo.
+
+	* ChangeLog.Axis: Move local changes from ChangeLog to
+	ChangeLog.Axis.
+
+Fri Mar 10 16:16:00 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* ldmisc.c (demangle): Revert hack introduced Mon Oct 5 13:57:38 1998.
+
+	* ldlang.c (print_input_section): Revert Thu May 13 01:24:01 1999.
+
+Tue Mar  7 18:15:47 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* scripttempl/cris.sc: GNUify comments, clarify some.
+
+	* ldmisc.c (demangle): Caller expects to deallocate the returned
+	string.
+
+Thu Nov 11 18:12:12 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* Makefile.in: Change suffix from .new to -new
+
+Wed May 19 01:01:54 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* ldwrite.c (strdup declaration): Wrap in #ifndef strdup.
+	* mri.c: Ditto.
+
+Thu May 13 01:24:01 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* ldlang.c (print_input_section): Always print info, even if
+	zero size.
+
+Mon Apr 12 14:48:57 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* scripttempl/cris.sc [RELOCATING]: PROVIDE __Stacksize = 0.
+
+Mon Nov 23 09:44:12 1998  Hans-Peter Nilsson  <hp@axis.se>
+
+	* ldmisc.c (finfo): #defined to my_finfo
+
+Mon Oct  5 13:57:38 1998  Hans-Peter Nilsson  <hp@axis.se>
+
+	* ldmisc.c (demangle): Do not demangle symbols; the demangler is
+	not up-to-date and also this function leaks memory.
+
+Mon Oct  5 13:56:00 1998  Hans-Peter Nilsson  <hp@axis.se>
+
+	* ldmain.c (main): Do not close and unlink output here on errors,
+	it is done elsewhere (this correcton also in 2.7).
+

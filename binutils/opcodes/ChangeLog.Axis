@@ -1,0 +1,233 @@
+Thu Dec  8 15:11:19 2005  Hans-Peter Nilsson  <hp@axis.com>
+
+	Import (adjusted) from FSF CVS:
+	* cris-dis.c (bytes_to_skip): Handle new parameter prefix_matchedp.
+	(print_with_operands): Check for prefix when [PC+] is seen.
+
+2004-10-14  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Makefile.am (install-data-local): New.
+	* Makefile.in: Regenerate.
+
+2002-06-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* All: Import of FSF-binutils-2_12_1.
+
+2002-02-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* All: Import of FSF-binutils-2002-02-01-snapshot.
+
+2001-05-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-opc.c (cris_spec_regs): Add missing initializer field for
+	last element.
+
+2001-04-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-dis.c: Handle disassembler option "nocase" as to not detect
+	and transform switch constructs.
+
+2000-07-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Makefile.am (ia64-asmtab.c): Copy files from $(srcdir) if not in
+	build dir.
+	Update dependencies for cris-dis.lo and cris-opc.lo.
+	* Makefile.in: Regenerate.
+	* cris-dis.c: Fix compile warnings: change type of parameters and
+	variables, delete unused variables and parameters.
+
+	* ChangeLog.Axis: Move local changes from ChangeLog to
+	ChangeLog.Axis.
+
+Sat May 20 01:11:31 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris-opc.c (cris_opcodes): Initialize new field "op".
+
+Wed Mar  8 15:31:15 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris-opc.c: Add attributions.
+
+	* cris-dis.c (get_opcode_entry): Store a lookup table for each
+	prefix that causes insns to be recognized differently, rather than
+	a two-level construct for each prefix and insn.
+
+Tue Feb 29 12:37:50 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris-dis.c: Adjust some FIXME:s.
+
+Mon Feb 28 16:44:55 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris-dis.c Improve formatting.
+	(cris_constraint): Move constraint string to be first parameter.
+	All callers changed.
+	(print_with_operands): Test opcode in BIAP_OPCODE prefix case
+	instead of strcmp afterwards, when checking for case-jump.
+	Be less strict about the order of insns for the case-jump; assume
+	only that branch or jsr resets the sequence, ignore all but "add",
+	"sub" and "bound".
+
+Sat Feb 26 11:23:10 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris-dis.c (cris_constraint): Drop add parameter.
+	Do not recognize prefix unless constraints say ok, and prefix is
+	of valid type.
+	(bytes_to_skip): Use spec_reg_info and table entry to determine
+	the size of the special register.
+	Test insn bit-value 0x400, not 0x800, for postincrement.
+	(print_with_operands): Rewritten.
+	Take prefix as extra parameters, do not use static variables.
+	When an operand seems to contain a static address, output with
+	info-function.
+	Set info insn-fields.
+	(print_insn_cris): If a prefix and insn do not make a valid
+	combination, print the prefix as an independent insn.
+	Set defaults for info insn-fields.
+	Match 0 ("bcc .+2"), separately, do not say it is a branch insn.
+	Break out lookup and matching in opcode-table to ...
+	(get_opcode_entry): ... new function.
+
+Fri Feb 25 01:40:57 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris-dis.c: Nonworking rewrite.
+
+Wed Feb 23 16:21:48 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris-dis.c: Slight reformatting.
+	(last_prefix): Replace with last_prefix_opcode.
+ 	(spec_reg_info): New.
+	(cris_constraint) ['P']: Use spec_reg_info to get the entry for
+	the spec reg and the size.
+	(print_with_operands) ['y', 'S', 's']: Rewrite, use spec_reg_info
+	and less intricate code.
+	Test matchedp->match of prefix opcode instead of name string.
+	Move cc_strings...
+
+	* cris-opc.c (cris_cc_strings): ... here, with rename.
+
+Wed Feb 23 01:50:04 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* Makefile.am (cris-dis.lo): Update dependencies.
+	* Makefile.in: Ditto.
+
+	* cris-dis.c: Add pending FIXME:s on top.
+	Improve comments slightly.
+	Improve formatting slightly.
+	Include libiberty.h
+	(bytes_to_skip): Take pointer to cris_opcodes table entry, not an
+	index.  Caller changed.
+	(print_with_operands): Ditto.
+	(print_insn_cris): Use table indexed by insn, or by prefix and
+	insn, to improve speed of lookup.
+	Start filling in insn_info fields in info.
+	Set display_endian field in info.
+
+Tue Feb 22 13:12:38 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris-dis.c: Cleanups.  Tweak comments and copyright message.
+	Delete "#if 0".
+	Add emacs stuff at end.
+	(format_hex): Rewrite to work on number, not byte vector.
+	(format_dec): New.
+	(format_reg): New.
+	(format_hexdigits): Delete.
+	(print_in_preferred_representation): Delete, replace with calls to
+	format_hex, format_dec, format_reg.
+	(PRINT_REG): Replace with format_reg.
+	(print_with_operands): Change calls.
+
+Fri Feb 18 19:30:54 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris-opc.c (cris_spec_regs): GNUify; update header and
+	formatting, update and improve comments.
+	(cris_opcodes): Remove spec-reg-8 matching register jump.
+	Add emacs stuff at end.
+
+Tue Feb  1 20:24:35 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris-dis.c: Partial cleanup and GNUification.
+
+Tue Dec 14 20:18:09 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris-opc.c (cris_opcodes): Add "swf" in front of "sext".
+
+Mon Dec 13 14:34:17 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris-opc.c (cris_opcodes): Remove "bir".  Change "bf" to "bwf".
+	* cris-dis.c (print_with_operands): Change "f" to "wf" for "bwf".
+
+Mon Nov 22 19:12:21 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris-dis.c (last_prefix): New.
+	(print_with_operands) [case 'y', case 's', case 'S']: Do not
+	recognize dip when operating on a postincremented insn.
+
+Sun Nov 21 03:13:42 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris-opc.c (cris_opcodes): Removed never implemented "link".
+
+Sat Nov 20 02:22:52 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris-dis.c:
+	Remove log info in header.
+ 	(print_with_operands) [case '!']: New; ignore here.
+	(cris_constraint) [case '!']: New, do not recognize if previous
+	insn was a prefix insn.
+	[case 'B']: Tighten check for recognition of "push".
+	* cris-opc.c (cris_opcodes): Add new '!' constraint operand to
+	"pop R".
+
+Fri Nov 19 15:05:04 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris-dis.c (cris_constraint) [case 'M']: Added to check for a
+	valid "clear register".
+	(print_insn_cris_old): Make opcode-table recognition bit hits
+	worth twice as much as a constraint hit.
+
+Sat Oct 23 13:44:50 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris-dis.c (cris_constraint) [case 'P']: Do not recognize
+	special registers p0, p4, p8.
+
+Mon Oct 18 10:56:33 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris-opc.c (cris_spec_regs): Add contents to field
+	applicable_version.
+	(cris_spec_regs): Ditto.
+
+	* cris-dis.c (bytes_to_skip, print_with_operands): Correct for
+	MOF.
+
+Thu Oct 14 14:55:46 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris-opc.c (cris_spec_regs): Change "sN" into the official "pN".
+
+Wed Oct 13 19:17:04 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris-opc.c (cris_spec_regs): Add "sN" synonym for all special
+	registers N.
+
+Thu Oct  7 15:56:36 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris-opc.c (cris_opcodes): Add "bf" and "sbfs".
+
+	* cris-dis.c (print_with_operands): Change decoding of (long
+	branch) CC 0xf "ext" to "f".
+
+Tue Aug 24 21:40:58 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris-opc.c: New, extracted from ../include/opcode/cris-opc.h
+	(spec_regs): Add "usp" for sreg 15.
+	Document 'y'.
+	(cris_opcodes): Add "jmpu" indirect and prefixed (uses
+	"jump-sreg-8").
+	Add "rbf", indirect-non-constant and prefixed.
+	Renamed "spec_regs" to "cris_spec_regs".
+	NULL-terminate cris_opcodes and cris_spec_regs in the name field -
+	do not provide NUMOPCODES, NUMSPECREGS.
+	All users changed.
+
+Wed Oct  7 16:29:08 1998  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris-dis.c (print_in_preferred_representation): Do signedness
+	correctly; aka. the "push srp"-bug.
+

@@ -1,0 +1,957 @@
+.rn '' }`
+''' $RCSfile: as.1,v $$Revision: 1.6 $$Date: 2007/03/06 13:03:15 $
+'''
+''' $Log: as.1,v $
+''' Revision 1.6  2007/03/06 13:03:15  hp
+''' 	* Merge crisv32-branch.
+'''
+''' Revision 1.4.2.2  2002/08/15 18:56:50  hp
+''' Import of 2.12.1 to crisv32-branch
+'''
+'''
+.de Sh
+.br
+.if t .Sp
+.ne 5
+.PP
+\fB\\$1\fR
+.PP
+..
+.de Sp
+.if t .sp .5v
+.if n .sp
+..
+.de Ip
+.br
+.ie \\n(.$>=3 .ne \\$3
+.el .ne 3
+.IP "\\$1" \\$2
+..
+.de Vb
+.ft CW
+.nf
+.ne \\$1
+..
+.de Ve
+.ft R
+
+.fi
+..
+'''
+'''
+'''     Set up \*(-- to give an unbreakable dash;
+'''     string Tr holds user defined translation string.
+'''     Bell System Logo is used as a dummy character.
+'''
+.tr \(*W-|\(bv\*(Tr
+.ie n \{\
+.ds -- \(*W-
+.ds PI pi
+.if (\n(.H=4u)&(1m=24u) .ds -- \(*W\h'-12u'\(*W\h'-12u'-\" diablo 10 pitch
+.if (\n(.H=4u)&(1m=20u) .ds -- \(*W\h'-12u'\(*W\h'-8u'-\" diablo 12 pitch
+.ds L" ""
+.ds R" ""
+'''   \*(M", \*(S", \*(N" and \*(T" are the equivalent of
+'''   \*(L" and \*(R", except that they are used on ".xx" lines,
+'''   such as .IP and .SH, which do another additional levels of
+'''   double-quote interpretation
+.ds M" """
+.ds S" """
+.ds N" """""
+.ds T" """""
+.ds L' '
+.ds R' '
+.ds M' '
+.ds S' '
+.ds N' '
+.ds T' '
+'br\}
+.el\{\
+.ds -- \(em\|
+.tr \*(Tr
+.ds L" ``
+.ds R" ''
+.ds M" ``
+.ds S" ''
+.ds N" ``
+.ds T" ''
+.ds L' `
+.ds R' '
+.ds M' `
+.ds S' '
+.ds N' `
+.ds T' '
+.ds PI \(*p
+'br\}
+.\"	If the F register is turned on, we'll generate
+.\"	index entries out stderr for the following things:
+.\"		TH	Title 
+.\"		SH	Header
+.\"		Sh	Subsection 
+.\"		Ip	Item
+.\"		X<>	Xref  (embedded
+.\"	Of course, you have to process the output yourself
+.\"	in some meaninful fashion.
+.if \nF \{
+.de IX
+.tm Index:\\$1\t\\n%\t"\\$2"
+..
+.nr % 0
+.rr F
+.\}
+.TH AS 1 "binutils-2.12.1" "14/Aug/2002" "GNU Development Tools"
+.UC
+.if n .hy 0
+.ds C+ C\v'-.1v'\h'-1p'\s-2+\h'-1p'+\s0\v'.1v'\h'-1p'
+.de CQ          \" put $1 in typewriter font
+.ft CW
+'if n "\c
+'if t \\&\\$1\c
+'if n \\&\\$1\c
+'if n \&"
+\\&\\$2 \\$3 \\$4 \\$5 \\$6 \\$7
+'.ft R
+..
+.\" @(#)ms.acc 1.5 88/02/08 SMI; from UCB 4.2
+.	\" AM - accent mark definitions
+.bd B 3
+.	\" fudge factors for nroff and troff
+.if n \{\
+.	ds #H 0
+.	ds #V .8m
+.	ds #F .3m
+.	ds #[ \f1
+.	ds #] \fP
+.\}
+.if t \{\
+.	ds #H ((1u-(\\\\n(.fu%2u))*.13m)
+.	ds #V .6m
+.	ds #F 0
+.	ds #[ \&
+.	ds #] \&
+.\}
+.	\" simple accents for nroff and troff
+.if n \{\
+.	ds ' \&
+.	ds ` \&
+.	ds ^ \&
+.	ds , \&
+.	ds ~ ~
+.	ds ? ?
+.	ds ! !
+.	ds /
+.	ds q
+.\}
+.if t \{\
+.	ds ' \\k:\h'-(\\n(.wu*8/10-\*(#H)'\'\h"|\\n:u"
+.	ds ` \\k:\h'-(\\n(.wu*8/10-\*(#H)'\`\h'|\\n:u'
+.	ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'^\h'|\\n:u'
+.	ds , \\k:\h'-(\\n(.wu*8/10)',\h'|\\n:u'
+.	ds ~ \\k:\h'-(\\n(.wu-\*(#H-.1m)'~\h'|\\n:u'
+.	ds ? \s-2c\h'-\w'c'u*7/10'\u\h'\*(#H'\zi\d\s+2\h'\w'c'u*8/10'
+.	ds ! \s-2\(or\s+2\h'-\w'\(or'u'\v'-.8m'.\v'.8m'
+.	ds / \\k:\h'-(\\n(.wu*8/10-\*(#H)'\z\(sl\h'|\\n:u'
+.	ds q o\h'-\w'o'u*8/10'\s-4\v'.4m'\z\(*i\v'-.4m'\s+4\h'\w'o'u*8/10'
+.\}
+.	\" troff and (daisy-wheel) nroff accents
+.ds : \\k:\h'-(\\n(.wu*8/10-\*(#H+.1m+\*(#F)'\v'-\*(#V'\z.\h'.2m+\*(#F'.\h'|\\n:u'\v'\*(#V'
+.ds 8 \h'\*(#H'\(*b\h'-\*(#H'
+.ds v \\k:\h'-(\\n(.wu*9/10-\*(#H)'\v'-\*(#V'\*(#[\s-4v\s0\v'\*(#V'\h'|\\n:u'\*(#]
+.ds _ \\k:\h'-(\\n(.wu*9/10-\*(#H+(\*(#F*2/3))'\v'-.4m'\z\(hy\v'.4m'\h'|\\n:u'
+.ds . \\k:\h'-(\\n(.wu*8/10)'\v'\*(#V*4/10'\z.\v'-\*(#V*4/10'\h'|\\n:u'
+.ds 3 \*(#[\v'.2m'\s-2\&3\s0\v'-.2m'\*(#]
+.ds o \\k:\h'-(\\n(.wu+\w'\(de'u-\*(#H)/2u'\v'-.3n'\*(#[\z\(de\v'.3n'\h'|\\n:u'\*(#]
+.ds d- \h'\*(#H'\(pd\h'-\w'~'u'\v'-.25m'\f2\(hy\fP\v'.25m'\h'-\*(#H'
+.ds D- D\\k:\h'-\w'D'u'\v'-.11m'\z\(hy\v'.11m'\h'|\\n:u'
+.ds th \*(#[\v'.3m'\s+1I\s-1\v'-.3m'\h'-(\w'I'u*2/3)'\s-1o\s+1\*(#]
+.ds Th \*(#[\s+2I\s-2\h'-\w'I'u*3/5'\v'-.3m'o\v'.3m'\*(#]
+.ds ae a\h'-(\w'a'u*4/10)'e
+.ds Ae A\h'-(\w'A'u*4/10)'E
+.ds oe o\h'-(\w'o'u*4/10)'e
+.ds Oe O\h'-(\w'O'u*4/10)'E
+.	\" corrections for vroff
+.if v .ds ~ \\k:\h'-(\\n(.wu*9/10-\*(#H)'\s-2\u~\d\s+2\h'|\\n:u'
+.if v .ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'\v'-.4m'^\v'.4m'\h'|\\n:u'
+.	\" for low resolution devices (crt and lpr)
+.if \n(.H>23 .if \n(.V>19 \
+\{\
+.	ds : e
+.	ds 8 ss
+.	ds v \h'-1'\o'\(aa\(ga'
+.	ds _ \h'-1'^
+.	ds . \h'-1'.
+.	ds 3 3
+.	ds o a
+.	ds d- d\h'-1'\(ga
+.	ds D- D\h'-1'\(hy
+.	ds th \o'bp'
+.	ds Th \o'LP'
+.	ds ae ae
+.	ds Ae AE
+.	ds oe oe
+.	ds Oe OE
+.\}
+.rm #[ #] #H #V #F C
+.SH "NAME"
+AS \- the portable GNU assembler.
+.SH "SYNOPSIS"
+as [\fB\-a\fR[\fBcdhlns\fR][=\fIfile\fR]] [\fB\-D\fR] [\fB--defsym\fR \fIsym\fR=\fIval\fR]
+ [\fB\-f\fR] [\fB--gstabs\fR] [\fB--gdwarf2\fR] [\fB--help\fR] [\fB\-I\fR \fIdir\fR] 
+ [\fB\-J\fR] [\fB\-K\fR] [\fB\-L\fR]
+ [\fB--listing-lhs-width\fR=\fINUM\fR] [\fB--listing-lhs-width2\fR=\fINUM\fR]
+ [\fB--listing-rhs-width\fR=\fINUM\fR] [\fB--listing-cont-lines\fR=\fINUM\fR]
+ [\fB--keep-locals\fR] [\fB\-o\fR \fIobjfile\fR] [\fB\-R\fR] [\fB--statistics\fR] [\fB\-v\fR]
+ [\fB\-version\fR] [\fB--version\fR] [\fB\-W\fR] [\fB--warn\fR] [\fB--fatal-warnings\fR] 
+ [\fB\-w\fR] [\fB\-x\fR] [\fB\-Z\fR] [\fB--target-help\fR] [\fItarget-options\fR] 
+ [\fB--\fR|\fIfiles\fR ...]
+.PP
+\fITarget Alpha options:\fR
+   [\fB\-m\fR\fIcpu\fR]
+   [\fB\-mdebug\fR | \fB\-no-mdebug\fR]
+   [\fB\-relax\fR] [\fB\-g\fR] [\fB\-G\fR\fIsize\fR]
+   [\fB\-F\fR] [\fB\-32addr\fR]
+.PP
+\fITarget ARC options:\fR
+   [\fB\-marc[5|6|7|8]\fR]
+   [\fB\-EB\fR|\fB\-EL\fR]
+.PP
+\fITarget ARM options:\fR
+   [\fB\-mcpu\fR=\fIprocessor\fR[+\fIextension\fR...]]
+   [\fB\-march\fR=\fIarchitecture\fR[+\fIextension\fR...]]
+   [\fB\-mfpu\fR=\fIfloating-point-fromat\fR]
+   [\fB\-mthumb\fR]
+   [\fB\-EB\fR|\fB\-EL\fR]
+   [\fB\-mapcs-32\fR|\fB\-mapcs-26\fR|\fB\-mapcs-float\fR|
+    \fB\-mapcs-reentrant\fR]
+   [\fB\-mthumb-interwork\fR] [\fB\-moabi\fR] [\fB\-k\fR]
+.PP
+\fITarget CRIS options:\fR
+   [\fB--underscore\fR | \fB--no-underscore\fR]
+   [\fB--pic\fR] [\fB\-N\fR]
+   [\fB--emulation=criself\fR | \fB--emulation=crisaout\fR]
+   [\fB--march=v0_v10\fR | \fB--march=v10\fR | \fB--march=v32\fR | \fB--march=common_v10_v32\fR]
+.PP
+\fITarget D10V options:\fR
+   [\fB\-O\fR]
+.PP
+\fITarget D30V options:\fR
+   [\fB\-O\fR|\fB\-n\fR|\fB\-N\fR]
+.PP
+\fITarget i386 options:\fR
+   [\fB--32\fR|\fB--64\fR]
+.PP
+\fITarget i960 options:\fR
+   [\fB\-ACA\fR|\fB\-ACA_A\fR|\fB\-ACB\fR|\fB\-ACC\fR|\fB\-AKA\fR|\fB\-AKB\fR|
+    \fB\-AKC\fR|\fB\-AMC\fR]
+   [\fB\-b\fR] [\fB\-no-relax\fR]
+.PP
+\fITarget M32R options:\fR
+   [\fB--m32rx\fR|\fB--[no-]warn-explicit-parallel-conflicts\fR|
+    \fB--W[n]p\fR]
+.PP
+\fITarget M680X0 options:\fR
+   [\fB\-l\fR] [\fB\-m68000\fR|\fB\-m68010\fR|\fB\-m68020\fR|...]
+.PP
+\fITarget M68HC11 options:\fR
+   [\fB\-m68hc11\fR|\fB\-m68hc12\fR]
+   [\fB--force-long-branchs\fR] [\fB--short-branchs\fR]
+   [\fB--strict-direct-mode\fR] [\fB--print-insn-syntax\fR]
+   [\fB--print-opcodes\fR] [\fB--generate-example\fR]
+.PP
+\fITarget MCORE options:\fR
+   [\fB\-jsri2bsr\fR] [\fB\-sifilter\fR] [\fB\-relax\fR]
+   [\fB\-mcpu=[210|340]\fR]
+.PP
+\fITarget MIPS options:\fR
+   [\fB\-nocpp\fR] [\fB\-EL\fR] [\fB\-EB\fR] [\fB\-G\fR \fInum\fR] [\fB\-mcpu\fR=\fICPU\fR ]
+   [\fB\-mips1\fR] [\fB\-mips2\fR] [\fB\-mips3\fR] [\fB\-mips4\fR] [\fB\-mips5\fR]
+   [\fB\-mips32\fR] [\fB\-mips64\fR]
+   [\fB\-m4650\fR] [\fB\-no-m4650\fR]
+   [\fB--trap\fR] [\fB--break\fR] [\fB\-n\fR]
+   [\fB--emulation\fR=\fIname\fR ]
+.PP
+\fITarget MMIX options:\fR
+   [\fB--fixed-special-register-names\fR] [\fB--globalize-symbols\fR]
+   [\fB--gnu-syntax\fR] [\fB--relax\fR] [\fB--no-predefined-symbols\fR]
+   [\fB--no-expand\fR] [\fB--no-merge-gregs\fR] [\fB\-x\fR]
+   [\fB--linker-allocated-gregs\fR]
+.PP
+\fITarget PDP11 options:\fR
+   [\fB\-mpic\fR|\fB\-mno-pic\fR] [\fB\-mall\fR] [\fB\-mno-extensions\fR]
+   [\fB\-m\fR\fIextension\fR|\fB\-mno-\fR\fIextension\fR]
+   [\fB\-m\fR\fIcpu\fR] [\fB\-m\fR\fImachine\fR]  
+.PP
+\fITarget picoJava options:\fR
+   [\fB\-mb\fR|\fB\-me\fR]
+.PP
+\fITarget PowerPC options:\fR
+   [\fB\-mpwrx\fR|\fB\-mpwr2\fR|\fB\-mpwr\fR|\fB\-m601\fR|\fB\-mppc\fR|\fB\-mppc32\fR|\fB\-m603\fR|\fB\-m604\fR|
+    \fB\-m403\fR|\fB\-m405\fR|\fB\-mppc64\fR|\fB\-m620\fR|\fB\-mppc64bridge\fR|\fB\-mbooke\fR|
+    \fB\-mbooke32\fR|\fB\-mbooke64\fR]
+   [\fB\-mcom\fR|\fB\-many\fR|\fB\-maltivec\fR] [\fB\-memb\fR]
+   [\fB\-mregnames\fR|\fB\-mno-regnames\fR]
+   [\fB\-mrelocatable\fR|\fB\-mrelocatable-lib\fR]
+   [\fB\-mlittle\fR|\fB\-mlittle-endian\fR|\fB\-mbig\fR|\fB\-mbig-endian\fR]
+   [\fB\-msolaris\fR|\fB\-mno-solaris\fR]
+.PP
+\fITarget SPARC options:\fR
+   [\fB\-Av6\fR|\fB\-Av7\fR|\fB\-Av8\fR|\fB\-Asparclet\fR|\fB\-Asparclite\fR
+    \fB\-Av8plus\fR|\fB\-Av8plusa\fR|\fB\-Av9\fR|\fB\-Av9a\fR]
+   [\fB\-xarch=v8plus\fR|\fB\-xarch=v8plusa\fR] [\fB\-bump\fR]
+   [\fB\-32\fR|\fB\-64\fR]
+.SH "DESCRIPTION"
+GNU \fBas\fR is really a family of assemblers.
+If you use (or have used) the GNU assembler on one architecture, you
+should find a fairly similar environment when you use it on another
+architecture.  Each version has much in common with the others,
+including object file formats, most assembler directives (often called
+\fIpseudo-ops\fR) and assembler syntax.
+.PP
+\fBas\fR is primarily intended to assemble the output of the
+GNU C compiler \f(CW\fR for use by the linker
+\f(CW\fR.  Nevertheless, we've tried to make \fBas\fR
+assemble correctly everything that other assemblers for the same
+machine would assemble.
+Any exceptions are documented explicitly.
+This doesn't mean \fBas\fR always uses the same syntax as another
+assembler for the same architecture; for example, we know of several
+incompatible versions of 680x0 assembly language syntax.
+.PP
+Each time you run \fBas\fR it assembles exactly one source
+program.  The source program is made up of one or more files.
+(The standard input is also a file.)
+.PP
+You give \fBas\fR a command line that has zero or more input file
+names.  The input files are read (from left file name to right).  A
+command line argument (in any position) that has no special meaning
+is taken to be an input file name.
+.PP
+If you give \fBas\fR no file names it attempts to read one input file
+from the \fBas\fR standard input, which is normally your terminal.  You
+may have to type \fBctl-D\fR to tell \fBas\fR there is no more program
+to assemble.
+.PP
+Use \fB--\fR if you need to explicitly name the standard input file
+in your command line.
+.PP
+If the source is empty, \fBas\fR produces a small, empty object
+file.
+.PP
+\fBas\fR may write warnings and error messages to the standard error
+file (usually your terminal).  This should not happen when  a compiler
+runs \fBas\fR automatically.  Warnings report an assumption made so
+that \fBas\fR could keep assembling a flawed program; errors report a
+grave problem that stops the assembly.
+.PP
+If you are invoking \fBas\fR via the GNU C compiler (version 2),
+you can use the \fB\-Wa\fR option to pass arguments through to the assembler.
+The assembler arguments must be separated from each other (and the \fB\-Wa\fR)
+by commas.  For example:
+.PP
+.Vb 2
+\&        
+\&        gcc -c -g -O -Wa,-alh,-L file.c
+.Ve
+This passes two options to the assembler: \fB\-alh\fR (emit a listing to
+standard output with with high-level and assembly source) and \fB\-L\fR (retain
+local symbols in the symbol table).
+.PP
+Usually you do not need to use this \fB\-Wa\fR mechanism, since many compiler
+command-line options are automatically passed to the assembler by the compiler.
+(You can call the GNU compiler driver with the \fB\-v\fR option to see
+precisely what options it passes to each compilation pass, including the
+assembler.)
+.SH "OPTIONS"
+.Ip "\fB\-a[cdhlmns]\fR" 4
+Turn on listings, in any of a variety of ways:
+.Ip "\fB\-ac\fR" 8
+omit false conditionals
+.Ip "\fB\-ad\fR" 8
+omit debugging directives
+.Ip "\fB\-ah\fR" 8
+include high-level source
+.Ip "\fB\-al\fR" 8
+include assembly
+.Ip "\fB\-am\fR" 8
+include macro expansions
+.Ip "\fB\-an\fR" 8
+omit forms processing
+.Ip "\fB\-as\fR" 8
+include symbols
+.Ip "\fB=file\fR" 8
+set the name of the listing file
+.Sp
+You may combine these options; for example, use \fB\-aln\fR for assembly
+listing without forms processing.  The \fB=file\fR option, if used, must be
+the last one.  By itself, \fB\-a\fR defaults to \fB\-ahls\fR.
+.Ip "\fB\-D\fR" 4
+Ignored.  This option is accepted for script compatibility with calls to
+other assemblers.
+.Ip "\fB--defsym\fR \fIsym\fR\fB=\fR\fIvalue\fR" 4
+Define the symbol \fIsym\fR to be \fIvalue\fR before assembling the input file.
+\fIvalue\fR must be an integer constant.  As in C, a leading \fB0x\fR
+indicates a hexadecimal value, and a leading \fB0\fR indicates an octal value.
+.Ip "\fB\-f\fR" 4
+``fast'\*(R'---skip whitespace and comment preprocessing (assume source is
+compiler output).
+.Ip "\fB--gstabs\fR" 4
+Generate stabs debugging information for each assembler line.  This
+may help debugging assembler code, if the debugger can handle it.
+.Ip "\fB--gdwarf2\fR" 4
+Generate \s-1DWARF2\s0 debugging information for each assembler line.  This
+may help debugging assembler code, if the debugger can handle it.  Note \- this
+option is only supported by some targets, not all of them.
+.Ip "\fB--help\fR" 4
+Print a summary of the command line options and exit.
+.Ip "\fB--target-help\fR" 4
+Print a summary of all target specific options and exit.
+.Ip "\fB\-I\fR \fIdir\fR" 4
+Add directory \fIdir\fR to the search list for \f(CW.include\fR directives.
+.Ip "\fB\-J\fR" 4
+Don't warn about signed overflow.
+.Ip "\fB\-K\fR" 4
+This option is accepted but has no effect on the \s-1TARGET\s0 family.
+.Ip "\fB\-L\fR" 4
+.Ip "\fB--keep-locals\fR" 4
+Keep (in the symbol table) local symbols.  On traditional a.out systems
+these start with \fBL\fR, but different systems have different local
+label prefixes.
+.Ip "\fB--listing-lhs-width=\fR\fInumber\fR" 4
+Set the maximum width, in words, of the output data column for an assembler
+listing to \fInumber\fR.
+.Ip "\fB--listing-lhs-width2=\fR\fInumber\fR" 4
+Set the maximum width, in words, of the output data column for continuation
+lines in an assembler listing to \fInumber\fR.
+.Ip "\fB--listing-rhs-width=\fR\fInumber\fR" 4
+Set the maximum width of an input source line, as displayed in a listing, to
+\fInumber\fR bytes.
+.Ip "\fB--listing-cont-lines=\fR\fInumber\fR" 4
+Set the maximum number of lines printed in a listing for a single line of input
+to \fInumber\fR + 1.
+.Ip "\fB\-o\fR \fIobjfile\fR" 4
+Name the object-file output from \fBas\fR \fIobjfile\fR.
+.Ip "\fB\-R\fR" 4
+Fold the data section into the text section.
+.Ip "\fB--statistics\fR" 4
+Print the maximum space (in bytes) and total time (in seconds) used by
+assembly.
+.Ip "\fB--strip-local-absolute\fR" 4
+Remove local absolute symbols from the outgoing symbol table.
+.Ip "\fB\-v\fR" 4
+.Ip "\fB\-version\fR" 4
+Print the \fBas\fR version.
+.Ip "\fB--version\fR" 4
+Print the \fBas\fR version and exit.
+.Ip "\fB\-W\fR" 4
+.Ip "\fB--no-warn\fR" 4
+Suppress warning messages.
+.Ip "\fB--fatal-warnings\fR" 4
+Treat warnings as errors.
+.Ip "\fB--warn\fR" 4
+Don't suppress warning messages or treat them as errors.
+.Ip "\fB\-w\fR" 4
+Ignored.
+.Ip "\fB\-x\fR" 4
+Ignored.
+.Ip "\fB\-Z\fR" 4
+Generate an object file even after errors.
+.Ip "\fB-- |\fR \fIfiles\fR \fB...\fR" 4
+Standard input, or source files to assemble.
+.PP
+The following options are available when as is configured for
+an \s-1ARC\s0 processor.
+.Ip "\fB\-marc[5|6|7|8]\fR" 4
+This option selects the core processor variant.
+.Ip "\fB\-\s-1EB\s0 | \-\s-1EL\s0\fR" 4
+Select either big-endian (\-\s-1EB\s0) or little-endian (\-\s-1EL\s0) output.
+.PP
+The following options are available when as is configured for the \s-1ARM\s0
+processor family.
+.Ip "\fB\-mcpu=\fR\fIprocessor\fR\fB[+\fR\fIextension\fR\fB...]\fR" 4
+Specify which \s-1ARM\s0 processor variant is the target.
+.Ip "\fB\-march=\fR\fIarchitecture\fR\fB[+\fR\fIextension\fR\fB...]\fR" 4
+Specify which \s-1ARM\s0 architecture variant is used by the target.
+.Ip "\fB\-mfpu=\fR\fIfloating-point-format\fR" 4
+Select which Floating Point architecture is the target.
+.Ip "\fB\-mthumb\fR" 4
+Enable Thumb only instruction decoding.
+.Ip "\fB\-mapcs-32 | \-mapcs-26 | \-mapcs-float | \-mapcs-reentrant | \-moabi\fR" 4
+Select which procedure calling convention is in use.
+.Ip "\fB\-\s-1EB\s0 | \-\s-1EL\s0\fR" 4
+Select either big-endian (\-\s-1EB\s0) or little-endian (\-\s-1EL\s0) output.
+.Ip "\fB\-mthumb-interwork\fR" 4
+Specify that the code has been generated with interworking between Thumb and
+\s-1ARM\s0 code in mind.
+.Ip "\fB\-k\fR" 4
+Specify that \s-1PIC\s0 code has been generated.
+.PP
+See the info pages for documentation of the \s-1CRIS\s0\-specific options.
+.PP
+The following options are available when as is configured for
+a D10V processor.
+.Ip "\fB\-O\fR" 4
+Optimize output by parallelizing instructions.
+.PP
+The following options are available when as is configured for a D30V
+processor.
+.Ip "\fB\-O\fR" 4
+Optimize output by parallelizing instructions.
+.Ip "\fB\-n\fR" 4
+Warn when nops are generated.
+.Ip "\fB\-N\fR" 4
+Warn when a nop after a 32-bit multiply instruction is generated.
+.PP
+The following options are available when as is configured for the
+Intel 80960 processor.
+.Ip "\fB\-\s-1ACA\s0 | \-\s-1ACA_A\s0 | \-\s-1ACB\s0 | \-\s-1ACC\s0 | \-\s-1AKA\s0 | \-\s-1AKB\s0 | \-\s-1AKC\s0 | \-\s-1AMC\s0\fR" 4
+Specify which variant of the 960 architecture is the target.
+.Ip "\fB\-b\fR" 4
+Add code to collect statistics about branches taken.
+.Ip "\fB\-no-relax\fR" 4
+Do not alter compare-and-branch instructions for long displacements;
+error if necessary.
+.PP
+The following options are available when as is configured for the
+Mitsubishi M32R series.
+.Ip "\fB--m32rx\fR" 4
+Specify which processor in the M32R family is the target.  The default
+is normally the M32R, but this option changes it to the M32RX.
+.Ip "\fB--warn-explicit-parallel-conflicts or --Wp\fR" 4
+Produce warning messages when questionable parallel constructs are
+encountered. 
+.Ip "\fB--no-warn-explicit-parallel-conflicts or --Wnp\fR" 4
+Do not produce warning messages when questionable parallel constructs are 
+encountered. 
+.PP
+The following options are available when as is configured for the
+Motorola 68000 series.
+.Ip "\fB\-l\fR" 4
+Shorten references to undefined symbols, to one word instead of two.
+.Ip "\fB\-m68000 | \-m68008 | \-m68010 | \-m68020 | \-m68030\fR" 4
+.Ip "\fB| \-m68040 | \-m68060 | \-m68302 | \-m68331 | \-m68332\fR" 4
+.Ip "\fB| \-m68333 | \-m68340 | \-mcpu32 | \-m5200\fR" 4
+Specify what processor in the 68000 family is the target.  The default
+is normally the 68020, but this can be changed at configuration time.
+.Ip "\fB\-m68881 | \-m68882 | \-mno-68881 | \-mno-68882\fR" 4
+The target machine does (or does not) have a floating-point coprocessor.
+The default is to assume a coprocessor for 68020, 68030, and cpu32.  Although
+the basic 68000 is not compatible with the 68881, a combination of the
+two can be specified, since it's possible to do emulation of the
+coprocessor instructions with the main processor.
+.Ip "\fB\-m68851 | \-mno-68851\fR" 4
+The target machine does (or does not) have a memory-management
+unit coprocessor.  The default is to assume an \s-1MMU\s0 for 68020 and up.
+.PP
+For details about the \s-1PDP\s0\-11 machine dependent features options,
+see \f(CW@ref\fR{\s-1PDP\s0\-11-Options}.
+.Ip "\fB\-mpic | \-mno-pic\fR" 4
+Generate position-independent (or position-dependent) code.  The
+default is \fB\-mpic\fR.
+.Ip "\fB\-mall\fR" 4
+.Ip "\fB\-mall-extensions\fR" 4
+Enable all instruction set extensions.  This is the default.
+.Ip "\fB\-mno-extensions\fR" 4
+Disable all instruction set extensions.
+.Ip "\fB\-m\fR\fIextension\fR \fB| \-mno-\fR\fIextension\fR" 4
+Enable (or disable) a particular instruction set extension.
+.Ip "\fB\-m\fR\fIcpu\fR" 4
+Enable the instruction set extensions supported by a particular \s-1CPU\s0, and
+disable all other extensions.
+.Ip "\fB\-m\fR\fImachine\fR" 4
+Enable the instruction set extensions supported by a particular machine
+model, and disable all other extensions.
+.PP
+The following options are available when as is configured for
+a picoJava processor.
+.Ip "\fB\-mb\fR" 4
+Generate ``big endian'\*(R' format output.
+.Ip "\fB\-ml\fR" 4
+Generate ``little endian'\*(R' format output.
+.PP
+The following options are available when as is configured for the
+Motorola 68HC11 or 68HC12 series.
+.Ip "\fB\-m68hc11 | \-m68hc12\fR" 4
+Specify what processor is the target.  The default is
+defined by the configuration option when building the assembler.
+.Ip "\fB--force-long-branchs\fR" 4
+Relative branches are turned into absolute ones. This concerns
+conditional branches, unconditional branches and branches to a
+sub routine.
+.Ip "\fB\-S | --short-branchs\fR" 4
+Do not turn relative branchs into absolute ones
+when the offset is out of range.
+.Ip "\fB--strict-direct-mode\fR" 4
+Do not turn the direct addressing mode into extended addressing mode
+when the instruction does not support direct addressing mode.
+.Ip "\fB--print-insn-syntax\fR" 4
+Print the syntax of instruction in case of error.
+.Ip "\fB--print-opcodes\fR" 4
+print the list of instructions with syntax and then exit.
+.Ip "\fB--generate-example\fR" 4
+print an example of instruction for each possible instruction and then exit.
+This option is only useful for testing \fBas\fR.
+.PP
+The following options are available when \fBas\fR is configured
+for the \s-1SPARC\s0 architecture:
+.Ip "\fB\-Av6 | \-Av7 | \-Av8 | \-Asparclet | \-Asparclite\fR" 4
+.Ip "\fB\-Av8plus | \-Av8plusa | \-Av9 | \-Av9a\fR" 4
+Explicitly select a variant of the \s-1SPARC\s0 architecture.
+.Sp
+\fB\-Av8plus\fR and \fB\-Av8plusa\fR select a 32 bit environment.
+\fB\-Av9\fR and \fB\-Av9a\fR select a 64 bit environment.
+.Sp
+\fB\-Av8plusa\fR and \fB\-Av9a\fR enable the \s-1SPARC\s0 V9 instruction set with
+UltraSPARC extensions.
+.Ip "\fB\-xarch=v8plus | \-xarch=v8plusa\fR" 4
+For compatibility with the Solaris v9 assembler.  These options are
+equivalent to \-Av8plus and \-Av8plusa, respectively.
+.Ip "\fB\-bump\fR" 4
+Warn when the assembler switches to another architecture.
+.PP
+The following options are available when as is configured for
+a \s-1MIPS\s0 processor.
+.Ip "\fB\-G\fR \fInum\fR" 4
+This option sets the largest size of an object that can be referenced
+implicitly with the \f(CWgp\fR register.  It is only accepted for targets that
+use \s-1ECOFF\s0 format, such as a DECstation running Ultrix.  The default value is 8.
+.Ip "\fB\-\s-1EB\s0\fR" 4
+Generate ``big endian'\*(R' format output.
+.Ip "\fB\-\s-1EL\s0\fR" 4
+Generate ``little endian'\*(R' format output.
+.Ip "\fB\-mips1\fR" 4
+.Ip "\fB\-mips2\fR" 4
+.Ip "\fB\-mips3\fR" 4
+.Ip "\fB\-mips4\fR" 4
+.Ip "\fB\-mips32\fR" 4
+.Ip "\fB\-mips64\fR" 4
+Generate code for a particular \s-1MIPS\s0 Instruction Set Architecture level.
+\fB\-mips1\fR corresponds to the R2000 and R3000 processors,
+\fB\-mips2\fR to the R6000 processor, and \fB\-mips3\fR to the R4000
+processor.
+\fB\-mips5\fR, \fB\-mips32\fR, and \fB\-mips64\fR correspond
+to generic \s-1MIPS\s0 V, \s-1MIPS32\s0, and \s-1MIPS64\s0 \s-1ISA\s0
+processors, respectively.
+.Ip "\fB\-m4650\fR" 4
+.Ip "\fB\-no-m4650\fR" 4
+Generate code for the \s-1MIPS\s0 R4650 chip.  This tells the assembler to accept
+the \fBmad\fR and \fBmadu\fR instruction, and to not schedule \fBnop\fR
+instructions around accesses to the \fB\s-1HI\s0\fR and \fB\s-1LO\s0\fR registers.
+\fB\-no-m4650\fR turns off this option.
+.Ip "\fB\-mcpu=\fR\fI\s-1CPU\s0\fR" 4
+Generate code for a particular \s-1MIPS\s0 cpu.  It is exactly equivalent to
+\fB\-m\fR\fIcpu\fR, except that there are more value of \fIcpu\fR
+understood.
+.Ip "\fB--emulation=\fR\fIname\fR" 4
+This option causes \fBas\fR to emulate \fBas\fR configured
+for some other target, in all respects, including output format (choosing
+between \s-1ELF\s0 and \s-1ECOFF\s0 only), handling of pseudo-opcodes which may generate
+debugging information or store symbol table information, and default
+endianness.  The available configuration names are: \fBmipsecoff\fR,
+\fBmipself\fR, \fBmipslecoff\fR, \fBmipsbecoff\fR, \fBmipslelf\fR,
+\fBmipsbelf\fR.  The first two do not alter the default endianness from that
+of the primary target for which the assembler was configured; the others change
+the default to little- or big-endian as indicated by the \fBb\fR or \fBl\fR
+in the name.  Using \fB\-\s-1EB\s0\fR or \fB\-\s-1EL\s0\fR will override the endianness
+selection in any case.
+.Sp
+This option is currently supported only when the primary target
+\fBas\fR is configured for is a \s-1MIPS\s0 \s-1ELF\s0 or \s-1ECOFF\s0 target.
+Furthermore, the primary target or others specified with
+\fB--enable-targets=...\fR at configuration time must include support for
+the other format, if both are to be available.  For example, the Irix 5
+configuration includes support for both.
+.Sp
+Eventually, this option will support more configurations, with more
+fine-grained control over the assembler's behavior, and will be supported for
+more processors.
+.Ip "\fB\-nocpp\fR" 4
+\fBas\fR ignores this option.  It is accepted for compatibility with
+the native tools.
+.Ip "\fB--trap\fR" 4
+.Ip "\fB--no-trap\fR" 4
+.Ip "\fB--break\fR" 4
+.Ip "\fB--no-break\fR" 4
+Control how to deal with multiplication overflow and division by zero.
+\fB--trap\fR or \fB--no-break\fR (which are synonyms) take a trap exception
+(and only work for Instruction Set Architecture level 2 and higher);
+\fB--break\fR or \fB--no-trap\fR (also synonyms, and the default) take a
+break exception.
+.Ip "\fB\-n\fR" 4
+When this option is used, \fBas\fR will issue a warning every
+time it generates a nop instruction from a macro.
+.PP
+The following options are available when as is configured for
+an MCore processor.
+.Ip "\fB\-jsri2bsr\fR" 4
+.Ip "\fB\-nojsri2bsr\fR" 4
+Enable or disable the \s-1JSRI\s0 to \s-1BSR\s0 transformation.  By default this is enabled.
+The command line option \fB\-nojsri2bsr\fR can be used to disable it.
+.Ip "\fB\-sifilter\fR" 4
+.Ip "\fB\-nosifilter\fR" 4
+Enable or disable the silicon filter behaviour.  By default this is disabled.
+The default can be overridden by the \fB\-sifilter\fR command line option.
+.Ip "\fB\-relax\fR" 4
+Alter jump instructions for long displacements.
+.Ip "\fB\-mcpu=[210|340]\fR" 4
+Select the cpu type on the target hardware.  This controls which instructions
+can be assembled.
+.Ip "\fB\-\s-1EB\s0\fR" 4
+Assemble for a big endian target.
+.Ip "\fB\-\s-1EL\s0\fR" 4
+Assemble for a little endian target.
+.PP
+See the info pages for documentation of the \s-1MMIX\s0\-specific options.
+.SH "SEE ALSO"
+\fIgcc\fR\|(1), \fIld\fR\|(1), and the Info entries for \fIbinutils\fR and \fIld\fR.
+.SH "COPYRIGHT"
+Copyright (C) 1991, 92, 93, 94, 95, 96, 97, 98, 99, 2000, 2001, 2002 Free Software Foundation, Inc.
+.PP
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.1
+or any later version published by the Free Software Foundation;
+with no Invariant Sections, with no Front-Cover Texts, and with no
+Back-Cover Texts.  A copy of the license is included in the
+section entitled \*(L"GNU Free Documentation License\*(R".
+
+.rn }` ''
+.IX Title "AS 1"
+.IX Name "AS - the portable GNU assembler."
+
+.IX Header "NAME"
+
+.IX Header "SYNOPSIS"
+
+.IX Header "DESCRIPTION"
+
+.IX Header "OPTIONS"
+
+.IX Item "\fB\-a[cdhlmns]\fR"
+
+.IX Item "\fB\-ac\fR"
+
+.IX Item "\fB\-ad\fR"
+
+.IX Item "\fB\-ah\fR"
+
+.IX Item "\fB\-al\fR"
+
+.IX Item "\fB\-am\fR"
+
+.IX Item "\fB\-an\fR"
+
+.IX Item "\fB\-as\fR"
+
+.IX Item "\fB=file\fR"
+
+.IX Item "\fB\-D\fR"
+
+.IX Item "\fB--defsym\fR \fIsym\fR\fB=\fR\fIvalue\fR"
+
+.IX Item "\fB\-f\fR"
+
+.IX Item "\fB--gstabs\fR"
+
+.IX Item "\fB--gdwarf2\fR"
+
+.IX Item "\fB--help\fR"
+
+.IX Item "\fB--target-help\fR"
+
+.IX Item "\fB\-I\fR \fIdir\fR"
+
+.IX Item "\fB\-J\fR"
+
+.IX Item "\fB\-K\fR"
+
+.IX Item "\fB\-L\fR"
+
+.IX Item "\fB--keep-locals\fR"
+
+.IX Item "\fB--listing-lhs-width=\fR\fInumber\fR"
+
+.IX Item "\fB--listing-lhs-width2=\fR\fInumber\fR"
+
+.IX Item "\fB--listing-rhs-width=\fR\fInumber\fR"
+
+.IX Item "\fB--listing-cont-lines=\fR\fInumber\fR"
+
+.IX Item "\fB\-o\fR \fIobjfile\fR"
+
+.IX Item "\fB\-R\fR"
+
+.IX Item "\fB--statistics\fR"
+
+.IX Item "\fB--strip-local-absolute\fR"
+
+.IX Item "\fB\-v\fR"
+
+.IX Item "\fB\-version\fR"
+
+.IX Item "\fB--version\fR"
+
+.IX Item "\fB\-W\fR"
+
+.IX Item "\fB--no-warn\fR"
+
+.IX Item "\fB--fatal-warnings\fR"
+
+.IX Item "\fB--warn\fR"
+
+.IX Item "\fB\-w\fR"
+
+.IX Item "\fB\-x\fR"
+
+.IX Item "\fB\-Z\fR"
+
+.IX Item "\fB-- |\fR \fIfiles\fR \fB...\fR"
+
+.IX Item "\fB\-marc[5|6|7|8]\fR"
+
+.IX Item "\fB\-\s-1EB\s0 | \-\s-1EL\s0\fR"
+
+.IX Item "\fB\-mcpu=\fR\fIprocessor\fR\fB[+\fR\fIextension\fR\fB...]\fR"
+
+.IX Item "\fB\-march=\fR\fIarchitecture\fR\fB[+\fR\fIextension\fR\fB...]\fR"
+
+.IX Item "\fB\-mfpu=\fR\fIfloating-point-format\fR"
+
+.IX Item "\fB\-mthumb\fR"
+
+.IX Item "\fB\-mapcs-32 | \-mapcs-26 | \-mapcs-float | \-mapcs-reentrant | \-moabi\fR"
+
+.IX Item "\fB\-\s-1EB\s0 | \-\s-1EL\s0\fR"
+
+.IX Item "\fB\-mthumb-interwork\fR"
+
+.IX Item "\fB\-k\fR"
+
+.IX Item "\fB\-O\fR"
+
+.IX Item "\fB\-O\fR"
+
+.IX Item "\fB\-n\fR"
+
+.IX Item "\fB\-N\fR"
+
+.IX Item "\fB\-\s-1ACA\s0 | \-\s-1ACA_A\s0 | \-\s-1ACB\s0 | \-\s-1ACC\s0 | \-\s-1AKA\s0 | \-\s-1AKB\s0 | \-\s-1AKC\s0 | \-\s-1AMC\s0\fR"
+
+.IX Item "\fB\-b\fR"
+
+.IX Item "\fB\-no-relax\fR"
+
+.IX Item "\fB--m32rx\fR"
+
+.IX Item "\fB--warn-explicit-parallel-conflicts or --Wp\fR"
+
+.IX Item "\fB--no-warn-explicit-parallel-conflicts or --Wnp\fR"
+
+.IX Item "\fB\-l\fR"
+
+.IX Item "\fB\-m68000 | \-m68008 | \-m68010 | \-m68020 | \-m68030\fR"
+
+.IX Item "\fB| \-m68040 | \-m68060 | \-m68302 | \-m68331 | \-m68332\fR"
+
+.IX Item "\fB| \-m68333 | \-m68340 | \-mcpu32 | \-m5200\fR"
+
+.IX Item "\fB\-m68881 | \-m68882 | \-mno-68881 | \-mno-68882\fR"
+
+.IX Item "\fB\-m68851 | \-mno-68851\fR"
+
+.IX Item "\fB\-mpic | \-mno-pic\fR"
+
+.IX Item "\fB\-mall\fR"
+
+.IX Item "\fB\-mall-extensions\fR"
+
+.IX Item "\fB\-mno-extensions\fR"
+
+.IX Item "\fB\-m\fR\fIextension\fR \fB| \-mno-\fR\fIextension\fR"
+
+.IX Item "\fB\-m\fR\fIcpu\fR"
+
+.IX Item "\fB\-m\fR\fImachine\fR"
+
+.IX Item "\fB\-mb\fR"
+
+.IX Item "\fB\-ml\fR"
+
+.IX Item "\fB\-m68hc11 | \-m68hc12\fR"
+
+.IX Item "\fB--force-long-branchs\fR"
+
+.IX Item "\fB\-S | --short-branchs\fR"
+
+.IX Item "\fB--strict-direct-mode\fR"
+
+.IX Item "\fB--print-insn-syntax\fR"
+
+.IX Item "\fB--print-opcodes\fR"
+
+.IX Item "\fB--generate-example\fR"
+
+.IX Item "\fB\-Av6 | \-Av7 | \-Av8 | \-Asparclet | \-Asparclite\fR"
+
+.IX Item "\fB\-Av8plus | \-Av8plusa | \-Av9 | \-Av9a\fR"
+
+.IX Item "\fB\-xarch=v8plus | \-xarch=v8plusa\fR"
+
+.IX Item "\fB\-bump\fR"
+
+.IX Item "\fB\-G\fR \fInum\fR"
+
+.IX Item "\fB\-\s-1EB\s0\fR"
+
+.IX Item "\fB\-\s-1EL\s0\fR"
+
+.IX Item "\fB\-mips1\fR"
+
+.IX Item "\fB\-mips2\fR"
+
+.IX Item "\fB\-mips3\fR"
+
+.IX Item "\fB\-mips4\fR"
+
+.IX Item "\fB\-mips32\fR"
+
+.IX Item "\fB\-mips64\fR"
+
+.IX Item "\fB\-m4650\fR"
+
+.IX Item "\fB\-no-m4650\fR"
+
+.IX Item "\fB\-mcpu=\fR\fI\s-1CPU\s0\fR"
+
+.IX Item "\fB--emulation=\fR\fIname\fR"
+
+.IX Item "\fB\-nocpp\fR"
+
+.IX Item "\fB--trap\fR"
+
+.IX Item "\fB--no-trap\fR"
+
+.IX Item "\fB--break\fR"
+
+.IX Item "\fB--no-break\fR"
+
+.IX Item "\fB\-n\fR"
+
+.IX Item "\fB\-jsri2bsr\fR"
+
+.IX Item "\fB\-nojsri2bsr\fR"
+
+.IX Item "\fB\-sifilter\fR"
+
+.IX Item "\fB\-nosifilter\fR"
+
+.IX Item "\fB\-relax\fR"
+
+.IX Item "\fB\-mcpu=[210|340]\fR"
+
+.IX Item "\fB\-\s-1EB\s0\fR"
+
+.IX Item "\fB\-\s-1EL\s0\fR"
+
+.IX Header "SEE ALSO"
+
+.IX Header "COPYRIGHT"
+

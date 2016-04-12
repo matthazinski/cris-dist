@@ -1,0 +1,178 @@
+#! /usr/bin/perl -w
+# Keep the -w and remove your bugs instead.
+#
+# strip-wrap - wrapper for "strip-cris".
+#
+# Copyright (C) 2000, 2001 Axis Communications.
+#
+# Purpose is to stop strip from trying to strip dynlinked programs on
+# elinux; binutils strip silently ruins executables, and it is a large
+# problem to find what symbols *not* to remove.  Not worth fixing; people
+# have to use "-s" when linking.
+
+# "Declare" variables.
+undef $real_strip;
+undef $strip_path;
+undef $shlib_magic;
+undef $ME;
+undef $i;
+undef @files;
+undef $infile;
+undef $magic;
+undef $text;
+undef $textlen;
+undef $data;
+undef $datalen;
+undef $bsslen;
+undef $symsize;
+undef $startaddr;
+undef $trelocsize;
+undef $drelocsize;
+undef $syms;
+undef $drelocs;
+undef $trelocs;
+undef $stringlenV;
+undef $stringlen;
+undef $strings;
+undef $file_opened;
+
+# Find directory of real self (non-symlink).  Expect the real strip to be
+# there too.
+$real_strip = "rstrip-cris";
+$ME = $0;
+$shlib_magic = " ELINUX SHLIB\x0a";
+$file_opened = 0;
+
+if (index ($ME, "/") == -1)
+{
+  chomp ($strip_path = `which $ME`);
+
+  $strip_path = "./$ME" if $? != 0;
+}
+else
+{
+  $strip_path = $ME;
+}
+
+$strip_path = my_readlink($strip_path)
+    while (-l $strip_path);
+
+$0 = substr ($strip_path, 0, rindex ($strip_path, '/')) . "/$real_strip";
+
+die ("Cannot find real $ME - expected in $0\n")
+    unless -x $0;
+
+# Assume files are specified last on the line, and
+# preceded only by dash-options (no option-arguments).
+# Also assume all files are in the same format.
+
+for ($i = $#ARGV; $i >= 0; $i--)
+{
+  unshift @files, $ARGV[$i]
+      if substr($ARGV[$i], 0, 1) ne "-";
+}
+
+# Just check the last file.  If there's any error anywhere, just let the
+# real strip program emit it.
+
+$infile = pop @files;
+
+# First we read the header
+open (IN, "<$infile")
+    || realprog ();
+
+$file_opened = 1;
+binmode IN; # Prepare for MS systems or other creatures.
+
+# At least contents corresponding to an a.out header should be there.  If it
+# isn't, let the real strip emit the error message.
+defined (read IN, $header, 32)
+    || realprog ();
+
+# Split up the header parts.
+($magic, $textlen, $datalen, $bsslen, $symsize, $startaddr,
+ $trelocsize, $drelocsize)
+    = unpack ("VVVVVVVV", $header);
+
+# Check magic for a linked elinux program.  If no match, go exec the real
+# strip.
+realprog ()
+    unless ($magic == 0x1ff0108);
+
+# Read each part of the file into a "string".
+defined (read IN, $text, $textlen)
+    || realprog ();
+
+defined (read IN, $data, $datalen)
+    || realprog ();
+
+defined (read IN, $trelocs, $trelocsize)
+    || realprog ();
+
+defined (read IN, $drelocs, $drelocsize)
+    || realprog ();
+
+defined(read IN, $syms, $symsize)
+    || realprog ();
+
+# Take a break here.
+#  print "Textsize: $textlen, Datasize: $datalen\n";
+#  print "Textrelocs: $trelocsize, Datarelocs: $drelocsize\n";
+#  print "Syms: $symsize, Start: $startaddr, Bss: $bsslen\n";
+
+# There may be no strings.  This cannot be seen until we try
+# to read them, as the length is not located in the header.
+if (!defined (read IN, $stringlenV, 4)
+    # Give it some slack; 0..4 bytes for length equals no strings.
+    || ($stringlen = unpack ("V", $stringlenV)) < 4)
+{
+  realprog ();
+}
+
+# Get the strings, so we can start with the cumbersome stuff.
+$stringlen = unpack ("V", $stringlenV);
+
+#  print "Strings: $stringlen\n";
+
+defined (read IN, $strings, $stringlen - 4)
+    || realprog ();
+
+# I don't see how that magic string can get into the string table for
+# programs other than elinux binaries linked -shlib.
+realprog () unless index ($strings, $shlib_magic) != -1;
+keel ("$infile: Dynamically linked elinux executables are not strippable");
+
+sub realprog
+{
+  close IN if $file_opened;
+  exec $0, @ARGV;
+}
+
+sub keel
+{
+  ($arg) = @_;
+
+  die ("$ME: $arg\n");
+}
+
+# Return a *usable* path when a symlink is read.
+sub my_readlink
+{
+  my ($symlink_loc) = @_;
+  my $followed_link = readlink ($symlink_loc);
+
+  # If it doesn't *start* with a "/", then it's relative.
+  if (index ($followed_link, "/") != 0)
+  {
+    # If symlink_loc *contains* a "/", then prepend everything before the
+    # last slash to what we read from the symlink.
+    if (index ($symlink_loc, "/") != -1)
+    {
+      $followed_link
+	  = substr ($symlink_loc, 0, rindex ($symlink_loc, '/'))
+	      . "/$followed_link";
+    }
+  }
+
+  $followed_link;
+}

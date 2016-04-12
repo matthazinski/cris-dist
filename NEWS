@@ -1,0 +1,1080 @@
+News and visible changes in cris-dist-1.64 since cris-dist-1.63-v32
+and cris-dist-1.63:
+
+Installation (and build) time:
+
+- The cris-dist-1.63-v32 sources are merged in.  The default is
+  now to compile variants for both CRIS v32 (as in ETRAX FS) and
+  CRIS.  A new option to install-cris-tools and its interactive
+  session allows for building just a subset (like, either-or).
+
+- The target cris-axis-aout (used with -melinux) is no longer
+  supported.
+
+- A build-time bug preventing binutils/opcodes/cris-dis.c (in
+  cris-dist-1.63-v32) from being compiled on systems with a
+  recent version of GCC has been fixed.
+
+- Glibc compilation would fail with a mysterious error:
+   In file included from C-ctype.c:23:
+   C-translit.h:7: parse error before ';' token
+   C-translit.h:13: parse error before ';' token
+  on systems with "cc" but no "gcc", but where cc was actually
+  gcc.  This was reported to happen on a system using the Ubuntu
+  distribution.  While that's a dubious arrangement, the
+  mistaken assumption in glibc has been fixed.
+
+- Space characters in the requested build, source or
+  installation paths are actively recognized and refused,
+  instead of causing ungraceful build failures.
+
+- The machinery that is supposed to warn for unsupported host
+  system has been corrected, which was causing confusion where
+  e.g. Mac OS X was diagnosed as supported.
+
+Compiler problems that have been fixed:
+
+- A compiler bug generating incorrect code.  For details, see
+  <URL:http://gcc.gnu.org/PR30665>.
+
+- A linker bug causing link time errors on "64-bit hosts":
+   arch/cris/mm/mm.o(.text+0x1e0): relocation truncated to fit: R_CRIS_32
+  (this was fixed already in cris-dist-1.63-v32).
+  See <URL:http://sourceware.org/PR1567> for details.
+
+- An internal compiler error for C++ with v32, where the error
+  message looked like:
+   x.cc: In function `void f()':
+   x.cc:622: Attempt to delete prologue/epilogue insn:
+   ...
+  for code that essentially looked like:
+   void f() { while (1) may_throw(); }
+  i.e. no return from ordinary (non-exceptional) control-flow,
+  but calling functions that could throw an exception.
+
+- An internal compiler error trigged by e.g. code in the
+  readline-5.1 sources.  For details, see
+  <URL:http://gcc.gnu.org/PR25947>.
+
+- A code-generation bug causing an assembler error like:
+   x.s:14: Error: Immediate value not in 8 bit range: -513
+  For details, see <URL:http://gcc.gnu.org/PR25718>.
+
+- Improved use of newlib/libgloss for stand-alone (non-Linux)
+  single-main-loop/"monolithic" target systems using the
+  cris-axis-elf or crisv32-axis-elf toolchains: the interrupt
+  table, its entries and the system setup code can each now be
+  individually overrided by a library or objects on the
+  command-line.  See libgloss/cris for code (better
+  documentation is planned).
+
+News and visible changes in cris-dist-1.63-v32
+since cris-dist-1.60-v32 (see also other items between
+1.60 and 1.63):
+
+- Fix for gcc bug causing miscompilation of UPnP.
+
+- crisv32-axis-elf-* tools are now built and installed.  Besides
+  as PREFIX/bin/crisv32-axis-elf-gcc they can also be accessed
+  as "gcc-cris -march=v32" (note, without the "-mlinux" option).
+  There will be no crisv32-axis-aout-* tools.
+
+News and visible changes in cris-dist-1.63:
+
+- Fixes a GCC bug that would cause an internal compiler error.
+  For details, see <URL:http://gcc.gnu.org/PR23424>.
+
+- Fixes an assembler bug that would cause errors for some big
+  code compiled with -fpic.  For details, see
+  <URL:http://sourceware.org/bugzilla/show_bug.cgi?id=1049>.
+
+- Fixes build errors in some non-english build environments.
+
+- A few CPU-specific assembly macros in glibc that now are
+  defined, provide depending on the program, 0.5%..1% smaller
+  binaries.  In some cases 0.1%..0.5% faster programs.
+
+News and visible changes in cris-dist-1.62:
+
+- Fixes to make compilable with gcc-4.0, on "64-bit" hosts and
+  with recent RPM.
+
+- Fixes to avoid spurious library dependencies and provisions
+  with RPM.
+
+News and visible changes in cris-dist-1.61:
+
+- Fix for GCC bugs which that cause incorrect code to be
+  generated.  For details, see <URL:http://gcc.gnu.org/PR20466>.
+  Another bug has details at <URL:http://gcc.gnu.org/PR20527>.
+
+- "trap 0" (an arcane non-POSIX construct) which occurred in
+  configure scripts in the source, has been been changed to
+  "trap - 0".  Some bash-3.0 versions (without patching) exit
+  with error on the earlier construct.  This was a build-time
+  error; it did not affect the binary packages.
+
+News and visible changes in cris-dist-1.60-v32
+since cris-dist-1.57-v32 (see also other items between
+1.57 and 1.60):
+
+- GCC now schedules for read-after-write stall cycles.  This
+  yields 0.5 .. 1.5% performance improvement.
+
+- The linker will now warn for R_CRIS_32_PCREL relocs in DSO:s;
+  commonly referred to as missing -fpic/-fPIC or missing ":PLT"
+  suffix in "bsr foo:PLT".
+
+News and visible changes in cris-dist-1.60:
+
+- A fix for another GCC bug, introduced with cris-dist-1.57,
+  could cause another internal compiler error.  For details,
+  see <URL:http://gcc.gnu.org/PR17984>.
+
+- A fix for a bug in the glibc syscall function, where the bug
+  overwrote the caller stack for calls with less than five
+  parameters, often causing a program crash.
+
+- Files were missing for a usable libbfd + libopcodes + libbfd
+  installation in /usr/local/cris/include and /usr/local/cris/lib.
+  (This is not used by the toolchain itself.  It is just installed
+  as a convenience for people who want to build programs that can 
+  e.g. disassemble CRIS code like binutils does.  Don't forget
+  that these libraries are GPL.  There is no documentation
+  installed for the API.)
+
+News and visible changes in cris-dist-1.59:
+
+- Correct flaw in last GCC bug correction.
+
+News and visible changes in cris-dist-1.58:
+
+- A GCC bug, introduced with cris-dist-1.57, could cause
+  an internal compiler error.  For details, see
+  <URL:http://gcc.gnu.org/PR17626>.
+
+News and visible changes in cris-dist-1.57-v32
+since cris-dist-1.55-v32b (see also other items between
+1.55 and 1.57):
+
+- Support register aliases (e.g. g_ccs, gcfg, g_srs, g_nrp) are
+  no longer recognized nor emitted at disassembly.  (I.e. only
+  s0..s15 are recognized and emitted.)
+
+- Fixes bug with stack-access in epilogue after deallocation.
+
+- No more unmatched16_adds.b, unmatched2_adds.b,
+  unmatched3_addo.b.
+
+News and visible changes in cris-dist-1.57:
+
+- A GCC bug causing incorrect code to be generated has been
+  fixed.  The conditions for this bug are not describable in
+  terms of source code, except that such code has execution
+  control statements such as "goto" or "if".  See
+  <URL:http://gcc.gnu.org/PR15296> for details.
+
+- Another GCC bug causing incorrect code in some circumstances
+  for functions using __builtin_return_address has also been
+  fixed.  See <URL:http://gcc.gnu.org/PR17377> for details. 
+
+- A review of generated code and optimization passes has
+  resulted in code performance improvements.  For example,
+  compared to release R56, code compiled with -O2 is now
+  0.3%..0.9% faster.  Code size has unfortunately increased
+  about 0.8%..1.4%.
+
+- In glibc, librpcsvc.a and most parts of <rpcsvc/*.h> were
+  previously not built.
+
+News and visible changes in cris-dist-1.56:
+
+- There's a workaround in GCC for a hardware bug related to
+  multiplication instructions, item 5 in the errata list at
+  <URL:http://developer.axis.com/doc/hardware/etrax100lx/des_ref/errata_etrax_100lx.txt>
+  If you're absolutely certain that the TLB registers are not
+  mapped while your code is running, you may disable the
+  workaround using the GCC option -mno-mul-bug-workaround.
+  Normal application (user-space) programs do not need the
+  workaround.  The workaround costs approximately less than 0.5%
+  performance and about 0.5% larger code, due to restrictions
+  on the placement of multiply instructions.  The glibc library
+  and the libstdc++ library for cris-axis-linux-gnu are compiled
+  with -mno-mul-bug-workaround.  Code from those libraries must
+  consequently not be linked with the Linux kernel.
+
+- A GCC bug causing incorrect code has been fixed, related to
+  (but not necessarily trigged by source using) postincrement.
+  See <URL:http://gcc.gnu.org/PR14209> for details.  For
+  example, the function inet_network in glibc/inet/inet_net.c
+  was miscompiled.
+
+- Code for C++ virtual functions was miscompiled, when compiling
+  a shared library using inherited virtual functions.  See
+  <URL:http://gcc.gnu.org/PR14346> for details.
+
+- Single-precision (the C type "float") floating-point
+  multiplication on numbers very near zero were rounded to less
+  than 0.5ulp precision.  See <URL:http://gcc.gnu.org/PR14354>
+  for details.
+
+News and visible changes in cris-dist-1.55-v32b
+since cris-dist-1.55-v32:
+
+- Fixes movu-bug.
+
+- Fixes glibc longjmp bug.
+
+News and visible changes in cris-dist-1.55-v32a
+since cris-dist-1.55-v32:
+
+- Fixes incorrect code in some stdarg cases, for example
+  int h (int a, int b, ...) { return b; }
+
+- Fixes glibc missing load of R0 in _dl_start.
+
+News and visible changes in cris-dist-1.55:
+
+- A GCC bug caused incorrect code to be generated for some code,
+  sometimes found when setting structure members smaller than 32
+  bits (but not confined to that type of code) has been solved.
+  Refer to <URL:http://gcc.gnu.org/PR13256>.
+
+- Support for the gcc-cris option combination "-melinux -s" has
+  been revived which has been broken since at least R50.
+
+News and visible changes in cris-dist-1.54:
+
+- A bug in GCC, causing it to effectively ignore volatile
+  qualifiers, has been solved.  For details, see
+  <URL:http://gcc.gnu.org/PR12598>.
+
+- A bug in the linker has been solved.  The bug caused programs
+  compiled with -fPIC or -fpic to hang when the program called
+  functions in a shared library.
+
+- A bug in glibc causing invalid return value from lseek64 has
+  been solved.
+
+News and visible changes in cris-dist-1.53:
+
+- A bug in GCC, where invalid assembly code could be generated
+  when either the -fpic or -fPIC options were used, has been solved.
+  See <URL:http://gcc.gnu.org/ml/gcc-patches/2003-04/msg00983.html>
+  for details.
+
+- The symbolic link cris-axis-linux-gnu-c++ pointing to
+  cris-axis-linux-gnu-g++ was missing from (default)
+  /usr/local/cris/bin.
+
+- A bug in the assembler, when a macro was used after an
+  #NO_APP/#APP sequence caused wrong assembly, has been fixed.
+  For details, see
+  <URL:http://sources.redhat.com/ml/binutils/2003-05/msg00259.html>.
+  This case might seem artificial.  However, if you change
+  arch/cris/kernel/entry.S in the Linux kernel to use an
+  assembler macro anywhere after the `.include "entryoffsets.s"'
+  line, the bug will cause all assembly code after the macro
+  invocation to silently be ignored.
+
+News and visible changes in cris-dist-1.52:
+
+- The version identifiers are bumped, which was missed in 1.51.
+
+News and visible changes in cris-dist-1.51:
+
+- A bug in GCC has been fixed, in which asm-constructs of a type
+  typically used for system calls could get the wrong operands.
+  Refer to <URL:http://gcc.gnu.org/ml/gcc-patches/2003-02/msg01808.html>
+  for in-depth analysis.
+
+- The glibc bugfix from R46/1.25 has been carried over (to the
+  tar-ball expected to be used with this release):
+  A bug was fixed in glibc, which caused struct stat to have
+  incorrect contents when using the feature _FILE_OFFSET_BITS=64
+  (compiling source with the macro _FILE_OFFSET_BITS defined to
+  64).  See the glibc documentation for more information about
+  this feature.
+
+News and visible changes in cris-dist-1.50:
+
+The GCC in cris-dist is now based on GCC 3.2.1.  There's some
+good and some (slightly) bad coming from this.
+
+Different (total value unknown):
+
+- Nonlinear jump in version numbers from 1.24/R45 to 1.50/R50.
+  There *may* be further releases based on 1.24/R45, but the goal is
+  that any unforeseen migration problem will be solved with a later
+  version.
+
+- Your program and library sources may have to be tweaked.  More
+  bugs and undefined behavior are found by gcc-3.2.1 (good).  For
+  example, a patch is required for devboard_lx-2.1.0 to build (bad).
+
+- Arguments to install-cris-tools have changed, for the missing
+  BuildRoot support (bad, see below) and for removing the library
+  directory argument (probably good, it was just confusing anyway).
+  This probably matters for package builders only.
+
+- The new canonical location for the tools programs is default
+  /usr/local/cris/bin.  There are compatibility symlinks from the
+  root (still default /usr/local/cris), so no changes are required for
+  makefiles, scripts or PATH:s.
+
+Good:
+- All the good things that come with gcc-3.2.1:
+  <URL:http://gcc.gnu.org/gcc-3.2/changes.html>.
+
+- Slightly faster code, slightly smaller code.  (It varies with the
+  application, but code is generally in the order of 1% faster and 1%
+  smaller.)
+
+- The canonical toolchain names are now supported (in the bin
+  subdirectory), e.g. cris-axis-elf-gcc, cris-axis-aout-gcc and
+  cris-axis-linux-gnu-gcc.  If you have used other GCC-based
+  cross-compiler toolchains, these will look familiar.  Use of
+  the old gcc-cris name is supported by a script calling the
+  proper compiler.  If you use the canonical toolchain names,
+  you can omit and forget the options "-melf" "-maout" and
+  "-mlinux".
+
+Bad:
+- The compiler part of the toolchain is now split in three:
+  cris-axis-elf, cris-axis-aout and cris-axis-linux-gnu.  Thus the
+  storage needed for the installed parts of the toolchain has
+  increased from (figures in bytes) ~110M to ~160M, the required
+  temporary storage from ~510M to ~730M and build time went up 30-70%.
+  See README for updated figures.  Previously, a single toolchain was
+  able to serve three purposes: generating (mostly historical) a.out
+  objects, generating ELF objects for monolithic-program use and for
+  generating ELF objects for GNU/Linux.  In a future release, I may
+  add support for selecting which toolchain parts are wanted, when
+  building from source.
+
+- Mostly of interest for packagers, BuildRoot (a.k.a installprefix or
+  installroot) does not work anymore.  This means that the
+  installation directory (default /usr/local/cris) must be absent at
+  the start of the build.  When using cris-dist.spec and RPM, it will
+  be removed after the build.  There's hope that support will be
+  restored in a future GCC version.
+
+- Link scripts definitely have to be tweaked, (by e.g. adding
+  "*(.rodata.*)" after "*(.rodata)").
+
+- The cris-dist-linux-headers-N.M tarball now also contains
+  headers from glibc, making it 40%/400k bigger.  The headers
+  are required to be present even when the first GCC for
+  cris-axis-linux-gnu is built.  (GCC needs to be build twice to
+  solve interdependancies between GCC and glibc.)
+
+Bugs fixed:
+
+- An assembler bug causing incorrect code or an internal
+  assembler error with branches to constant addresses, for
+  example "ba 0xbadf00", has been solved.  GCC does not generate
+  such code.
+
+- To reduce the risk for hard-to-find bugs with the use of "asm", gcc
+  will now emit error when a register in the clobber list overlaps an
+  asm-declared register in the operands, with the message:
+  "asm-specifier for variable `FOO' conflicts with asm clobber list".
+  This contradiction in specifiers for the asm operands previously
+  lead to hard-to-find bugs.  For details, see
+  <URL:http://gcc.gnu.org/ml/gcc/2002-09/msg00741.html> and
+  <URL:http://gcc.gnu.org/ml/gcc-patches/2002-09/msg01287.html>.
+  (This is not in the official gcc-3.2.1, hence this specific note.)
+
+News and visible changes in cris-dist-1.24:
+
+Bug fixed: a GCC bug leading to invalid code for compilations
+without optimization (-O0) on functions containing calls to
+functions marked with attribute "noreturn", such as exit, abort
+and _exit with the glibc header system headers.
+
+News and visible changes in cris-dist-1.23:
+
+Glibc now uses the fcntl64 syscall for fcntl, enabling use of
+the F_GETLK64, F_SETLK64 and F_SETLKW64 fcntl commands.
+(This change affects no other fcntl use.)
+
+GCC now displays "2.96 Axis release R44/1.23" when given
+the option "-v" only.
+
+Bugs fixed:
+
+- A linker bug caused this code to SEGV when the linker option
+  --export-dynamic was used: 
+   int main() { double kalle = 1; printf("Bla: %f\n", kalle * 5); exit(0); }
+  Recent releases of pppd are affected by the same bug.
+
+- Another linker bug caused failure when asked to generate a
+  file with more than 65279 sections.  (This is an unusual case.)
+
+- Assembler expressions involving PC-relative expressions using
+  indexed addressing mode would emit incorrect code.  For example:
+    move.d [pc+x-(y-2)],r3
+   y:
+    .space 1000
+   x:
+  (GCC does not emit such code.)
+
+News and visible changes in cris-dist-1.22:
+
+- Glibc would crash instead of returning an error when using
+  dlsym (RTLD_NEXT, [...]) from a program (not a library).
+
+- GCC miscompiled code with __builtin_return_address(0) in
+  some functions (functions without frame-pointer).  This was
+  depended on by the glibc machinery implementing libdl,
+  including dlsym.  The result, together with the glibc bug
+  above, was that dlsym (RTLD_NEXT, [...]) calls from a library
+  crashed.
+
+News and visible changes in cris-dist-1.21:
+
+Binutils-related changes:
+
+- A linker bug: when a program was linked against a shared
+  library that needed a symbol exported from the program, the
+  needed symbol was still not exported from the program, leading
+  to an error when the program was attempted to be started.
+
+News and visible changes in cris-dist-1.20:
+
+Binutils-related changes:
+
+- A bug fixed related to the linker option --export-dynamics 
+  (alias -E, alias gcc option -rdynamic), which caused pppd to
+  be mislinked and "hello, world" linked with -E to crash the
+  linker.
+
+News and visible changes in cris-dist-1.19:
+
+Glibc-related changes:
+
+- A problem with msgfmt (GNU gettext) 0.11.1 and newer has been
+  solved.
+
+GCC-related changes:
+
+- An internal compiler error has been solved.  For a code
+  example, see <URL:http://subversions.gnu.org/cgi-bin/viewcvs
+  /*checkout*/gcc/gcc/gcc/testsuite/gcc.c-torture/compile
+  /20020701-1.c?rev=1.1&content-type=text/plain> (remove newline
+  and spaces before each "/").
+
+News and visible changes in cris-dist-1.18:
+
+GCC-related changes:
+
+- Bugfix 1:
+  This code was miscompiled:
+   int p; int k; unsigned int n = 30;
+   void x ()
+   {
+     unsigned int h;
+     h = n <= 30;
+     if (h) p = 1; else p = 0;
+     if (h) k = 1; else k = 0;
+   }
+
+Binutils-related changes:
+
+- FSF binutils 2.12.1 has been merged in, with some subsequent
+  bug-fixes added.  This should not have any visible effect,
+  though.
+
+News and visible changes in cris-dist-1.17:
+
+General changes:
+
+- The elinux-headers package is no longer required to build and
+  install glibc.
+
+- When building glibc, a missing glibc or linux-headers or
+  obsolete version of some program needed for building, is now
+  signalled as an error, where previously the glibc build and
+  install was just skipped.  To skip building glibc, *neither*
+  glibc nor linux-headers must be present.
+
+GCC-related changes:
+
+- Bugfix 1:
+  Incorrect code, always calling "fail" regardless of the value
+  of the variable e, was generated for:
+   extern unsigned long e;
+   extern void fail (void);
+   void
+   ni(void)
+   {
+     if (~e > ~0UL || e > 0xffffUL)
+       fail ();
+   }
+
+- Bugfix 2:
+  Incorrect code, passing 0 instead of 255, would be generated
+  for the following:
+   extern void tw (const unsigned char *buf, unsigned int len);
+   extern void x (void);
+   void x(void)
+   {
+     const unsigned char s[4] = {255, 250, 44, 101};
+     tw(s, 4);
+   }
+
+- Bugfix 3:
+  The option -dM did not work; macros without parameters were
+  not output.
+
+- Bugfix 4:
+  Incorrect code was emitted for the following; tail recursion
+  was invalidly applied:
+   int f(int a,int *y)
+   {
+     int x = a;
+     if (a==0)
+       return *y;
+     return f(a-1,&x);
+   }
+
+- Bugfix 5:
+  GCC would emit an internal error instead of just a syntax
+  error when an operator was applied to a structure, like in:
+   typedef struct { unsigned short s; } t;
+   struct u { t v; };
+   int foo (struct u *uu)
+   {
+     int i = ((unsigned int) ((uu->v) & 42));
+     return i;
+   }
+
+- The option -shared at link-time now also implies -mlinux.  In
+  previous versions it was invalid to use -shared
+  without -mlinux.  However, old libtool scripts would
+  incorrectly strip the -mlinux option when generating shared
+  libraries, unnecessary complicating the process of porting
+  packages that include shared libraries.
+
+Binutils-related changes:
+
+- FSF binutils based on the snapshot of 2002-02-01 has been
+  merged in, with some subsequent bug-fixes added.  This should
+  not have any visible effect, though.
+
+- The option --gc-sections is ignored when linking both a.out
+  and ELF files together.  This is not a common situation but
+  previously led to a linker crash.
+
+- There is now a CRIS-specific section in the GAS info pages.
+
+- Linking files compiled with -mlinux together with files
+  compiled without it no longer leads to a linker crash, only
+  error.
+
+News and visible changes in cris-dist-1.16:
+
+When used for GNU/Linux, this release is expected to be
+installed together with linux-headers for linux-2.4.14.  It has
+been tested with the linux-2.4.5-based devboard_lx-2.0.0
+release, with no compatibility issues found.  Glibc is now
+compiled with debug-information, to enable debugging with a
+future gdb release.
+
+Some bugs have been fixed:
+
+  - (GNU/Linux only): Glibc termios.h definitions for
+    baudrates above 460800 baud were wrong.
+
+  - A C/C++ compiler bug, expected to generate incorrect code
+    (but not found in "live" code).
+
+  - A C/C++ compiler bug, causing it to emit "Internal compiler
+    error in `cris_print_operand'" instead of a proper error,
+    when encountering incorrect assembly code.
+
+  - (Newlib/libgloss only; no known applications): A dummy
+    (always failing) _fcntl function has been added to enable
+    linking for test purposes.
+
+News and visible changes in cris-dist-1.15:
+
+This is just a bugfix release, fixing these visible bugs:
+
+  - (GNU/Linux only): The pthreads library was linked in *after*
+    the C library, so it didn't replace functions as necessary
+    for correct handling of thread-shared resources such as
+    files.  The most prominent behavior was that calling fork in
+    a thread didn't work.
+
+  - A C++ compiler bug, visible with libxml++ version 0.13 as
+    "Internal compiler error 20000430".
+
+  - A C compiler bug visible with samba version 2.2.1a as
+    "Internal compiler error in `verify_wide_reg_1'".
+
+  - Symbol references in tables used for C++ exception handling
+    were incorrectly handled, which could lead to exceptions
+    not being caught.  No known real-life cases.
+
+  - (GNU/Linux only): The dynamic loader didn't by default look
+    in /usr/lib (as documented); only /lib.  No known real-life
+    cases.
+
+News and visible changes in cris-dist-1.14:
+
+This is just a bugfix release, fixing these visible bugs:
+
+  - When building glibc, because of spurious timestamp
+    difference, the build process could want to rebuild
+    glibc/configure and would fail if it could not find
+    autoconf.  Autoconf is not required when installing these
+    tools unmodified.
+
+  - Two bugs each causing incorrect code to be generated by gcc,
+    that were found when compiling:
+    * xmltok.c from the "expat" library (unknown version).
+    * chown.c from busybox version 0.52.
+
+News and visible changes in cris-dist-1.13:
+
+This is just a bugfix release, fixing these visible bugs:
+
+* Installation problems:
+
+  - The binary (i386) RPM incorrectly required (GNU) make version
+    3.79, but the source RPM didn't.
+
+  - The source RPM did not check for presence of the right
+    version of the "makeinfo" program, whose absence would cause
+    glibc info files to not be installed and cause the
+    installation script trip over that as an unexpected
+    inconsistency.
+
+  - A trailing "/" on the directory for the binaries would cause
+    problems if that directory was a parent directory of the
+    libraries directory.  For example, "/usr/local/cris/" and
+    "/usr/local/cris/lib/gcc-lib/cris/2.96".
+
+  - A previous partial (aborted) installation was not detected
+    correctly, but caused the new installation to fail.
+
+* Linker bugs:
+
+  - Incorrect error checking would unexpectedly cause "bfd
+    assertion" messages when linking some programs.
+
+  - The linker would abort rather than emit an error message when
+    doing relocatable linking "-r" with mismatching object
+    formats for input and output files (like not specifying the
+    correct non-default format when linking elinux a.out files).
+
+  - For elinux, linking dynamically with a library called e.g. libx.a
+    and specified as just "libx.a" on the command line could cause the
+    library to not be found at runtime.
+
+  - The linker option --export-dynamic (corresponding to the
+    gcc-cris option -rdynamic) caused incorrect output.
+
+* GCC bugs:
+
+  - Incorrect code would be generated when compiling OpenSSL
+    0.9.6 (local to using DSA, which is not normally used).
+
+  - GCC would abort when compiling the Linux kernel with IrDA
+    enabled.
+
+  - The directory given with the option "-isystem" together with
+    "-mlinux" or "-melinux" did not override installed "<>"
+    system directories.
+
+  - The option "-pthread" together with the option "-mlinux" was
+    not supported, but will now give the expected behavior, that
+    of any GNU/Linux system.
+
+* Glibc bugs:
+
+  - Generic, non-working versions of setjmp and _setjmp were
+    installed.
+
+News and visible changes in cris-dist-1.12 (since cris-dist-1.11):
+
+* There now support for dynamic linking for Linux/CRIS
+  (-mlinux).  This works just as for a standard GNU/Linux
+  system, though all objects in a dynamic library must be
+  compiled with -fPIC or -fpic.  Note also that the dynamic
+  linker is defined to have the standard name ELF name ld.so.1,
+  not ld-linux.so.2 as on Linux/i386.
+
+* A port of recent glibc CVS (about 2.2.3, early April) to
+  Linux/CRIS is now dropped in and installed with a standard
+  installation, reachable with the -mlinux option.  Refer to
+  Linux/CRIS-related information at
+  <URL:http://developer.axis.com>.
+
+* Support for posix threads, pthreads, is compiled in for
+  Linux/CRIS, though functionality should be considered to be at
+  an experimental stage.
+
+* There's no glibc installed for elinux any more (on Etrax 100;
+  as opposed to Linux/CRIS on Etrax 100 LX).  The one installed
+  with previous releases was obviously used very rarely and it
+  was buggy at that.  The new glibc does not have support for
+  elinux.
+
+* A bug in gcc related to adding a constant in the range
+  -32768 .. -1 to a 64-bit number (long long) has been fixed.
+
+* A bug in gcc related to the use of __builtin_expect has been
+  fixed.
+
+* Some external (ELF, non-Linux) tool programs expected the
+  linker-generated symbol __Stext to be present even though it
+  wasn't referred to in the compiled program.  Furthermore, if
+  it was defined, it had the wrong value.  This had been
+  corrected.
+
+* GNU make is now a prerequisite to compile these sources, while
+  previously a POSIX compliant make-program may have been
+  sufficient.  Note that you need GNU make 3.79 or newer to
+  compile glibc.
+
+* Build problems building with "CC=gcc -O2 -static" on Solaris
+  have been solved.
+
+News and visible changes since cris-dist-1.10:
+
+This is just a bugfix release, fixing these visible bugs:
+
+* The handling of #include <> versus #include "" was wrong.
+  For example, using both #include <foo.h> and #include "foo.h"
+  where there was a file foo.h in the current directory or one
+  specified with the option -Idir would include <foo.h> twice.
+
+* Some -g options imply one of the dwarf debugging formats, and
+  would fail to assemble with -maout and -melinux.  A warning
+  message is now instead displayed, and the debug format reverts
+  to the stabs format.
+
+News and visible changes since cris-dist-1.9:
+
+* THE ABI HAS CHANGED!
+  It is necessary to recompile all your libraries and programs.
+  Specifically, the type "double" is now 64 bits, equal to the
+  old "long double" type.  Also, parameters up to and including
+  64 bits (such as double and long long) are now passed by-value;
+  compared to previously just up to 32 bits.  One or two such
+  parameters, if among the first, are passed in two consecutive
+  registers, in the range r10..r13.  A 33..64-bit parameter can
+  be passed with the low part in r13 and the high part on stack.
+  Note that programming manuals need to be updated.  No further
+  C ABI changes are anticipated.  Note that the C++ ABI will
+  change, as gcc-cris will be based on GCC 3.0 in a future
+  release.
+
+* Note that ELF format objects are now generated by default.  The
+  utility bin-cris is now a shell-script calling the "objcopy"
+  program from binutils.  If you used other programs to convert
+  the compiled program, you might want to use it, or compile and
+  link using "-maout" to get the old linked format.
+
+* install-cris-tools now take an optional 6th parameter,
+  specifying a prefix prepended to the root of the installation
+  directories.  This parameter can only be specified on the
+  command-line, and is not asked for interactively.  Some sanity
+  checks are omitted when this parameter is specified.
+
+* glibc installation: An *experimental unstable* variant for
+  linux/CRIS is installed, in parallel to the "elinux" one.
+  The system call ABI (and most everything else) is subject to
+  change.
+
+  Libraries for elinux (and linux) are now installed under
+  subdirectories elinux and linux, to the (by default) directory
+  "/usr/local/cris/lib/gcc-lib/cris/2.96".  In previous versions
+  they were installed in subdirectory "elinux/lib".
+
+* gcc: ELF support.  Compiles to ELF and links to a.out by
+  default.  Options -melf and -maout added.
+
+  The default is to compile and link to ELF.  If you know you
+  need a.out objects, compile and link with "-maout".  It is
+  recommended that new projects use ELF.  Note that if you link,
+  but do not compile with "-maout", the program should work, but
+  you are likely to run into problems with e.g. lost debug
+  information.
+
+  Startup code for ELF images need to be put in the .startup
+  section, using the '.section .startup,"ax"' ELF assembly
+  directive.
+
+  If you need to set the code start-address of an ELF image, use
+  "-Wl,--section-start,.startup=address" in place of the
+  "-Ttext address" used with a.out images.
+
+  To compile and link in optimized libraries for CRIS v10
+  (as in Etrax 100 LX), use the option "-march=v10" when you
+  compile and link.
+
+  New preprocessor macros:
+  + One of __ELF__ and __AOUT__ is defined (to 1) depending on
+    what object format is compiled to. 
+  + __CRIS_arch_version holds the number N of the corresponding
+    -march=vN option (or the deprecated -mcpu=vN) option.
+  + __CRIS_ABI_version is defined to 2 for this release.
+
+  Bug fixed regarding error message from location of instantiated
+  template.
+
+  New option -mlinux for linux/CRIS.  Using that option assumes
+  by default to compile for a CRIS v10 CPU and ELF format.
+  This generates a similar but link-incompatible variant of the
+  default ELF format.  The assembly language syntax of this
+  variant is slightly different.  See binutils section below.
+
+  The gcc-cris port has been submitted to the GNU GCC project,
+  for inclusion in new releases.  It may or may not be part of a
+  GCC 3.0 release.
+
+* binutils: ELF support.  The gas assembler is now a
+  multi-format assembler, and can generate a.out or ELF using
+  options --em=crisaout or --em=criself.  The default is a.out.
+  Note that a.out and ELF supports slightly different syntax.
+  Archives (*.a) need to contain only one object format.
+  Debug information is completely whacked when linking ELF into
+  a.out.
+  Linking a.out and ELF together with the options used above has
+  no other restrictions.
+
+  Registers can now have an optional dollar-sign-prefix,
+  e.g. $r10 and $srp.
+
+  When compiling with the gcc -mlinux option, an ELF variant
+  is selected by use of an additional assembler option
+  --no-underscore, which is link-incompatible with the a.out and
+  default ELF format.  With this option, the dollar-sign-prefix
+  to register names is mandatory in assembly code, and symbols
+  specified in C code no longer have an underscore character
+  prepended by the compiler.
+
+  The CRIS binutils port is now part of the official GNU binutils
+  sources, and is expected to be available in GNU binutils
+  releases from version 2.11.
+
+News and visible changes since cris-dist-1.8:
+
+This is just a bugfix release, fixing these visible bugs:
+
+* gcc:  Compiler crash with inline functions under certain
+  circumstances.
+  See <URL:http://gcc.gnu.org/ml/gcc-patches/2000-06/msg00310.html>.
+
+* binutils: Linker crashes when emitting error message on .stabs
+  N_FUN entry with zero-length function name.
+
+* install-cris-tools: Updating an installation (not installing
+  from scratch) where the binaries path is a root of library
+  path (as with /usr/local/cris and
+  /usr/local/cris/lib/gcc-lib/cris/2.96) and *not* installing
+  glibc fails.
+
+
+News and visible changes since cris-dist-1.7:
+
+* The binutils (assembler, linker etc) have been updated to
+  binutils-2.9.1.  This means new options, but foremost that the default
+  output format of the disassembler has changed radically.
+  Tools parsing this format have to be updated, perhaps eased by using
+  the new objdump-cris options "--prefix-addresses --show-raw-insn".
+
+* New gcc, based on development version "2.96 20000427 (experimental)".
+  Initial testing showed this "experimental" version to be substantially
+  more stable than gcc-2.95.3.
+
+* New C library; now based on newlib.  This version is based on a
+  development CVS version as of same date as GCC, but is very close to
+  newlib-1.8.2.
+
+* The new gcc version includes STL, C++ libraries and headers.  This is
+  still "libstdc++ v2", though, so some standard functionality is missing.
+  The library is not thread-safe.
+
+* Other important C++-related news is that exceptions and rtti are default
+  on.  Exceptions are not thread-safe in this implementation.  The GCC
+  extension of programmer-specified constructor priority works.
+
+
+News and visible changes since cris-dist-1.6:
+
+* An assembler bug that made it impossible to have expressions
+  using differences between labels in the same segment as
+  operands to instructions has been solved.
+
+
+News and visible changes since cris-dist-1.5:
+
+* A bug has been solved with optimizing the use of condition
+  codes in gcc after an "add"- or "sub"-type instruction.
+
+* Minor improvement in the function prologue (saving registers
+  and setting up the stack frame) with -march=v8 or higher.
+
+* Although not visible at normal use, the testsuite framework
+  from (up to) binutils 2.9 has been imported, pending a
+  binutils upgrade and submission process.  Assembler tests for
+  the CRIS port have been written.
+
+* Thanks to the testsuite, a number of minor bugs in the
+  assembler and disassembler have been fixed.  The most visible
+  fixed bug was the newly introduced mis-disassembly as (e.g.)
+  "move p8,dest" instead of "clear.d dest".
+
+* For the assembler, option "-O" (warn for branch expansion) has
+  been changed into "-N".  Related warning messages have also
+  been modified.
+
+* Mnemonic changes:
+  - The mnemonic "bf" has been changed to "bwf" (for v10, same
+    opcode as old "bext").
+  - New "swf" (for v10, as "sext").
+  - Removed "bir" (never in v8 but with same opcode as "bext")
+    and "link" (never in any version, but collided with "rbf").
+
+
+News and visible changes since cris-dist-1.4:
+* Full support for CRIS v10 (Etrax NG) additions to the
+  instruction set.
+* Faster memset.
+* "Faster" multiplication - optimizes on 16*16 and 16*32.
+* gcc-cris no longer defaults to -O2.
+* install-cris-tools can install over a previous installation,
+  performing an "upgrade".
+* Disassembly of code using immediate values and push with
+  special register 7 (dcr1 on v0..3/Etrax 1..4, mof on
+  v10/Etrax NG) will be wrong for Etrax 1..4, since that
+  register has changed size from 2 to 4 bytes for Etrax NG.
+  (The assembler will generate the right code, using the
+  register name to differ: dcr1 => 2 bytes; mof => 4 bytes,
+  other => 4 bytes and a warning).
+* The switches -march=* and -mtune=* results in the macros
+  __arch_* and __tune_* (respectively) being defined.  In
+  addition, -mcpu=* also results in __arch_* being defined.
+* Special register names p0..p15 are supported (unimplemented
+  ones with a warning).
+* Provide -shlib as synonym for (now deprecation candidate)
+  -symbolic.
+
+Bugs fixed since cris-dist-1.4:
+* -B flag affects the augmented search path with -melinux the
+  way it should.
+* Use of "strip-cris -x" on objects no longer strips weak
+  symbols.
+* Use of "strip-cris" on static executables no longer "strips"
+  the relocs (strip still does not work on dynamically linked
+  executables and may never will).
+* Demangling C++ symbols with a "volatile" qualifier using
+  c++filt-cris now works (PR#8).
+* Linking dynamically in elinux with "-L../" (dotdot-slash) now
+  works.
+* Linker fixup script (ldur-cris) now handles linker crashes
+  gracefully.
+
+-------------------------------------------------------------
+
+News and changes since cris-dist-1.3 (note: old file CHANGES
+merged in without major editing):
+
+* Experimental support for "muls" and "mulu" instructions in
+  binutils and gcc.
+* The CRIS port is now documented in the gcc/*.texi files (and
+  the *.info* files are regenerated).
+* No more never-implemented "mul" instruction in binutils.  Now
+  not-yet implemented "muls" and "mulu"...
+* Use -symbolic, not -shared, when linking with shared libraries
+  on elinux.
+* Bug with "arithmetically adjusted" postincrement in delay-slot
+  fixed.
+* Use -mcpu=X for v0..10 (or Etrax4=3, Etrax100=8, ng=10).
+  The switches -metrax4 and -metrax100 are now deprecated.
+
+-------------------------------------------------------------
+
+Some notable changes since cris-dist-1.2:
+* Experimental support for shared libraries.
+* Experimental support for installing elinux glibc (and
+  necessary kernel headers).
+* elinux libraries expected in elinux/lib, include files in
+  elinux/include.
+* elinux crt0 (ucrt0) no longer here.
+* Fixed bugs with weak symbols defined and used in the same file.
+* Installation problems with Red Hat 6.0 solved.
+* Bug with not ignoring arguments ('*' modifier) in Xscanf
+  functions solved.
+* Bugs with elinux and not removing executable when linker
+  errors, and not setting executable permissions have been
+  solved.
+
+-------------------------------------------------------------
+
+Some somewhat noteworthy changes since cris-dist-1.1, besides
+other bugfixes:
+
+* Weak-support with -mweak.  Default with -melinux
+* Compilation with -O0 broke in R22, fixed.
+* Weak-support, see NEWS.
+* Perl 5.004 only needed for -melinux, not bin-cris; it just
+  needs Perl 5.003
+* Tools now (more correctly) installed as cris-* and *-cris
+
+Some somewhat noteworthy changes since cris-dist-1.0, apart from
+minor bugfixes in lots of places:
+
+* Overall:
+- "long double" now 64 bits.  You may notice code bloat due to
+  the extra library functions, but code that does not use it
+  (for example, sprintf() does) should have shrunk by ~1%.
+- It seems this kit would install properly in the following host
+  environments:
+  * GNU/Linux 2.x i[3456]86
+  * sun-sparc-sunos-4.x (Solaris 1)
+  * sun-sparc-sunos-5.x (Solaris 2) (with gcc)
+  * ibm-aix (with gcc)
+  * powerpc-ibm-aix4.2.1.0 (with gcc)
+
+  It does *not* work on:
+  * hppa1.1-hp-hpux11.00 (with default vendor-supplied compiler).
+
+* gcc:
+- GNUification started: cris.md assimilated, cris.c partly.
+  (as part of this: cleaned up of most or all md uglinesses
+  confessed in my thesis). 
+- Bug in c++filt fixed.
+- C++: Bug with inline (templates) getting strange parse errors
+  "near char '\0'" (or similar) fixed.
+- Bug in reload fixed (caused crashes with "unrecognized insn").
+
+* installation:
+- Tools installed both as cris-... and ...-cris.  There are
+  links to copies installed as canonical names ("gcc", "as") in
+  libsubdir.
+- Slightly more portable.
+
+* cris-libc:
+- Some bugs fixed: floor(), fseek(), ftell(), fread(), the
+  function formatting floating-point-values (_Ldtob).
+
+* binutils:
+- Renamed a generic function due to portability problems.
+
+* cris-romtools:
+- Post-link (temporary) script added to cope with relocs not
+  resolved, used with elinux (only if perl v 5.004 is installed).
+- Changed required location of perl to /usr/bin in perl-script
+  bin-cris.
+- Un-ansified functions for better portability.
+
+-------------------------------------------------------------
+
+News since cris-dist-1.0:
+* Rudimentary cpp-headers; not a complete libstdc++/libg++, sorry.
+* Compiler support for elinux (but glibc and headers are not provided).

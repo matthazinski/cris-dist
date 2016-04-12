@@ -1,0 +1,206 @@
+2007-02-21  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris: Import contents from sourceware.org CVS as of 2007-02-21.
+
+2003-12-05  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris/close.c, cris/exit.c: Don't mark with link_warning.
+	* cris/fcntl.c, cris/fstat.c, cris/getpid.c, cris/kill.c: Ditto.
+	* cris/lseek.c, cris/open.c, cris/read.c, cris/sbrk.c: Ditto.
+	* cris/write.c: Ditto.
+
+2003-05-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris/lcrt0.c: Add simulator magic, put _start in .startup.
+	(_start): Make asm compatible.  Wrap elinux syscall machinery in
+	#ifdef __AOUT__.
+	* cris/Makefile.in (install-lin): Don't special-case multilib
+	linux.  Special-case multilib aout.
+
+2003-01-17  Hans-Peter Nilsson  <hp@axis.com>
+
+	* libnosys/Makefile.in (OBJS): Add access.o.
+	* libnosys/access.c: New file.
+
+2002-11-11  Hans-Peter Nilsson  <hp@axis.com>
+
+	* libnosys/configure.in (target_is_elf): Check compiler options
+	for cris-*-none.
+	* libnosys/configure: Regenerate.
+
+2002-10-04  Hans-Peter Nilsson  <hp@axis.com>
+
+	* libnosys/configure.in (target_is_elf): Don't say cris-*-* is
+	elf.  Say *-*-elf and *-*-linux* are elf.
+	* libnosys/configure: Regenerate.
+
+	* cris/linunistd.h (COLON_ARG5_CLOBBER): New, changed semantics
+	from...
+	(ARG5_CLOBBER_LAST): Remove.
+	(_syscall0, _syscall1, _syscall2, _syscall3, _syscall4, _syscall5,
+	_syscall6): Pass syscall number in asm-declared register.  Correct
+	clobbers and use COLON_ARG5_CLOBBER.
+
+	* cris/Makefile.in (crt0.o, scrt0.o, s2crt0.o): Don't pass -melf.
+	(lcrt0.o): Lose comment.
+
+2001-11-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* libnosys/fcntl.c: New file
+	* libnosys/Makefile.in (OBJS): Add fcntl.o.
+	
+2001-04-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris/ints.c (interrupt_routine): Fix typo in comment.
+
+	* cris/linunistd.h (_syscall0, _syscall1, _syscall2, _syscall3,
+	_syscall4, _syscall5): Generalize syscall ABI using new macros.
+	(_syscall6, __NR_mmap2, STR, XSTR, CRIS_SYSCALL, CALLNO_REG,
+	ARG5_REG, MOVE_ARG5, ARG5_CLOBBER_LIST): New macros.
+	(fcntl syscall, stat syscall): New.
+	[__ELF__] (mmap2 syscall, brk syscall): New.
+
+	* cris/sbrk.c (_sbrk): New contents ifdef __ELF__.
+
+	* cris/lcrt0.c (__SYMBOL_PREFIX): Don't define.
+	Select code using __AOUT__ for elinux or linux.
+
+	* cris/crti.c [__PIC__]: Add PIC prologue part.
+	* cris/crtn.c [__PIC__]: Add PIC epilogue part.
+
+	* cris/fcntl.c: New.
+
+	* cris/Makefile.in (most rules): Remove spurious space at
+	beginning of command line.
+ 	(LIN_OBJS): Add fcntl.o
+	(crt0.o): Filter out and compile the first .c-file.
+	(crti.o, crtn.o): Compile with -fpic if doing a linux multilib.
+	(all .o): Add complete depedencies.
+
+2000-12-22  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris/crt0.c (_start0): Add asm-weaks "just to make sure".
+	* cris/lcrt0.c: Declare _Libdtors.
+ 	(_start0) [! __ELF__]: Add asm-weaks "just to make sure".
+
+2000-12-21  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris/lcrt0.c (start1) [! __ELF__]: Register _Libdtors with
+	atexit.  Put call to _Libdtors inside ! __ELF__ part.
+
+2000-11-05  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris/Makefile.in (install-lin): Correct installation directory.
+
+2000-10-31  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris/lcrt0.c (_start): Apply __SYMBOL_PREFIX to "jump _start1" too.
+
+2000-10-19  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris/Makefile.in (crt0.o): Fix typo.
+
+2000-10-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	Handle running testsuite from build tree with -mlinux or -melinux,
+	without glibc.
+	* cris/Makefile.in (crt1.o): New rule.
+	(crt0.o): Depend on lcrt0.o.  Copy from it if elinux.
+
+2000-10-10  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris/linunistd.h (_syscall0): Add "$" to named registers.
+	(_syscall1, _syscall2, _syscall3, _syscall4, _syscall5): Ditto.
+	* cris/lcrt0.c: Add ".syntax no_register_prefix".
+	* cris/scrt0.c: Ditto.
+	* cris/crt0.c: Ditto.
+	(__SYMBOL_PREFIX): Define and use.
+	* cris/crti.c: Make ".syntax no_register_prefix" unconditional.
+	* cris/crtn.c: Ditto.
+
+2000-09-14  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris/lcrt0.c (start1) [__ELF__]: Call _init and register _fini
+	with atexit. 
+
+	* cris/crti.c: Globalize symbols.
+
+2000-09-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris/crt0.c (_start0): Renamed from _start.  All callers
+	changed.
+	(start): Add __start label.
+	* cris/scrt0.c (_start1): Renamed from _start.  All callers
+	changed.
+	(start): Add __start label.
+	* cris/lcrt0.c: Add commentary.
+	Remove section attribute for _start.
+	Remove .set of start and _start.
+	Wrap __init__start and __aout__ctors tests and calls in #ifndef
+	__ELF__.
+	* cris/crti.c: New.
+	* cris/crtn.c: New.
+	* cris/Makefile.in (LIN_EXTRA): New.
+	(all): Add ${LIN_EXTRA}.  Fold line.
+	(crt0.o, scrt0.o, s2crt0.o): Add -moverride-best-lib-options.
+	(crti.o, crtn.o, lcrt0.o): New.
+	(install-bsp): Special case elinux multilib.
+	(install-lin): Special case elinux and linux multilibs.
+
+2000-08-31  Hans-Peter Nilsson  <hp@axis.com>
+
+	* libnosys/configure.in: Adjust ELF check for CRIS.
+	Add "dollar" to output for libc_dollar_prefix.  Add output for
+	libc_underscore_prefix.
+	* libnosys/configure: Regenerate.
+
+	* libnosys/warning.h (link_warning) [HAVE_ELF]: Prefix symbol
+	with __SYMBOL_PREFIX.
+
+2000-07-17  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris/crt0.c (_exit): Do not call _close.
+	* cris/scrt0.c (_exit): Remove #if 0:d call to _close.
+
+2000-07-14  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris/crt0.c: Put in section .startup if ELF.
+	(__init__start, __aout__ctors): Declare weakly.
+	(_start): Call __init__start and __aout__ctors if nonzero.
+	* cris/lcrt0.c: Ditto.
+	* cris/scrt0.c: Ditto.  Use __Sbss and __Ebss, not _bss_start and
+	__end.
+	* cris/Makefile.in (crt0.o): Provide specific rule and pass -melf.
+	(scrt0.o): Ditto.
+	(s2crt0.o): Ditto.
+
+Sat May 13 03:40:52 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* libnosys/Makefile.in (.SUFFIXES): New.
+	* cris/Makefile.in (.SUFFIXES): New.
+	Tweak comments.
+	(VPATH): Delete extraneous parent directory.
+	(s2crt0.c): Use explicit source, not "$<" with explicit rule.
+
+Fri May  5 18:23:51 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris/sim-gettod.c: New.
+
+	* cris/sim-times.c (_times): Remove extra Epoch offset.
+	Remove spurious ";" after closing "}".
+
+	* cris/Makefile.in (SIM_OBJS): Add sim-gettod.o
+
+Wed May  3 20:18:46 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* libnosys/configure.in: Add CRIS to target without
+	MISSING_SYSCALL_NAMES.
+	(libc_dollar_prefix): Check for "_" as well, and set
+	__SYMBOL_PREFIX accordingly.
+
+	* libnosys/Makefile.in: Change obsoleted suffix: Say as-new and
+	ld-new, not as.new and ld.new.
+
+	* configure.in: Add support for CRIS.
+	* configure: Regenerate.
+	* cris: New directory.

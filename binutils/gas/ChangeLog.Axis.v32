@@ -1,0 +1,276 @@
+2004-10-30  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config/tc-cris.c (CRIS_INSN_VER_VALID_FOR_ARCH): Remove,
+	updating all callers, moving functionality to...
+	(cris_insn_ver_valid_for_arch): New function.
+	(md_cris_relax_table): Remove obsolete FIXME.
+
+2004-09-22  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config/tc-cris.c (err_for_dangerous_mul_placement): Initialize
+	according to DEFAULT_CRIS_ARCH.
+	(md_parse_option): Deactivate err_for_dangerous_mul_placement for
+	arch_crisv32.
+	* doc/c-cris.texi: Document that --march=v32 implies
+	--no-mul-bug-abort.
+	* doc/as.info, doc/as.info-1, doc/as.info-10, doc/as.info-11,
+	doc/as.info-2, doc/as.info-3, doc/as.info-4, doc/as.info-5,
+	doc/as.info-6, doc/as.info-7, doc/as.info-8, doc/as.info-9,
+	doc/as.info-10, doc/as.info-11: Regenerate.
+
+2004-09-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge between head-before-031216-merge and
+	head-before-040909-merge.
+	* doc/as.info, doc/as.info-1, doc/as.info-10, doc/as.info-11,
+	doc/as.info-2, doc/as.info-3, doc/as.info-4, doc/as.info-5,
+	doc/as.info-6, doc/as.info-7, doc/as.info-8, doc/as.info-9,
+	doc/as.info-10, doc/as.info-11: Regenerate.
+
+2004-09-10  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ChangeLog.Axis.v32: Move all v32 entries here, from...
+	* ChangeLog.Axis: Move out all v32 entries; make same as trunk.
+
+2003-12-04  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config/tc-cris.c (cris_process_instruction): <case 'Q'>: Set
+	BFD_RELOC_CRIS_SIGNED_8, not BFD_RELOC_8.
+	(cris_process_instruction) <immediate constant, case
+	SIZE_FIELD_SIGNED, case SIZE_FIELD_UNSIGNED>: New cases.
+	(cris_number_to_imm): Handle BFD_RELOC_CRIS_SIGNED_16 and
+	BFD_RELOC_CRIS_SIGNED_8.
+	(tc_gen_reloc): Ditto.
+
+	* doc/c-cris.texi (CRIS-Expand): Mention addo expansion.
+	* doc/as.info, doc/as.info-1, doc/as.info-10, doc/as.info-11,
+	doc/as.info-2, doc/as.info-3, doc/as.info-4, doc/as.info-5,
+	doc/as.info-6, doc/as.info-7, doc/as.info-8, doc/as.info-9:
+	Regenerate.
+
+2003-08-26  Hans-Peter Nilsson  <hp@axis.com>
+
+	* doc/c-cris.texi (CRIS-Expand): Mention lapc-into-lapcq
+	translation.
+
+2003-06-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config/tc-cris.c (DEFAULT_CRIS_ARCH): Remove debug-#error when
+	already defined.
+	* configure.in (crisv32): Recognize this instead of crisv*.  Use
+	AC_DEFINE_UNQUOTED when defining DEFAULT_CRIS_ARCH.  Generally
+	handle crisv32-*-* like cris-*-*.
+	* config.in, configure: Regenerate.
+
+2003-06-25  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge from HEAD.
+
+2003-04-05  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config/tc-cris.c (cris_process_instruction) <case 'n'>: Handle a
+	PIC specifier.
+
+2003-03-07  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config/tc-cris.c (cris_relax_frag): Handle new relaxation
+	states.
+	(md_assemble): Override target symbol information, always relax
+	an absolute branch on CRISv32.
+
+2003-03-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge from trunk to crisv32-branch.
+
+2003-02-24  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config/tc-cris.c (cris_get_expression): Restore
+	input_line_pointer if failing "early".
+
+2003-02-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config/tc-cris.c (cris_process_instruction) <case 'Y'>: New
+	case.
+  	<invalid operands>: Consume the rest of the line.
+	(cris_get_expression): Fail early if first character is '['.
+
+2003-02-05  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config/tc-cris.c (md_convert_frag): Fix warning for as_fatal
+	format.
+	(cris_process_instruction) <immediate constant, case
+	SIZE_SPEC_REG>: Immediate operands for special registers in
+	CRISv32 are always 32 bit long.
+
+2002-05-04  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config/tc-cris.c (cris_process_instruction): Initialize
+	out_insnp->insn_type to CRIS_INSN_NONE, not CRIS_INSN_NORMAL.
+
+2002-05-03  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config/tc-cris.c (get_spec_reg): Consider cris_arch when looking
+	up register.
+	(cris_arch_from_string): Check end of option name.
+
+2002-04-25  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config/tc-cris.c (md_cris_relax_table) <STATE_COND_BRANCH_COMMON
+	states>: Use V32 max offset for forward branch too.
+	(md_convert_frag): For common_v10_v32, compute offset as for v32.
+	(md_assemble) <handling CRIS_INSN_BRANCH>: Use
+	STATE_COND_BRANCH_COMMON for arch_cris_common_v10_v32.
+	(branch_disp): For common_v10_v32, compute offset as for v32.
+
+2002-04-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config/tc-cris.c (cris_process_instruction) <case 'u'>: Clarify
+	operand semantics.  Adjust expression.
+	(cris_number_to_imm): Use as_bad_where, not as_bad.  Remove FIXME.
+	(md_apply_fix3): Adjust val for BFD_RELOC_CRIS_LAPCQ_OFFSET.
+
+2002-04-17  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config/tc-cris.c (get_flags): Consider cris_arch and recognize
+	flags accordingly.
+
+2002-03-26  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config/tc-cris.c (md_assemble) Drop variable to_seg in block
+	preparing branch relaxation.  When only relax
+	BFD_RELOC_CRIS_LAPCQ_OFFSET if X_md in the associated expression
+	is nonzero.  When creating fixup, tell fix_new_exp that
+	BFD_RELOC_CRIS_LAPCQ_OFFSET is PC-relative too.
+	(cris_process_instruction) <case 'u'>: New.
+	<case 'U'>: Set X_md to 1 in expression.
+	(cris_number_to_imm) <case BFD_RELOC_CRIS_LAPCQ_OFFSET>: New
+	case.
+	(md_pcrel_from): BFD_RELOC_CRIS_LAPCQ_OFFSET is PC-relative too.
+
+2002-03-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config/tc-cris.h (md_long_jump_size): Define to
+	cris_long_jump_size.
+	(cris_long_jump_size): Prototype.
+	* config/tc-cris.c: Tweak comments.
+	(STATE_COND_BRANCH): Renamed from STATE_CONDITIONAL_BRANCH.
+	All users changed.
+	(STATE_COND_BRANCH_V32, STATE_COND_BRANCH_COMMON,
+	STATE_ABS_BRANCH_V32, STATE_LAPC, BRANCH_BF_V32, BRANCH_BB_V32,
+	BRANCH_WF_V32, BRANCH_WB_V32): New.
+	(BRANCH_BF, BRANCH_BB, BRANCH_WF, BRANCH_WB): Don't undef after
+	use in md_cris_relax_table.
+	(md_cris_relax_table): Add entries for STATE_COND_BRANCH_V32,
+	STATE_COND_BRANCH_COMMON, STATE_ABS_BRANCH_V32, STATE_LAPC.
+	(cris_long_jump_size): New function.
+	(md_long_jump_size): Remove, replace with cris_long_jump_size.
+	(HANDLE_RELAXABLE): New macro.
+	(md_estimate_size_before_relax): Use HANDLE_RELAXABLE for common
+	cases.  Check for weak symbols and assume not relaxable.  Handle
+	STATE_COND_BRANCH_V32, STATE_COND_BRANCH_COMMON,
+	STATE_ABS_BRANCH_V32.  Use new variable symbolP, not
+	fragP->fr_symbol.
+	(md_convert_frag): Handle STATE_COND_BRANCH_V32,
+	STATE_COND_BRANCH_COMMON, STATE_ABS_BRANCH_V32.
+	(cris_create_short_jump): Adjust for CRISv32.
+	(md_create_long_jump): Ditto.  Emit error for common_v10_v32.
+	(md_assemble): Adjust branch handling for CRISv32.  Handle LAPC
+	relaxation.
+	(cris_process_instruction) <case 'a'>: Remove.
+	<case 'd', 'Q', 'U'>: New.
+	<case 'm'>: Check that modified_char == '.'.
+	<case 'N'>: Use cris_get_expression, not
+	get_autoinc_prefix_or_indir_op with immediate-test.
+	<case 'n'>: Similar.  Add, don't subtract 6 from PC-relative
+	expression.
+	(branch_disp): Adjust offset for CRISv32.
+	(gen_cond_branch_32): Similar.  Emit error for common_v10_v32.
+	(cris_number_to_imm): When relocs are emitted, don't fill in the
+	target for CRISv32.
+	(tc_gen_reloc): Addends for non-zero fx_pcrel is too in fx_offset.
+
+	* config/tc-cris.c (md_convert_frag) <case ENCODE_RELAX
+	(STATE_ABS_BRANCH_V32, STATE_DWORD)>: Call fix_new, not
+	md_number_to_chars, to install offset -- or relocation.
+	(md_assemble): Remove checking for same segment.  Handle all
+	branches through call to frag_var with STATE_UNDF.
+
+2002-02-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config/tc-cris.c Tweak comments.
+	(get_3op_or_dip_prefix_op): Check for ']' after seeing '[rN+'.
+	(md_assemble): If fix_new_exp call for main insn, pass 1 for pcrel
+	parameter for 8, 16 and 32-bit pc-relative insns.
+	(cris_process_instruction) <case ']', '[', 'a', 'A', 'n'>: New
+	cases.
+	<case 'N'>: Move after case 's'.
+	<case 'T'>: Handle properly; don't just trap.
+	(get_gen_reg): Only recognize "PC" when followed by "+]" for v32
+	and compatible.  Recognize "ACR" for v32, unless followed by "+".
+	(get_sup_reg): New function.
+	(get_autoinc_prefix_or_indir_op): Don't recognize assignment for
+	v32 or compatible.
+	(cris_number_to_imm): Don't insist on BFD_RELOC_32_PCREL fixup to
+	be resolved.  Don't enter zeros in object file for
+	BFD_RELOC_32_PCREL.
+	(tc_gen_reloc): Allow generating a BFD_RELOC_32_PCREL.
+
+2002-02-22  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config/tc-cris.c (cris_mach): Drop aborting alternatives; trust
+	them to the default case.  Fold arch_crisv10 case into
+	arch_cris_any_v0_v10 case.
+	(s_cris_arch): Don't trap.  Tweak messages.  For unknown operand,
+	skip identifier-like word "manually".
+
+2002-02-21  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config/tc-cris.c (md_parse_option) <OPTION_ARCH>: Assign return
+	value from cris_arch_from_string to temporary, not directly to
+	cris_arch.  Set cris_arch for non-error only.
+	(cris_arch_from_string): Don't trap for invalid choice.
+
+	* doc/as.texinfo (Overview) <CRIS>: Add --march=...
+	* doc/c-cris.texi (CRIS-Symbols): New node for built-in symbols.
+	(CRIS-Opts): Document --march=...
+	(CRIS-Pseudos): Document .arch, .error and .warning.
+	* doc/as.info*: Regenerate.
+	* doc/as.1: Regenerate.
+
+	* config/tc-cris.c (CRIS_INSN_VER_VALID_FOR_ARCH): New macro.
+	(enum cris_archs): New.
+	(crisv32): Delete.  All users changed to instead use...
+	(cris_arch): ... new variable.
+	(md_pseudo_table): New pseudos .arch, .error, .warning.
+	(DEFAULT_CRIS_ARCH): New, default to cris_any_v0_v10.
+	(OPTION_PIC): Define in terms of previous option, OPTION_US.
+	(OPTION_ARCH): New.
+	(md_longopts): New option --march=...
+	(cris_mach, cris_arch_from_string, s_cris_arch, s_cris_errwarn): New functions.
+	(md_begin): Define symbols "..asm.arch.cris.v32",
+	"..asm.arch.cris.v10", "..asm.arch.cris.common_v10_v32" and
+	"..asm.arch.cris.any_v0_v10".  Use CRIS_INSN_VER_VALID_FOR_ARCH
+	when entering opcode table entry points.
+	(cris_process_instruction): When operands don't match, skip over
+	subsequent insns with non-matching version specifier but same
+	mnemonic.
+	(md_parse_option): Break out "return 1".
+	<OPTION_ARCH> New case.
+	(md_show_usage): Show --march=<arch>.
+	(s_syntax) <struct syntaxes>: Properly constify member operand.
+	* config/tc-cris.h (TARGET_MACH): Define.
+	* configure.in: Match "crisv*" as cpu specifier, set
+	DEFAULT_CRIS_ARCH from it.
+	* configure: Regenerate.
+
+2002-02-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config/tc-cris.c (cris_process_instruction) <case 'N'>: Remove
+	abort call.
+
+2002-02-14  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config/tc-cris.c (crisv32): New static boolean, default false.
+	(md_begin): Skip opcodes for cris_ver_v32p if not crisv32.
+	(cris_process_instruction) <case 'N', 'T'>: Placeholders, failing.
+

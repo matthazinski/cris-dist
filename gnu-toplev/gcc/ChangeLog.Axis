@@ -1,0 +1,633 @@
+2007-03-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	* version.c: Bump to 1.64/R64.
+
+2007-02-15  Hans-Peter Nilsson  <hp@axis.com>
+
+	* flow.c (mark_used_regs) <CALL>: When flag_exceptions and if the
+	call can_throw_external, mark EH_USES registers as used.
+
+2007-02-15  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Import from FSF SVN:
+	2005-09-01  Jakub Jelinek  <jakub@redhat.com>
+	PR rtl-optimization/23478
+	* regs.h (reg_info): Add throw_calls_crossed.
+	(REG_N_THROWING_CALLS_CROSSED): Define.
+	* flow.c (allocate_reg_life_data): Initialize
+	REG_N_THROWING_CALLS_CROSSED.
+	(propagate_one_insn, attempt_auto_inc): Update
+	REG_N_THROWING_CALLS_CROSSED.
+	* local-alloc.c (struct qty): Add n_throwing_calls_crossed field.
+	(alloc_qty): Initialize it.
+	(update_equiv_regs): Clear REG_N_THROWING_CALLS_CROSSED.
+	(combine_regs): Combine also n_throwing_calls_crossed fields.
+	(find_free_reg): Don't attempt to caller-save pseudos crossing
+	calls that might throw.
+	* global.c (struct allocno): Add throwing_calls_crossed field.
+	(global_alloc): Initialize throwing_calls_crossed.
+	(find_reg): Don't attempt to caller-save pseudos crossing calls that
+	might throw.
+
+Mon Feb  5 22:51:23 2007  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Import from FSF SVN:
+	PR target/30665
+	* config/cris/cris.md ("*andsi_movu", "*andsi_clear", "*andhi_movu")
+	("*andhi_clear", andu (casesi+45)): For size-changed operand where
+	memory is allowed, require !side_effects_p, not just !MEM_VOLATILE_P.
+
+2006-06-07  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Makefile.in ($(srcdir)/c-parse.c, $(srcdir)/tradcif.c): Disable
+	targets.
+
+Thu Jan 26 04:18:34 2006  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Import from FSF SVN (adapted):
+	PR target/25947
+	* config/cris/cris.c (cris_order_for_addsi3): New function.
+	* config/cris/cris-protos.h: Prototype it.
+	* config/cris/cris.md (split for "move.S1 [rx=rx+i],ry")
+	(split for "move.S1 ry,[rx=rx+i]", split for "clear.[bwd] [rx=rx+i]")
+	(split for "mov(s|u).S1 [rx=rx+i],ry", split for "op.S1 [rx=rx+i],ry")
+	(split for "op.S1 [rx=rx+i],ry (swapped)")
+	(split for "op(s|u).S1 [rx=rx+i],ry")
+	(split for "op(s|u).S1 [rx=rx+i],ry (swapped, plus or bound)"):
+	Apply cris_order_for_addsi3 when generating addsi3 insns.
+
+Tue Jan 10 20:04:50 2006  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Import from FSF SVN:
+	2006-01-10  Hans-Peter Nilsson  <hp@axis.com>
+	PR target/25718
+	* config/cris/cris.md ("uminsi3"): Don't use 8- or 16-bit sizes
+	for a negative bound.
+
+2005-10-27  Hans-Peter Nilsson  <hp@axis.com>
+
+	* version.c: Bump to R63/1.63.
+
+2005-10-25  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config/cris/cris.h (TARGET_VERSION): R63.
+	Import from FSF CVS (except for mode macros):
+	2005-10-16  Hans-Peter Nilsson  <hp@axis.com>
+	PR target/23424
+	* config/cris/cris.md ("*mov_side<mode>", "*mov_sidesisf")
+	("*mov_side<mode>_mem", "*mov_sidesisf_mem", "*clear_side<mode>")
+	("*ext_sideqihi", "*ext_side<mode>si", "*op_side<mode>")
+	("*op_swap_side<mode>", "*extopqihi_side", "*extop<mode>si_side")
+	("*extopqihi_swap_side", "*extop<mode>si_swap_side"): Have separate,
+	swapped, alternatives for the R constraint.
+
+2005-10-24  Hans-Peter Nilsson  <hp@axis.com>
+
+	* recog.c (constrain_operands): Don't strip unary operators.
+	* reload.c (find_reloads): Ditto.
+
+2005-06-16  Hans-Peter Nilsson  <hp@axis.com>
+
+	* version.c: Bump to R62/1.62.
+
+	Import this change from main GCC CVS:
+	2005-05-13  Hans-Peter Nilsson  <hp@axis.com>
+	* config/cris/cris.c (cris_print_operand) <case 'H'; case
+	CONST_INT>: Use operand_subword and HOST_WIDE_INT_PRINT_DEC for
+	output; don't have special case for HOST_BITS_PER_WIDE_INT == 32.
+
+2005-03-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* version.c: Bump to R61/1.61.
+
+	Pre-import this change intended for main GCC CVS:
+	PR rtl-optimization/20466
+	* flow.c (invalidate_mems_from_set): Handle a MEM by checking it
+	for overlap of the address of each list member.
+	(mark_set_1): Call invalidate_mems_from_set for MEMs too.	
+
+	Import this change from main GCC CVS:
+	2005-03-22  Hans-Peter Nilsson  <hp@axis.com>
+	PR rtl-optimization/20527
+	* combine.c (can_combine_p) [AUTO_INC_DEC]: When INSN has an
+	REG_INC note, test that the register also isn't mentioned in PRED
+	or SUCC.
+
+2004-10-14  Hans-Peter Nilsson  <hp@axis.com>
+
+	* version.c: Bump to R60/1.60.
+
+2004-09-27  Hans-Peter Nilsson  <hp@axis.com>
+
+	* version.c: Bump to R59/1.59.
+
+2004-09-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* version.c: Bump to R58/1.58.
+
+	* system.h (GCCBUGURL): Update canonical location.
+
+2004-09-16  Hans-Peter Nilsson  <hp@axis.com>
+
+	* genrecog.c (write_subroutine): Emit top level split function as
+	split_insns_1, not split_insns.
+	* emit-rtl.c (add_incdec_note, split_insns): New functions, adding
+	REG_INC notes for auto-inc-type RTX on successful splits.
+
+2004-09-09  Hans-Peter Nilsson  <hp@axis.com>
+
+	* version.c: Bump to R57/1.57.
+
+2004-08-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cfgcleanup.c (try_crossjump_to_edge): When not optimizing for
+	size, replace code with branch to the identical code only when the
+	*whole* basic block is replaced with an unconditional branch and
+	the branch might be optimized out later.
+	(try_optimize_cfg): Merge forwarder block with its successor
+	block, eliminating the forwarder jump.
+
+2004-06-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	Import this change from main GCC CVS:
+	2004-05-07  Hans-Peter Nilsson  <hp@axis.com>
+	PR optimization/15296
+	* reorg.c (fill_simple_delay_slots): Use next_real_insn when
+	getting last consecutive label at a branch.
+	(relax_delay_slots): Similar, near top of loop.
+
+	Import this change from main GCC CVS:
+	2003-08-25  Ulrich Weigand  <uweigand@de.ibm.com>
+	* combine.c (simplify_comparison): Re-enable widening of comparisons
+	with non-paradoxical subregs of non-REG expressions.
+
+2004-03-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* version.c: Bump to R56/1.56.
+
+2004-02-29  Hans-Peter Nilsson  <hp@axis.com>
+
+	Work around CRIS v10 (Etrax 100 LX) multiplication bug.
+	* doc/invoke.texi (CRIS Options): Document -mmul-bug-workaround
+	and -mno-mul-bug-workaround.
+	* doc/gcc.info: Regenerate.
+	* config/cris/cris.md ("smulsi3_highpart", "umulsi3_highpart")
+	("mulsidi3", "umulsidi3"): Prefix output template with "%!".
+	("umulhisi3", "umulqihi3", "mulsi3", "mulqihi3", "mulhisi3"):
+	Ditto.  Make attribute "slottable" dependent on TARGET_MUL_BUG.
+	* config/cris/mulsi3.asm (__Mul) [__CRIS_arch_version >= 10]: Make
+	sure mulu.d is not last on cache-line.
+	* config/cris/cris.h (ASM_SPEC): Translate -mno-mul-bug-workaround
+	into assembler option.
+	(TARGET_MASK_MUL_BUG, TARGET_MUL_BUG): New macros.
+	(TARGET_SWITCHES): New options -mmul-bug-workaround and
+	-mno-mul-bug-workaround.
+	(TARGET_DEFAULT): Include TARGET_MASK_MUL_BUG.
+	(PRINT_OPERAND_PUNCT_VALID_P): Include '!'.
+	* config/cris/cris.c (cris_operand_extend_operator): Clarify
+	relation to MULT in head comment.
+	(cris_op_str): Abort for MULT.
+	(cris_print_operand) <case '!'>: New case.
+
+	* config/fp-bit.c (_fpdiv_parts): Do not round when pack_d would
+	round the same.  When rounding, clear bits that would cause a
+	second rounding in pack_d.
+	(_fpmul_parts): Ditto.  Remove #if 0:d code.
+
+	Import these changes from main GCC CVS:
+	2004-02-20  Hans-Peter Nilsson  <hp@axis.com>
+	* config/cris/cris.md ("*andsi_movu"): Correct parentheses in
+	predicate.
+	("*andsi_clear"): Tweak constraints to not match postincrement.
+	Adjust the predicate to exclude a volatile memory reference.
+	("*andhi_clear"): Ditto.  Rename from "*andhi_clear_signed".
+	("*andhi_clear_unsigned"): Remove, non-matching pattern.
+	2004-02-19  Hans-Peter Nilsson  <hp@axis.com>
+	PR target/14209
+	* config/cris/cris.md ("*andsi_movu", "*andhi_movu"): Tweak
+	constraints to not match postincrement.  Adjust the predicate to
+	exclude a volatile memory reference.
+
+2003-12-16  Hans-Peter Nilsson  <hp@axis.com>
+
+	* version.c: Bump to R55/1.55.
+
+2003-12-05  Hans-Peter Nilsson  <hp@axis.com>
+
+	Import this change from main GCC CVS:
+	2003-12-05  Hans-Peter Nilsson  <hp@axis.com>
+	PR target/13256
+	* resource.h (enum mark_resource_type): Remove member MARK_DEST.
+	The only user changed as follows:
+	* resource.c (mark_set_resources) <case SET>: Always recurse for
+	SET_SRC (x).
+	<case SIGN_EXTRACT, case ZERO_EXTRACT>: Always recurse on
+	operands.
+	<case STRICT_LOW_PART>: Delete, deferring to default code.
+
+2003-10-16  Hans-Peter Nilsson  <hp@axis.com>
+
+	* version.c: Bump to R54/1.54.
+
+	Import this change from main GCC CVS:
+	2003-10-15  Hans-Peter Nilsson  <hp@axis.com>
+	PR target/12598
+	* config/cris/cris.md (define_split "*mov_sidesi_biap_mem"+1)
+	(define_splits "*mov_sidesi_mem"+1, "casesi"+9, +10, +11, +12):
+	Use cris_mem_op and replace_equiv_address, not gen_rtx_MEM.
+	("call", "call_value", define_split "*mov_sidesi_mem"+19, +20)
+	(define_split "*mov_sidesi_mem"+21, +22, +23, +24, +25, +26, +27)
+	(define_split "*mov_sidesi_mem"+28, +29, +30): Use
+	replace_equiv_address, not gen_rtx_MEM.
+	* config/cris/cris.c (cris_mem_op): New match_operator function.
+	(cris_notice_update_cc): Use replace_equiv_address, not
+	gen_rtx_MEM.
+	* config/cris/cris.h (PREDICATE_CODES): Add cris_mem_op.
+
+2003-05-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* version.c: Bump to R53/1.53.
+
+	Import this change from main GCC CVS:
+	2003-04-14  Hans-Peter Nilsson  <hp@axis.com>
+	PR target/10377
+	* config/cris/cris.md ("*mov_sideqi", "*mov_sidehi")
+	("*mov_sidesi", "*mov_sideqi_mem", "*mov_sidehi_mem")
+	("*mov_sidesi_mem", "*clear_sidesi", "*clear_sidehi")
+	("*clear_sideqi", "*ext_sideqihi", "*ext_sideqisi")
+	("*ext_sidehisi", "*op_sideqi", "*op_sidehi", "*op_sidesi")
+	("*op_swap_sideqi", "*op_swap_sidehi", "*op_swap_sidesi")
+	("*extopqihi_side", "*extopqisi_side", "*extophisi_side")
+	("*extopqihi_swap_side", "*extopqisi_swap_side")
+	("*extophisi_swap_side", 8th, 9th, 10th, 11th, 14th peepholes):
+	When next to constraint R, replace constraint i with n.
+
+2003-03-11  Hans-Peter Nilsson  <hp@axis.com>
+
+	Import this change from main GCC CVS:
+ 	2003-03-11  Hans-Peter Nilsson  <hp@axis.com>
+	* config/cris/cris.md: Remove lingering EGCS reference.
+	("*extopqihi_side_biap"): For HI operation, match
+	cris_additive_operand_extend_operator, not
+	cris_operand_extend_operator.  Adjust condition.
+	("*extopqihi_side", "*extopqihi"): Ditto.
+	("*extopqisi_side_biap"): Correct operand numbers in condition.
+	("*extophisi_side_biap", "*extopqisi_swap_side_biap"): Ditto.
+	("*extophisi_swap_side_biap", "*extopqisi_swap"): Ditto.
+	("*extophisi_swap"): Ditto.
+	("*extopqihi_swap_side_biap"): For HI operation, match a simple
+	PLUS, not cris_operand_extend_operator.  Adjust condition and
+	output template.
+	("*extopqihi_swap_side", "*extopqihi_swap"): Ditto.
+	* config/cris/cris.h (PREDICATE_CODES): Add
+	cris_additive_operand_extend_operator.
+	* config/cris/cris.c (cris_additive_operand_extend_operator):
+	New predicate.
+
+2003-03-07  Hans-Peter Nilsson  <hp@axis.com>
+
+	* version.c: Bump to R52/1.52.
+
+2003-03-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	Import this change from main GCC CVS:
+	2003-02-22  Hans-Peter Nilsson  <hp@axis.com>
+	* regmove.c (optimize_reg_copy_1): Do not replace a hard register
+	in an asm.
+	
+2002-12-19  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Import of gcc-3.2.1; overwrite previous local changes
+	to generic source except collect2.c, system.h and
+	version.c.
+	* fp-bit (_fpmul_parts, _fpdiv_parts): Attribute
+	__always_inline__.
+	* configure.in (gcc_cv_as, gcc_cv_ld): If nonempty, don't set.
+	Quote all uses.
+	(gcc_cv_as_dwarf2_debug_line): Add CRIS to "nop" case.
+	* configure: Regenerate.
+	* defaults.h (JCR_SECTION_NAME): Never define.
+	Import this from main GCC CVS (expected in 3.3):
+	2002-09-23  Hans-Peter Nilsson  <hp@axis.com>
+	* stmt.c (decl_conflicts_with_clobbers_p): New function.
+	(expand_asm_operands): Keep track of clobbered registers.  Call
+	decl_conflicts_with_clobbers_p for each input and output operand.
+	If no conflicts found before, also do conflict sanity check when
+	emitting clobbers.
+
+2002-11-24  Hans-Peter Nilsson  <hp@axis.com>
+
+	* version.c: Bump to R45/1.24.
+
+2002-11-22  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Import these changes from main GCC CVS:
+	2000-12-07  Richard Henderson  <rth@redhat.com>
+	* flow.c (calculate_global_regs_live): Force the stack pointer live
+	after reload as well.
+	2000-12-05  Richard Henderson  <rth@redhat.com>
+	* flow.c (calculate_global_regs_live): Only force stack pointer
+	live before reload.  Force pic register live before reload.
+	2000-08-21  Richard Henderson  <rth@cygnus.com>
+	* flow.c (calculate_global_regs_live): Mark frame pointer live
+	everywhere before reload.
+
+2002-11-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* extend.texi, stmt.c: Revert last change.
+
+2002-11-11  Hans-Peter Nilsson  <hp@axis.com>
+
+	Import this from main GCC CVS (expected in 3.3):
+	2002-09-23  Hans-Peter Nilsson  <hp@axis.com>
+	* extend.texi (Extended Asm): Clarify that overlap between
+	asm-declared register variables used in an asm and the asm clobber
+	list is not allowed.
+	* stmt.c (decl_conflicts_with_clobbers_p): New function.
+	(expand_asm_operands): Keep track of clobbered registers.  Call
+	decl_conflicts_with_clobbers_p for each input and output operand.
+	If no conflicts found before, also do conflict sanity check when
+	emitting clobbers.
+
+	* version.c: Tell Axis version here too.
+
+2002-03-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* stmt.c (expand_decl): Tweak to apply bits from below imported
+	fix *around* "Wed May 31 08:07:52 2000  Richard Kenner
+	<kenner@vlsi1.ultra.nyu.edu>" change (ChangeLog.3; not imported):
+	* explow.c (maybe_set_unchanging), expr.h, stmt.c: Import function
+	and stmt.c call from:
+	2000-06-05  Jason Merrill  <jason@casey.soma.redhat.com>
+	* explow.c (maybe_set_unchanging): New function, broken out from...
+	(set_mem_attributes): Here.
+	* expr.h: Declare it.
+	* stmt.c (expand_decl): Call it.
+
+2002-03-21  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Import these changes (from gcc-2.95.2-2.95.3.diff.bz2)
+	fixing Axis-20020228.
+	Sat May 20 07:27:35 2000  Alexandre Oliva  <aoliva@cygnus.com>
+	* fold-const.c (make_range): Handle degenerated intervals.
+	Fixes c-torture/execute/991221-1.c
+	2000-07-15  Michael Meissner  <meissner@redhat.com>
+	* fold-const.c (fold): When optimizing FOO++ == CONST into ++FOO
+	== CONST + INCREMENT, don't overwrite the tree node for FOO++,
+	create a new node instead.
+
+2002-01-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cpphash.c (dump_hash_helper): Handle T_EMPTY like T_MACRO.
+
+2002-01-17  Hans-Peter Nilsson  <hp@axis.com>
+
+	* c-typeck.c (parser_build_binary_op): If result from
+	build_binary_op is ERROR_MARK just return error_mark_node without
+	further processing.
+
+2001-12-22  Hans-Peter Nilsson  <hp@axis.com>
+
+	Import these changes (from ChangeLog.4) and essentially all
+	changes needed to update sibcall.c up to and including this
+	change; less than this change by itself:
+	2000-08-12  Richard Henderson  <rth@cygnus.com>
+	* sibcall.c (uses_addressof): Accept both addressof and
+	current_function_internal_arg_pointer inside a mem.
+	(optimize_sibling_and_tail_recursive_call): Fail tail recursion
+	if current_function_uses_addressof.
+	* stmt.c (expand_return): Kill tail recursion and HAVE_return
+	optimizations.
+
+2001-08-31  Hans-Peter Nilsson  <hp@axis.com>
+
+	Import these changes (from ChangeLog.3 and ChangeLog.4), except the
+	init_propagate_block_info part; ChangeLog entry kept same.
+	2000-04-30  Richard Henderson  <rth@cygnus.com>
+	* flow.c (propagate_one_insn): Mark sets even when the insn is dead.
+	2000-11-08  Richard Henderson  <rth@redhat.com>
+	* flow.c (init_propagate_block_info): Protect the rtx stored in
+	mem_set_list from modification by find_auto_inc.
+	(mark_set_1): Likewise.
+
+2001-08-09  Hans-Peter Nilsson  <hp@axis.com>
+
+	* reorg.c (fill_slots_from_thread): After call to
+	steal_delay_list_from_target, update own_thread as new_thread may
+	have branched.
+
+2001-05-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	Import this change (ChangeLog.4):
+	2000-08-21  Jakub Jelinek  <jakub@redhat.com>
+	* unroll.c (loop_find_equiv_value): If ret is modified between
+	insn and loop_start, ret might not be equivalent to reg.
+
+2001-05-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	Import this change (ChangeLog):
+	2001-05-11  Graham Stott  <grahams@redhat.com>
+	* combine.c (simplify_comparison): Fix typo.
+
+2001-03-27  Hans-Peter Nilsson  <hp@axis.com>
+
+	Import this change (ChangeLog):
+	2001-01-05  Catherine Moore  <clm@redhat.com>
+	* dbxout.c ((dbxout_parms): Handle invisible ref where decl is a REG.
+
+	Import this change (ChangeLog.4):
+	2000-12-01  Jim Blandy  <jimb@redhat.com>
+	* dbxout.c (dbxout_parms): Correctly describe parameters passed by
+	invisible reference in registers, but then spilled to the stack.
+	Remove code to emit a second stab for such parameters; it attempts
+	to describe the value's location by introducing a synthetic C++
+	`reference' type, and then saying the stack slot has that
+	reference type.  This loses type information (breaking GDB's
+	`ptype' command, among other things) just to describe a location
+	which stabs can represent correctly in other ways.
+
+2001-02-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	Import this change (ChangeLog.3; but s/gcc/ggc/ in entry here):
+	2000-05-18  Jakub Jelinek  <jakub@redhat.com>
+	* ggc-common.c (ggc_mark_rtx_children): Mark NOTE_EXPECTED_VALUE
+	from NOTE_INSN_EXPECTED_VALUE notes and NOTE_SOURCE_FILE from
+	NOTE_INSN_DELETED_LABEL.
+
+2001-02-27  Hans-Peter Nilsson  <hp@axis.com>
+
+	Import this change (ChangeLog.3):
+	2000-05-04  Kaveh R. Ghazi  <ghazi@caip.rutgers.edu>
+	* predict.c (find_expected_value): Delete prototype.
+	(expected_value_to_br_prob): Initialize variable `ev_reg'.
+
+	Import this change (ChangeLog.3):
+	Tue May  9 06:30:20 2000  Richard Kenner  <kenner@vlsi1.ultra.nyu.edu>
+	* alias.c (nonlocal_reference_p): Minor reformatting.
+	* reload.c (find_equiv_reg): Simplify logic for
+	CALL_INSN_FUNCTION_USAGE since can't have SUBREG or pseudos and
+	some some reformatting.
+	* reload1.c (reload_combine): Don't assume everything in
+	CALL_INSN_FUNCTION_USAGE is a REG and clean up code a bit.
+
+2001-01-30  Hans-Peter Nilsson  <hp@axis.com>
+
+	* dbxout.c (dbxout_function_end): Apply STRIP_NAME_ENCODING on
+	function name.
+	(dbxout_symbol): Ditto.
+
+2001-01-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* invoke.texi (CRIS Options) <-melf>: Adjust to reality; the
+	default is to both compile and link to the ELF object format.
+
+2001-01-10  Hans-Peter Nilsson  <hp@axis.com>
+
+	* reload1.c (reload): Check CONSTANT_P before calling
+	LEGITIMATE_PIC_OPERAND_P.
+
+2001-01-09  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cppfiles.c (redundant_include_p): Rewrite.
+
+2001-01-08  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cppfiles.c (redundant_include_p): Change IHASH * parameter to
+	IHASH **, pointing at hash-table slot.  Callers changed.  In
+	iteration over directories on the path, if there is no hash table
+	entry for it, check for existence of the file.  Create dummy
+	entries for checked directories.
+
+2000-11-30  Nathan Sidwell  <nathan@codesourcery.com>
+
+	* tree.h (VOID_TYPE_P): New macro.
+	(COMPLETE_OR_VOID_TYPE_P): Use VOID_TYPE_P.
+	* c-decl.c (grokdeclarator): Use VOID_TYPE_P.
+	(get_parm_info): Likewise.
+	(store_parm_decls): Likewise.
+	(combine_parm_decls): Likewise.
+	(finish_function): Likewise.
+	* c-parse.y (primary): Likewise.
+	* c-parse.c, c-parse.h: Regenerate.
+	* c-typeck.c (build_function_call): Likewise.
+	(build_binary_op): Likewise.
+	(build_conditional_expr): Likewise.
+	(internal_build_compound_expr): Likewise.
+	(convert_for_assignment): Likewise.
+	* stmt.c (expend_expr_stmt): Likewise.
+	(warn_if_unused_value): Likewise.
+	(expand_return): Likewise.
+
+2000-11-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gcc.texi (Config): Document SET_STRIPPABLE_EXECUTABLE.
+	* collect2.c (SET_STRIPPABLE_EXECUTABLE): New macro to support not
+	mapping "-s" to mean "run strip".
+
+2000-10-19  Hans-Peter Nilsson  <hp@axis.com>
+
+	* function.c (assign_parms): Handle conversions for
+	pass-by-reference parameters that may fit in registers.
+
+2000-10-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cppinit.c (merge_include_chains) <last if>: Handle brack == NULL.
+
+2000-10-09  Hans-Peter Nilsson  <hp@axis.com>
+
+	* dwarf2out.c (DWARF_CIE_DATA_ALIGNMENT): Wrap definition in
+	#ifndef.
+	[ENABLE_CHECKING] (reg_save): Abort if offset is not a multiple of
+	DWARF_CIE_DATA_ALIGNMENT.
+	* config/elfos.h (UNIQUE_SECTION): Apply STRIP_NAME_ENCODING on name.
+
+2000-09-22  Jason Merrill  <jason@redhat.com>
+
+	* dbxout.c (dbxout_symbol_name): Just use DECL_NAME for
+	function-local names.
+
+2000-09-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* invoke.texi (Option Summary) [CRIS]: Add -mlinux, -maout, -melf.
+	(CRIS Options): Adjust for new and multilibbed options.
+	Hide -mlibfunc.  Add -mbest-lib-options and -moverride-lib-options
+	under cover.
+
+	* install.texi (Configurations): Add note about -mlinux
+	configuration similar to -melinux.
+
+	* gcc.c: In description for %{<S} say the option removed is -S.
+
+	* collect2.c (main): Pass on -B options from COLLECT_GCC_OPTIONS.
+
+2000-08-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Makefile.in (GCC_PASSES): Add specs.
+
+2000-07-14  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cp/decl2.c (start_objects): Fix typo in comment.
+
+	* config/elfos.h (CONST_SECTION_ASM_OP): Remove extraneous leading
+	tab.
+	(CTORS_SECTION_ASM_OP): Ditto.
+	(DTORS_SECTION_ASM_OP): Ditto.
+	(INIT_SECTION_ASM_OP): Ditto.
+	(FINI_SECTION_ASM_OP): Ditto.
+	(ASM_OUTPUT_CONSTRUCTOR): Remove extraneous space.
+	(ASM_OUTPUT_DESTRUCTOR): Ditto.
+	(ASM_DECLARE_FUNCTION_NAME): Ditto.
+	(ASM_DECLARE_OBJECT_NAME): Ditto.
+	(ASM_FINISH_DECLARE_OBJECT): Ditto.
+	(ASM_DECLARE_FUNCTION_SIZE): Ditto.
+
+	* varasm.c: Fix typo in comment before data_section.
+
+	* tm.texi (Exception Region Output): Document
+	EH_FRAME_INFO_IN_DATA_SECTION.
+	* dwarf2out.c (output_call_frame_info): Handle
+	EH_FRAME_INFO_IN_DATA_SECTION.
+	* defaults.h (EH_FRAME_INFO_IN_DATA_SECTION): Provide default.
+
+Sat Jun 10 15:34:20 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* final.c (final_scan_insn): Delete notes between cc0 setter and
+	user when restarting from setter.
+
+Wed May  3 22:05:57 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* invoke.texi: Add CRIS options.
+	* install.texi: Add Axis as company name.
+	Add information about CRIS.
+	* md.texi: Add CRIS constraint letters description.
+	(Standard Names): Say indirect_jump must not accept constant
+	operand.
+
+	* system.h (GCCBUGURL): Change to
+	http://developer.axis.com/tools/gcc-cris-bugreport.html.
+
+2000-04-28  Scott Bambrough <scottb@netwinder.org>
+
+	* gcc/cpplex.c (_cpp_scan_line): Fix buffer overwrite.
+
+Tue Apr 25 23:31:04 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* varasm.c (assemble_variable) [! defined(ASM_OUTPUT_ALIGNED_COMMON)
+	&& !ASM_OUTPUT_ALIGNED_BSS]: Also test
+	!defined(ASM_OUTPUT_ALIGNED_DECL_COMMON).
+
+Sat Apr 22 22:04:54 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Makefile.in (site.exp): Delete test for newlib and setting of
+	defunct testsuite-variables CFLAGS, CXXFLAGS and LDFLAGS. 
+	(target_subdir): Delete setting.
+
+	* configure.in (target_subdir): Delete unused incorrect setting.
+	Add support for CRIS.
+	* configure: Regenerated.
+
+Mon Apr 10 01:39:10 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* reload.c (find_reloads_toplev): Reload a paradoxical subreg of a
+	mem if the address is a mode_dependent_address_p.
+

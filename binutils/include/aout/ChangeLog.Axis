@@ -1,0 +1,10 @@
+2000-07-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ChangeLog.Axis: Move local changes from ChangeLog to
+	ChangeLog.Axis.
+
+Fri Mar 10 17:12:14 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* aout64.h: Remove needless comment before #ifndef
+	RELOC_EXT_BITS_EXTERN_BIG.
+

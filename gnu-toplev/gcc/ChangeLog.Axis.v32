@@ -1,0 +1,118 @@
+2007-03-05  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Properly import:
+	2005-11-12  Hans-Peter Nilsson  <hp@axis.com>
+	* recog.c (constrain_operands) <case 'g'>: For a match, require
+	that a non-register matches general_operand when strict >= 0.
+
+2005-10-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge between head-before-040918-merge and
+	head-before-051028-merge.
+	* version.c: Bump to R63/1.63-v32.
+
+2004-10-24  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge between head-before-040918-merge and
+	head-before-041024-merge.
+	* version.c: Bump to R60/1.60-v32.
+
+2004-09-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge between head-before-040909-merge and
+	head-before-040918-merge.
+
+	* Merge between head-before-031216-merge and
+	head-before-040909-merge.
+	* version.c: Bump to R57/1.57a.
+
+2003-12-21  Hans-Peter Nilsson  <hp@axis.com>
+
+	* version.c: Bump to R55/1.55a.
+
+2003-12-16  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge from HEAD.
+
+2003-12-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	* dwarf2out.c (dwarf2out_frame_debug_expr): Document new rule 15.
+	<case REG>: Implement marking return address saved in a register.
+
+	* combine.c (try_combine): When matching plain RETURN, also match
+	PARALLEL with first element a RETURN.
+	* emit-rtl.c (classify_insn, emit): Ditto.
+	* genemit.c (gen_expand, gen_split): Ditto.
+	* jump.c (returnjump_p_1, follow_jumps): Ditto.
+	* loop.c (find_and_verify_loops, for_each_insn_in_loop): Ditto.
+	* reload1.c (reload_combine): Ditto.
+	* reorg.c (find_end_label, delete_from_delay_slot, optimize_skip)
+	(rare_destination, get_branch_condition, fill_slots_from_thread)
+	(steal_delay_list_from_fallthrough, relax_delay_slots)
+	(make_return_insns): Ditto.
+	* resource.c (find_dead_or_set_registers): Ditto.
+	* unroll.c (reg_dead_after_loop): Ditto.
+
+	* calls.c (expand_call): Add comment referring to mainline change.
+
+2003-10-22  Hans-Peter Nilsson  <hp@axis.com>
+
+	Merge from HEAD.
+	* ChangeLog.Axis: Move all v32-specific changes to
+	ChangeLog.Axis.v32.
+
+2003-06-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config.gcc (crisv32-*-elf | crisv32-*-none): New.
+
+2003-06-26  Hans-Peter Nilsson  <hp@axis.com>
+
+	* recog.c (constrain_operands) <case 'g', case 'm'>: If strict is
+	larger than 0, check general_operand and memory_operand,
+	respectively.
+
+2003-06-25  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge from HEAD.
+
+2003-04-21  Hans-Peter Nilsson  <hp@axis.com>
+
+	* config.gcc (cpu_type): Recognize $machine crisv32-*-*, map to
+	cris.
+	<main switch>: Handle crisv32-*-linux* in existing cris-*-linux*
+	case, but set target_cpu_default to 10 and 32 respectively.
+
+2003-04-14  Hans-Peter Nilsson  <hp@axis.com>
+
+	* fixinc/gnu-regex.c (re_max_failures): Define to work around
+	problems with old glibc.
+
+2003-03-26  Hans-Peter Nilsson  <hp@axis.com>
+
+	* doc/tm.texi (Register Classes): Document
+	FORBIDDEN_INC_DEC_CLASS.
+	* doc/gccint.info, doc/gccint.info-14, doc/gccint.info-17,
+	doc/gccint.info-23: Regenerate.
+
+	* regclass.c (FORBIDDEN_INC_DEC_CLASSES): Also define if
+	FORBIDDEN_INC_DEC_CLASS is defined.
+	(regclass) [FORBIDDEN_INC_DEC_CLASS]: When setting
+	forbidden_inc_dec_class, first test FORBIDDEN_INC_DEC_CLASS.
+
+2003-03-14  Hans-Peter Nilsson  <hp@axis.com>
+
+	* reorg.c (fill_slots_from_thread): When considering changing the
+	insn following a reg-to-reg copy insn to use the source reg of the
+	copy, bail out if there's overlap between the registers.
+
+2003-03-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge from trunk to crisv32-branch.
+	Override change of 2002-05-06.
+
+2002-05-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	* reload.c (find_reloads) <forcing reload of paradoxical subregs>
+	[!WORD_REGISTER_OPERATIONS]: Also check mode_dependent_address_p.
+	(find_reloads_toplev): Revert change of "Mon Apr 10 01:39:10 2000".
+

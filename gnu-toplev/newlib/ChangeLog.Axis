@@ -1,0 +1,121 @@
+2003-12-16  Hans-Peter Nilsson  <hp@axis.com>
+
+	* libc/machine/cris/libcdtor.c (_Ctors, _Dtors): Move after
+	_Libctors, _Libdtors and clarify.
+
+2002-06-07  Hans-Peter Nilsson  <hp@axis.com>
+
+	* libc/signal/signal.c (__sigtramp_r): Don't have pointer-type
+	case entries.
+	(_raise_r): Ditto.
+
+2002-04-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* libc/sys/cris/include/setjmp.h (setjmp, longjmp): Don't inline
+	at all.  Provide bodies only if extern is defined.
+
+	* libc/include/math.h: Enable prototypes for single-precision math
+	for C++ (as present in newlib CVS).
+
+2001-04-28  Hans-Peter Nilsson  <hp@axis.com>
+
+	* libc/sys/cris/include/setjmp.h (_USER_LABEL_PREFIX): Redefine.
+	(setjmp): Have alternative implementation for PIC.
+	(longjmp): Adjust to use _USER_LABEL_PREFIX.
+
+2001-04-24  Hans-Peter Nilsson  <hp@axis.com>
+
+	* libc/sys/cris/include/pthread.h: New, declare pthreads stub
+	interface for use in libgcc *only*.
+
+2000-10-19  Hans-Peter Nilsson  <hp@axis.com>
+
+	* libc/include/machine/ieeefp.h [__CRIS__]: Do not define
+	_DOUBLE_IS_32BITS.
+	* libc/include/sys/config.h: Ditto.
+
+2000-10-10  Hans-Peter Nilsson  <hp@axis.com>
+
+	* libc/sys/cris/include/setjmp.h: Add "$" to explicit registers.
+	* libc/machine/cris/memcpy.c: Add ".syntax no_register_prefix".
+	* libc/machine/cris/memset.c: Ditto.
+	* libc/machine/cris/memmove.c: Ditto.
+
+2000-09-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Makefile.am (AM_MAKEFLAGS): Add toollibdir and MULTISUBDIR.
+	* Makefile.in: Regenerate.
+	* libc/machine/cris/Makefile.am (toollib_LIBRARIES): Rename from
+	lib_LIBRARIES.
+	(tooldir, toollibdir): Set.
+	* libc/machine/cris/Makefile.in: Regenerate.
+
+	* configure.host ("host" flags): Remove -mtune=v8.
+
+Thu Jun  8 14:32:30 2000  Lars Viklund  <larsv@axis.com>
+
+	* libc/include/ctype.h (toupper, tolower): Wrap statement
+	expression in __extension__.
+
+Thu May 11 00:36:03 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* libc/include/stdlib.h [_OVERRIDABLE_MALLOC]: Define _malloc_r,
+	_realloc_r, _free_r and _calloc_r to have the prefix _Newlib.
+	* libc/include/malloc.h [_OVERRIDABLE_MALLOC]: Ditto.
+
+	* configure.host ("host" flags): Add -D_USE_WRITE,
+	-D_OVERRIDABLE_MALLOC.
+
+Wed May 10 15:47:24 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* libc/stdlib/mallocr.c [_OVERRIDABLE_MALLOC] [DEFINE_MALLOC]:
+	Provide alias for _Newlib_malloc_r_actual to _malloc_r
+ 	[DEFINE_FREE]: Ditto for _Newlib_free_r_actual to _free_r.
+	[DEFINE_CALLOC]: Ditto for _Newlib_calloc_r_actual to _calloc_r.
+	[DEFINE_REALLOC]: Ditto  for _Newlib_realloc_r_actual to _realloc_r.
+
+	* libc/stdlib/malloc.c: Undef _OVERRIDABLE_MALLOC.
+	* libc/stdlib/calloc.c: Ditto.
+	* libc/stdlib/realloc.c: Ditto.
+
+	* libc/stdlib/Makefile.am: Add mallocw.c, reallocw.c and callocw.c.
+	* libc/stdlib/Makefile.in: Regenerated.
+
+	* libc/stdlib/mallocw.c: New.
+	* libc/stdlib/reallocw.c: New.
+	* libc/stdlib/callocw.c: New.
+
+Mon May  8 20:50:58 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* libc/stdio/vfscanf.c: Make ungetc, ___srefill and fread weak
+	references and check for NULL before accessing them.
+
+Sun May  7 15:21:01 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* libc/machine/cris/memmove.c: New.
+	* libc/machine/cris/Makefile.am (libic_a_SOURCES): Add memmove.c
+	(lib_a_SOURCES): Ditto.
+	* libc/machine/cris/Makefile.in: Regenerated.
+
+	* libc/stdio/ftell.c (ftell): Add missing parenthesis for __SWR
+	bit-test in combination with NULL test.
+
+Fri May  5 03:01:30 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* configure.host ("host" flags): Add -DHAVE_GETTIMEOFDAY.
+
+	* libc/stdio/vfprintf.c (_VFPRINTF_R) [MB_CAPABLE]: Conditionalize
+	mbtowc_r on #ifdef MB_CAPABLE.
+	[! MB_CAPABLE]: Use trivial equivalent expression.
+
+Tue May  2 17:31:21 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* libc/stdlib/mallocr.c (malloc_extend_top) [! NONSTANDARD_SBRK]:
+	Conditionalize continuity-check of returned memory block.
+
+	* libc/include/machine/ieeefp.h: Add support for CRIS target.
+	* configure.host: Ditto.
+	* libc/include/sys/config.h: Ditto.
+	* libc/machine/cris: New.
+	* libc/sys/cris: New.
+

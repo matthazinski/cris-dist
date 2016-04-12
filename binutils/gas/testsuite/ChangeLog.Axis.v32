@@ -1,0 +1,155 @@
+2004-10-27  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gas/all/gas.exp: Xfail float.s for crisv32-*-*.
+	* gas/ieee-fp/x930509a.exp: Similar.
+	* gas/macros/macros.exp: Similar.
+
+2004-09-22  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gas/cris/rd-spr-1.s, gas/cris/rd-spr-1.d, gas/cris/rd-v32s-1.d:
+	Adjust for only accepting and disassembling support registers as
+	s0..s15.
+
+2004-09-21  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gas/cris/rd-mulbug-1.d: Missing adjustments for
+	backport.
+
+2004-09-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge between head-before-031216-merge and
+	head-before-040909-merge.
+
+2004-09-10  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ChangeLog.Axis.v32: Move all v32 entries here, from...
+	* ChangeLog.Axis: Move out all v32 entries; make same as trunk.
+
+2003-12-04  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gas/cris/v32-err-10.s, gas/cris/v32-err-11.s: New tests.
+
+2003-11-14  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gas/cris/rd-v32s-4.s, gas/cris/rd-v32s-4.d: New test.
+
+2003-07-07  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gas/cris/rd-v32s-3.s, gas/cris/rd-v32s-3.d: New test.
+	* gas/cris/rd-v32s-2.d: Tweak address regexp.  Correct disassembly
+	for srs.
+
+2003-06-25  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge from HEAD.
+
+2003-06-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gas/cris/v32-err-9.s: New test.
+
+	* gas/cris/rd-v32s-1.d (fidxd, fidxi, ftagd, ftagi): Update
+	opcodes.
+	(halt, rfn): Add.
+	* gas/cris/v32-err-1.s: Add halt and rfn.
+
+	* gas/cris/operand-err-1.s (test.m constant): Remove xfail marker
+	and update rationale.
+
+	* gas/cris/rd-ppv32.d, gas/cris/rd-ppv1032.d,
+	gas/cris/pushpopv32.s, gas/cris/push-err-1.s,
+	gas/cris/push-err-2.s: New tests.
+
+2003-03-19  Hans-Peter Nilsson  <hp@axis.com>
+
+	* lib/gas-defs.exp (run_dump_test): Check against runtest_file_p
+	before running test.
+
+2003-03-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Merge from trunk to crisv32-branch.
+
+2003-02-24  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gas/cris/rd-bound4.d: New test.
+
+2003-02-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gas/cris/bound-err-1.s, gas/cris/rd-bound1.d,
+	gas/cris/rd-bound1.s, gas/cris/rd-bound2.d, gas/cris/rd-bound3.d:
+	New tests.
+	* gas/cris/operand-err-1.s: Mark "ba [external_symbol]" and "ba [r3]"
+	as invalid.
+
+2003-02-05  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gas/cris/rd-v32s-2.d, gas/cris/rd-v32s-2.s: New test.
+
+2002-08-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gas/cris/rd-break32.d: New test.
+
+2002-05-03  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gas/cris/v32-err-8.s, gas/cris/rd-usp-1b.d, gas/cris/rd-usp-1.d,
+	gas/cris/march-err-2.s: New tests.
+
+2002-04-25  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gas/cris/rd-v10_32o-2.d, gas/cris/rd-v10_32o-2.s: New test.
+
+2002-04-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gas/cris/rd-v32-l4.d, gas/cris/rd-v32-l4.s,
+	gas/cris/v32-err-7.s: New tests.
+
+2002-04-17  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gas/cris/v32-err-4.s, gas/cris/rd-v32-f1.d,
+	gas/cris/rd-v32-i1.d, gas/cris/rd-v32-i1.s, gas/cris/v32-err-6.s,
+	gas/cris/v32-err-5.s, gas/cris/v32-err-3.s, gas/cris/rd-v32-f1.s:
+	New tests.
+
+2002-03-26  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gas/cris/rd-v32-l3.d, gas/cris/rd-v32-l3.s: New test.
+
+2002-03-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gas/cris/rd-v32-b3.s, gas/cris/rd-v32-b3.d: New test.
+
+	* gas/cris/rd-v32s-1.d, gas/cris/rd-spr-1.s, gas/cris/rd-spr-1.d,
+	gas/cris/rd-v32-l1.d, gas/cris/rd-v32-l1.s, gas/cris/brokw-3b.s,
+	gas/cris/rd-bkw3b.d, gas/cris/rd-bkw2b.d, gas/cris/rd-bkw1b.d,
+	gas/cris/rd-v32-b1.d, gas/cris/rd-v32-b1.s, gas/cris/rd-v32-b2.d,
+	gas/cris/rd-v32-b2.s, gas/cris/v32-err-2.s: New test.
+	* gas/cris/rd-abs32-2.d: Tweak for not having non-zero contents in
+	reloc targets before link.
+	* gas/cris/v32-err-1.s: Tweak for removal of register PC-relative
+	operands.  Change fidx into fidxi fidxd.  Changed operands to
+	mcp.  Ditto ftag into ftagi ftagd.  Add lapc, lapcq.
+
+2002-02-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gas/cris/rd-abs32-2.d: Update nop and jump opcodes.
+	* gas/cris/v32-err-1.s: New test.
+	
+2002-02-22  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gas/cris/arch-err-2.s, gas/cris/arch-err-1.s,
+	gas/cris/arch-err-3.s, gas/cris/arch-err-4.s,
+	gas/cris/arch-err-5.s, gas/cris/rd-arch-2.d, gas/cris/rd-arch-1.d,
+	gas/cris/rd-arch-3.d: New tests.
+
+2002-02-21  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gas/cris/march-err-1.s: New test.
+
+	* gas/cris/rd-abs32-1.d: Change file format to *-cris.
+	* gas/cris/rd-abs32-2.d, gas/cris/err-err-1.s,
+	gas/cris/warn-warn-1.s, gas/cris/rd-v32o-1.d, gas/cris/rd-vao-1.d,
+	gas/cris/rd-v10_32o-1.d: New tests.
+
+2002-02-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* gas/cris/abs32-1.s, gas/cris/rd-abs32-1.d: New test.
+

@@ -1,0 +1,12 @@
+2002-06-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* All: Import of FSF-binutils-2_12_1.
+
+2002-02-01  Hans-Peter Nilsson  <hp@axis.com>
+
+	* All: Import of FSF-binutils-2002-02-01-snapshot.
+
+2001-04-06  Hans-Peter Nilsson  <hp@axis.com>
+
+	* Makefile.in ($(srcdir)/gprof.1): Hide behind @MAINT@.
+

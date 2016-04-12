@@ -1,0 +1,101 @@
+2003-12-04  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (cris_imm_oprnd_size_type): New members SIZE_FIELD_SIGNED
+	and SIZE_FIELD_UNSIGNED.
+
+2002-03-18  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (BA_DWORD_OPCODE, NOP_OPCODE_COMMON,
+	NOP_OPCODE_ZBITS_COMMON, LAPC_DWORD_OPCODE, LAPC_DWORD_Z_BITS):
+	New.
+
+2002-02-23  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (JUMP_PC_INCR_OPCODE_V32): New.
+
+2002-02-22  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (NOP_OPCODE_V32): Update.
+
+2002-02-20  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (cris_insn_version_usage): Drop value cris_ver_sim.
+	(struct cris_support_reg): New type.
+	(cris_support_regs): Declare.
+
+2002-02-14  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (enum cris_insn_version_usage): New values
+	cris_ver_v8_10, cris_ver_v10, cris_ver_v0_10, cris_ver_sim_v0_10,
+	cris_ver_v3_10, cris_ver_v32p.
+	(struct cris_cond15): New type.
+	(NOP_Z_BITS): Define in terms of NOP_OPCODE.
+	(NOP_OPCODE_V32, NOP_Z_BITS_V32): New macros.
+	(cris_conds15): Declare.
+
+2000-07-12  Hans-Peter Nilsson  <hp@axis.com>
+
+	* ChangeLog.Axis: Move local changes from ChangeLog to
+	ChangeLog.Axis.
+
+Sat May 20 01:08:51 2000  Hans-Peter Nilsson  <hp@axis.com>
+
+	* cris.h (enum cris_op_type): New.
+	(struct cris_opcode): New field op.
+
+Wed Mar  8 16:21:56 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris.h: GNUified.
+	Add attributions.
+
+Fri Feb 25 01:44:38 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris.h (CRIS_DIS_FLAG_MEMREF,	CRIS_DIS_FLAG_MEM_TARGET_IS_REG,
+	CRIS_DIS_FLAG_MEM_TARGET2_IS_REG, CRIS_DIS_FLAG_MEM_TARGET2_MULT2,
+	CRIS_DIS_FLAG_MEM_TARGET2_MULT4, CRIS_DIS_FLAG_MEM_TARGET2_MEM,
+	CRIS_DIS_FLAG_MEM_TARGET2_MEM_BYTE,
+	CRIS_DIS_FLAG_MEM_TARGET2_MEM_WORD): New.
+
+Thu Feb 24 12:17:05 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris.h (NO_CRIS_PREFIX): New.
+
+Wed Feb 23 17:05:01 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris.h: Declare cris_cc_strings.
+
+Thu Feb 17 19:35:28 2000  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris.h (enum cris_pcrel_type): Delete.
+
+Mon Oct 18 18:12:45 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris.h (struct cris_spec_reg): Add field rec_size.
+	(cris_insn_version_usage): Add enum cris_insn_version_usage.
+	(struct cris_opcode): Add field applicable_version.
+	(struct cris_spec_reg): Ditto, and add field warning.
+
+Tue Aug 24 19:24:02 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris-opc.h: Deleted, split (all referers changed) into
+	../../opcodes/cris-opc.c and:
+
+	* cris.h: New, extracted from cris-opc.h
+	(JUMP_INDIR_Z_BITS): "Jump-sreg-0" now only recognized for reg
+	operand.
+	Renamed "struct spec_reg" to "struct cris_spec_reg".
+	Renamed "spec_regs" to "cris_spec_regs".
+	Renamed "enum pcrel_type" to "enum cris_pcrel_type".
+	Renamed "enum imm_oprnd_size_type" to "enum
+	cris_imm_oprnd_size_type".
+
+Mon Jun 28 21:58:20 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris-opc.h (spec_regs): Add "mof" for sreg 7.
+
+Wed Jun 23 23:00:54 1999  Hans-Peter Nilsson  <hp@axis.se>
+
+	* cris-opc.h (cris_opcodes): Remove never-implemented "mul".
+	Add new "muls" and "mulu".
+
+
